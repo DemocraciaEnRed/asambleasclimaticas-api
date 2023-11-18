@@ -24,7 +24,7 @@ router.post("/login", [
 
 
 //EMAIL Verification
-router.get('/verify/:token', Auth   .verify);
+router.get('/verify/:token', Auth.verify);
 router.post('/resend', Auth.resendToken);
 
 //Password RESET

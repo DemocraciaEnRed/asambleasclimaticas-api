@@ -10,11 +10,12 @@ const router = express.Router();
 
 // const upload = multer().single('profileImage');
 
-//INDEX
+
 router.get('/', authenticate(), User.index);
+
 router.get('/me', authenticate(), User.me);
 
-//STORE
+
 router.post('/', [
     check('email').isEmail().withMessage('Enter a valid email address'),
     check('username').not().isEmpty().withMessage('You username is required'),

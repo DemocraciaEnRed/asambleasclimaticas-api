@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    network_mode: host # Needed to access my other container mongo3.6
+    environment:
+      # If you already have a mongo instance running, use this
+      - MONGODB_URL=mongodb://localhost:27017/ac_dev
+      # If you want to use mongo3.6, use this
+      # - MONGODB_URL=mongodb://mongo3.6:27017/ac_dev
+      - JWT_SECRET=THisIsMySceretKey!
+      - PORT=3000
+      - MAILER_HOST=smtp.mailtrap.io
+      - MAILER_PORT=2525
+      - MAILER_USER=
+      - MAILER_PASSWORD=
+  
+  queue:
+    build: .
+    command: npm run queue
+    network_mode: host # Needed to access my other container mongo3.6
+    environment:
+      # If you already have a mongo instance running, use this
+      - MONGODB_URL=mongodb://localhost:27017/ac_dev
+      # If you want to use mongo3.6, use this
+      # - MONGODB_URL=mongodb://mongo3.6:27017/ac_dev
+      - JWT_SECRET=THisIsMySceretKey!
+      - PORT=3000
+      - MAILER_HOST=smtp.mailtrap.io
+      - MAILER_PORT=2525
+      - MAILER_USER=
+      - MAILER_PASSWORD=
+  
+  # Uncomment this if you want to use mongo3.6
+  # mongo3.6:
+  #   image: mongo:3.6
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - ./data:/data/db
