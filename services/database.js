@@ -18,7 +18,7 @@ const mongoose = require('mongoose');
 // Set Mongoose's default Promise library to the native Promise
 mongoose.Promise = global.Promise;
 
-const connectDB = async () => {
+exports.connect = async () => {
   try {
     const connUri = process.env.MONGODB_URL;
     console.log('MongoDB connecting...');
@@ -29,5 +29,3 @@ const connectDB = async () => {
     process.exit(1); // Exit the process upon connection error
   }
 };
-
-module.exports = connectDB;

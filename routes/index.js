@@ -1,13 +1,15 @@
 const auth = require('./auth');
 const user = require('./user');
 const test = require('./test');
+const project = require('./project');
 const authenticate = require('../middlewares/authenticate');
 
 module.exports = app => {
     app.get('/', (req, res) => {
-        res.status(200).send({ message: "Welcome to the AUTHENTICATION API. Register or Login to test Authentication."});
+        res.status(200).json({message: "Welcome to the API"});
     });
-    app.use('/api/auth', auth);
-    app.use('/api/user', user);
-    app.use('/api/test', test);
+    app.use('/auth', auth);
+    app.use('/user', user);
+    app.use('/test', test);
+    app.use('/project', project);
 };

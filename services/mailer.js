@@ -1,9 +1,11 @@
 const nodemailer = require('nodemailer');
 const agenda = require("agenda");
 const nunjucks = require('nunjucks');
+const path = require('path');
 
-nunjucks.configure('service/templates', {
-  autoescape: true
+nunjucks.configure(path.join(__dirname, 'templates'), {
+  autoescape: true,
+  noCache: true,
 });
 
 let transporter = nodemailer.createTransport({
@@ -26,6 +28,16 @@ exports.sendNow = async (to, subject, html) => {
     console.log('Message sent: %s', info.messageId);
   } catch (error) {
     console.log(error);
+  }
+}
+
+exports.renderHtml = async (template,lang, data) => {
+  try {
+    const language = lang || 'es';
+    // Render the nunjucks template
+    return nunjucks.render(`${language}/${template}.njk`, data);
+  } catch (error) {
+    throw error;
   }
 }
 

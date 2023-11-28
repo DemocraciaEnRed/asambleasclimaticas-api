@@ -1,0 +1,16 @@
+{% extends "base.njk" %}
+
+{% import "macros.njk" as macros %}
+
+{% block preheader %}
+  {{ macros.preheader('Recupera tu contraseña para acceder a (Re)Surgentes') }}
+{% endblock %}
+
+{% block main %}
+  {{ macros.sentence('¡Hola! 👋') }}
+  {{ macros.sentence('Hemos recibido una solicitud para recuperar la contraseña de tu cuenta.') }}
+  {{ macros.sentence('Haz clic en el siguiente enlace para crear una nueva contraseña:') }}
+  {{ macros.button(url, 'Recuperar Contraseña') }}
+  {{ macros.sentence('Si no solicitaste esta recuperación, puedes ignorar este correo electrónico.') }}
+  {{ macros.sentence('¡Gracias!') }}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.njk" %}
+
+{% import "macros.njk" as macros %}
+
+{% block preheader %}
+	{{ macros.preheader('Validá tu cuenta para completar tu registro') }}
+{% endblock %}
+
+{% block main %}
+	{{ macros.sentence('¡Hola! 👋') }}
+	{{ macros.sentence('Si recibiste este email, es porque te has registrado en nuestra plataforma.') }}
+	{{ macros.sentence('Para terminar tu registro, hace clic aqui y completa tu registro') }}
+	{{ macros.button(url, 'Confirmar cuenta') }}
+	{{ macros.sentence('Si no te has registrado, ignora este email.') }}
+	{{ macros.sentence('Gracias!') }}
+{% endblock %}
+

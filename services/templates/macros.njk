@@ -1,22 +1,29 @@
-{# macros.njk #}
 {% macro sentence(text) %}
-    <p>{{ text }}</p>
+<p>{{ text }}</p>
 {% endmacro %}
 
 {% macro button(link, label) %}
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
-      <tbody>
-        <tr>
-          <td align="left">
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-              <tbody>
-                <tr>
-                  <td> <a href="{{ link }}" target="_blank">{{ label }}</a> </td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+  <tbody>
+    <tr>
+      <td align="left">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+          <tbody>
+            <tr>
+              <td> <a href="{{ link }}" target="_blank">{{ label }}</a> </td>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+{% endmacro %}
+
+{% macro preheader(text) %}
+<span class="preheader">{{ text }}</span>
+{% endmacro %}
+
+{% macro title(text) %}
+<title>{{ text }}</title>
 {% endmacro %}

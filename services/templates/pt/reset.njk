@@ -1,0 +1,16 @@
+{% extends "base.njk" %}
+
+{% import "macros.njk" as macros %}
+
+{% block preheader %}
+  {{ macros.preheader('Recupere sua senha para acessar sua conta') }}
+{% endblock %}
+
+{% block main %}
+  {{ macros.sentence('Olá! 👋') }}
+  {{ macros.sentence('Recebemos uma solicitação para recuperar a senha da sua conta.') }}
+  {{ macros.sentence('Clique no link abaixo para criar uma nova senha:') }}
+  {{ macros.button(url, 'Recuperar Senha') }}
+  {{ macros.sentence('Se você não solicitou essa recuperação, pode ignorar este e-mail.') }}
+  {{ macros.sentence('Obrigado!') }}
+{% endblock %}
