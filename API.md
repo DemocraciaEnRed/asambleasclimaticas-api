@@ -9,6 +9,7 @@
 * `GET /auth/logged`
 * `GET /user/me`
 * `GET /user`
+* `GET /country`
 
 
 ## Endpoints
@@ -24,7 +25,8 @@
 	"email": "user1@democracyos.io",
 	"name":	"Michael Tomasky",
 	"password": "**************",
-	"lang": "es"
+	"country": "xxxx" // ObjectID of a country
+	"lang": "es",
 }
 ```
 
@@ -106,3 +108,9 @@ If the user is logged in, it returns a 200 with the user data. If not, it return
 
 It returns a list of users, paginated. If the user is not an admin, it returns 401.
 
+---
+| Method | Path | Description | Status | Auth |
+|--------|------|-------------| ------ | ---- |
+| `GET` | `/country` | Get all the available countries | OK | None |
+
+It returns a list of countries, neccesary for the sign up process.
