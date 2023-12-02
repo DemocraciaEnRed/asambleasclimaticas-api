@@ -21,16 +21,16 @@ const CommentSchema = new mongoose.Schema({
     required: true
   },
   createdInVersion: {
-    type: Number
+    type: Number,
+    default: -1
   },
   highlightedInVersion: {
-    type: Number
+    type: Number,
+    default: -1
   },
   resolvedInVersion: {
-    type: Number
-  },
-  deletedAt: {
-    type: Date
+    type: Number,
+    default: -1
   },
 }, {timestamps: true});
 
