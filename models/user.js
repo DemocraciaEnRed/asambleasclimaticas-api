@@ -22,6 +22,11 @@ const UserSchema = new mongoose.Schema({
 		required: true,
 		max: 255
 	},
+	country: {
+		ref: 'Country',
+		type: mongoose.Schema.Types.ObjectId,
+		required: true
+	},
 	lang: {
 		type: String,
 		required: true,
