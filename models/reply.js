@@ -15,9 +15,6 @@ const ReplySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  deletedAt: {
-    type: Date
-  },
 }, {timestamps: true});
 
 module.exports = mongoose.model('Reply', ReplySchema);

@@ -16,6 +16,29 @@ const VersionSchema = new mongoose.Schema({
   },
 }, {timestamps: true});
 
+const EventsSchema = new mongoose.Schema({
+  title_es: {
+    type: String,
+    required: true
+  },
+  title_pt: {
+    type: String,
+    required: true
+  },
+  body_es: {
+    type: String,
+    required: true
+  },
+  body_pt: {
+    type: String,
+    required: true
+  },
+  date: {
+    type: Date,
+    required: true
+  },
+}, {timestamps: true});
+
 const ProjectSchema = new mongoose.Schema({
   author: {
     type: mongoose.Schema.Types.ObjectId,
@@ -55,13 +78,12 @@ const ProjectSchema = new mongoose.Schema({
     required: true,
     default: true // new projects are hidden by default
   },
+  versions: [VersionSchema],
+  events: [EventsSchema],
   closedAt: {
     type: Date
   },
   publishedAt: {
-    type: Date
-  },
-  deletedAt: {
     type: Date
   },
 }, {timestamps: true});
@@ -76,10 +98,12 @@ ProjectSchema.virtual('closed').get(function() {
   return Date.now() > this.endDate;
 });
 
-ProjectSchema.virtual('versions', {
-  ref: 'ProjectVersion',
-  localField: '_id',
-  foreignField: 'project'
-});
+ProjectSchema.virtual('versionsCount').get(function() {
+  return this.versions.length;
+})
+
+ProjectSchema.virtual('eventCount').get(function() {
+  return this.events.length;
+})
 
 module.exports = mongoose.model('Project', ProjectSchema);

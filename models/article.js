@@ -33,9 +33,6 @@ const ArticleSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  deletedAt: {
-    type: Date
-  },
   history: [VersionSchema]
 }, {timestamps: true});
 
