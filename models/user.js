@@ -95,7 +95,7 @@ UserSchema.methods.generateJWT = function () {
 	expirationDate.setDate(today.getDate() + 60);
 
 	let payload = {
-		id: this._id,
+		_id: this._id,
 		email: this.email,
 		name: this.name,
 		role: this.role,
@@ -128,5 +128,8 @@ UserSchema.methods.generateVerificationToken = function () {
 	};
 	return new Token(payload);
 };
+
+// Add secondary index for email	
+UserSchema.index({ email: 1 })
 
 module.exports = mongoose.model('Users', UserSchema);

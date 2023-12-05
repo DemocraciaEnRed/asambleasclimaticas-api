@@ -25,11 +25,11 @@ const EventsSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  body_es: {
+  text_es: {
     type: String,
     required: true
   },
-  body_pt: {
+  text_pt: {
     type: String,
     required: true
   },

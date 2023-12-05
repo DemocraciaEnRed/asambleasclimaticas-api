@@ -9,16 +9,28 @@ const LikeSchema = new mongoose.Schema({
   project: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Project',
-    required: true
+    default: null,
   },
   article: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Article'
+    ref: 'Article',
+    default: null,
   },
   comment: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Comment'
+    ref: 'Comment',
+    default: null,
   },
+  reply: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Reply',
+    default: null,
+  },
+  type: {
+    type: String,
+    enum: ['like', 'dislike'],
+    required: true
+  }
 }, {timestamps: true});
 
 module.exports = mongoose.model('Like', LikeSchema);
