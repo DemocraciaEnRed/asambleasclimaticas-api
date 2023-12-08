@@ -132,4 +132,4 @@ UserSchema.methods.generateVerificationToken = function () {
 // Add secondary index for email	
 UserSchema.index({ email: 1 })
 
-module.exports = mongoose.model('Users', UserSchema);
+module.exports = mongoose.model('User', UserSchema);

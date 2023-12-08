@@ -2,12 +2,16 @@
 const mongoose = require('mongoose');
 
 const ArticleVersionSchema = new mongoose.Schema({
-  body_es: {
+  text_es: {
     type: String,
     required: true
   },
-  body_pt: {
+  text_pt: {
     type: String,
+    required: true
+  },
+  position: {
+    type: Number,
     required: true
   },
   version: {
@@ -22,11 +26,11 @@ const ArticleSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Project'
   },
-  body_es: {
+  text_es: {
     type: String,
     required: true
   },
-  body_pt: {
+  text_pt: {
     type: String,
     required: true
   },
@@ -34,7 +38,7 @@ const ArticleSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  history: [ArticleVersionSchema]
+  versions: [ArticleVersionSchema]
 }, {timestamps: true});
 
 /**
@@ -64,6 +68,6 @@ ArticleSchema.methods.getDislikesCount = function(cb) {
 }
 
 
-exports.Article = mongoose.model('Article', ArticleSchema);
+module.exports = mongoose.model('Article', ArticleSchema);
 
 

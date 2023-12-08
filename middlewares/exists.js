@@ -8,11 +8,11 @@ const Article = require('../models/article');
  * @param {String} projectId - The project id
  * @returns {Function} - A middleware function (req, res, next) => { ... } that checks if the project exists and adds it to the request object (req.project)
  */
-exports.project = (req, res, next) => {
+exports.project = async (req, res, next) => {
   try {
 
     const projectId = req.params.projectId;
-    const project = Project.findById(projectId);
+    const project = await Project.findById(projectId);
     if(!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
@@ -43,8 +43,8 @@ exports.article = async (req, res, next) => {
 exports.comment = async (req, res, next) => {
   try {
     const projectId = req.params.projectId || null;
-    const commentId = req.params.commentId || null;
     const articleId = req.params.articleId || null;
+    const commentId = req.params.commentId || null;
     const comment = await Comment.findOne({ _id: commentId, project: projectId, article: articleId });
     if(!comment) {
       return res.status(404).json({ message: 'Comment not found' });

@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const User = require('./user');
+const Article = require('./article');
+const Like = require('./like');
 
 const VersionSchema = new mongoose.Schema({
   about_es: {
@@ -9,6 +12,10 @@ const VersionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  articles: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Article'
+  }],
   version: {
     type: Number,
     required: true,
@@ -52,12 +59,10 @@ const ProjectSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  path_es: {
+  path: {
     type: String,
-    required: true
-  },
-  path_pt: {
-    type: String,
+    index: true,
+    unique: true,
     required: true
   },
   version: {
@@ -78,13 +83,27 @@ const ProjectSchema = new mongoose.Schema({
     required: true,
     default: true // new projects are hidden by default
   },
+  articles: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Article'
+  }],
   versions: [VersionSchema],
   events: [EventsSchema],
+  // ====================================
+  // Specific to Asambleas Climaticas
+  stage: {
+    type: String,
+    required: true,
+    default: null
+  },
+  // ====================================
   closedAt: {
-    type: Date
+    type: Date,
+    default: null
   },
   publishedAt: {
-    type: Date
+    type: Date,
+    default: null
   },
 }, {timestamps: true});
 
@@ -99,11 +118,28 @@ ProjectSchema.virtual('closed').get(function() {
 });
 
 ProjectSchema.virtual('versionsCount').get(function() {
-  return this.versions.length;
+  return this.versions.length + 1;
 })
 
-ProjectSchema.virtual('eventCount').get(function() {
+ProjectSchema.virtual('eventsCount').get(function() {
   return this.events.length;
 })
+
+ProjectSchema.virtual('articlesCount').get(function() {
+  return this.articles.length;
+})
+
+ProjectSchema.methods.getLikesCount = async function() {
+  return await Like.countDocuments({project: this._id, article: null, comment: null, reply: null, type: 'like'});
+}
+
+ProjectSchema.methods.getDislikesCount = async function() {
+  return await Like.countDocuments({project: this._id, article: null, comment: null, reply: null, type: 'dislike'});
+}
+
+// get author
+ProjectSchema.methods.getAuthor = async function() {
+  return await User.findById(this.author);
+}
 
 module.exports = mongoose.model('Project', ProjectSchema);
