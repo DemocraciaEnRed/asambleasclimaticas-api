@@ -5,27 +5,48 @@ const Like = require('../models/like');
 const user = require('../models/user');
 
 
-exports.list = async (page = 1, limit = 10) => {
+exports.listProjects = async (page = 1, limit = 10) => {
   try {
     const projects = []
     // get the projects by page
-    const projectList = await Project.find({}).populate('user').sort({createdAt: -1}).skip((page - 1) * limit).limit(limit);
+    const projectList = await Project.find({
+      hidden: false,
+      publishedAt: {$ne: null}
+     }).populate({
+      path: 'author',
+      select: '_id name country',
+      populate: {
+        path: 'country',
+        select: '_id name code emoji unicode image'
+      }
+     }).sort({createdAt: -1}).skip((page - 1) * limit).limit(limit);
     
     for(let i = 0; i < projectList.length; i++) {
       const project = projectList[i];
       const projectOutput = {}
+      projectOutput._id = project._id;
+      projectOutput.author = project.author;
       projectOutput.title_es = project.title_es;
       projectOutput.title_pt = project.title_pt;
-      projectOutput.likesCount = await Like.countDocuments({project: projectList[i]._id, article: null, comment: null});
-      projectOutput.projectCommentsCount = await Comment.countDocuments({project: projectList[i]._id, article: null, comment: null});
-      projectOutput.articleCommentsCount = await Comment.countDocuments({project: projectList[i]._id, article: {$ne: null}, comment: null});
-      projectOutput.author = {
-        _id: project.author._id,
-        name: project.author.name,
-      }
+      projectOutput.path_es = project.path_es;
+      projectOutput.path_pt = project.path_pt;
+      projectOutput.about_es = project.about_es;
+      projectOutput.about_pt = project.about_pt;  
+      projectOutput.version = project.version;
+      projectOutput.eventCount = project.eventsCount;
+      projectOutput.articleCount = project.articlesCount;
+      projectOutput.versionsCount = project.versionsCount;
+      projectOutput.likes = await project.getLikesCount();
+      projectOutput.dislikes = await project.getDislikesCount();
+      projectOutput.stage = project.stage;
+      projectOutput.closed = project.closed;
+      projectOutput.closedAt = project.closedAt;
+      projectOutput.publishedAt = project.publishedAt;
+      projectOutput.published = project.published;
+      projectOutput.createdAt = project.createdAt;
+      projectOutput.updatedAt = project.updatedAt;
+      projects.push(projectOutput);
     }
-    // get all the likes related to the project
-    const likes = await Like.find({project: {$in: projectsArr.map(project => project._id)}});
 
     // get pagination metadata
     const total = await Project.countDocuments({deletedAt: null}); // get total of projects
@@ -38,6 +59,8 @@ exports.list = async (page = 1, limit = 10) => {
       projects,
       page,
       pages,
+      total,
+      limit,
       nextPage,
       prevPage
     }
@@ -47,16 +70,138 @@ exports.list = async (page = 1, limit = 10) => {
   }
 }
 
-exports.get = async (projectId, version = 1) => {
+exports.getProject = async (projectId, version = null) => {
   try {
-    if(version == 1) {
-      const project = await Project.findById(projectId);
-      // get the articles of the project
-      const articles = await Article.find({project: projectId, deletedAt: null}).sort({createdAt: -1});
-      project.articles = articles;
-      const comments = await this.getProjectComments(projectId);
-      project.comments = comments;
+    const projectOutput = {}
+    const project = await Project.findById(projectId);
+    projectOutput._id = project._id;
+    projectOutput.author = project.author;
+    projectOutput.title_es = project.title_es;
+    projectOutput.title_pt = project.title_pt;
+    projectOutput.path_es = project.path_es;
+    projectOutput.path_pt = project.path_pt;
+    projectOutput.eventCount = project.eventsCount;
+    projectOutput.articleCount = project.articlesCount;
+    projectOutput.versionsCount = project.versionsCount;
+    projectOutput.likes = await project.getLikesCount();
+    projectOutput.dislikes = await project.getDislikesCount();
+    projectOutput.stage = project.stage;
+    projectOutput.closed = project.closed;
+    projectOutput.closedAt = project.closedAt;
+    projectOutput.publishedAt = project.publishedAt;
+    projectOutput.published = project.published;
+    projectOutput.createdAt = project.createdAt;
+    projectOutput.updatedAt = project.updatedAt;
+    // what is the current version?
+    if(!version || version === project.version) {
+      // if no version is specified,
+      // or if the version is the current version,
+      // then we return the project as it is
+      projectOutput.about_es = project.about_es;
+      projectOutput.about_pt = project.about_pt;  
+      projectOutput.version = project.version;
     }
+
+    if(version && version !== project.version && version > 1 && version <= project.version) {
+      // if version is specified, then we need to get the project from that version
+      // project.versions is a array of subdocuments, so we need to find the subdocument with that version
+      const projectVersion = project.versions.find(version => version.version === version);
+      projectOutput.about_es = projectVersion.about_es;
+      projectOutput.about_pt = projectVersion.about_pt;
+      projectOutput.version = projectVersion.version;
+    }
+    
+    return projectOutput;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+exports.getArticles = async (projectId, version = null) => {
+  try {
+    const articles = []
+    // what is the current version?
+    const project = await Project.findById(projectId);
+    if(!version || version === project.version){
+      // if no version is specified,
+      // or if the version is the current version,
+      // then the ids for the articles is in project.articles
+      const articlesIds = project.articles
+      const projectArr = await Article.find({_id: {$in: articlesIds}}).sort({position: 1});
+      console.log(projectArr)
+      for(let i = 0; i < projectArr.length; i++) {
+        const article = projectArr[i];
+        const articleOutput = {
+          _id: article._id,
+          text_es: article.text_es,
+          text_pt: article.text_pt,
+          position: article.position,
+          version: project.version,
+          createdAt: article.createdAt,
+          updatedAt: article.updatedAt,
+        }
+        articles.push(articleOutput);
+      }
+    }
+    if(version && version !== project.version && version > 1 && version <= project.version) {
+      // if version is specified, then we need to get the articles from that version
+      // project.versions is a array of subdocuments, so we need to find the subdocument with that version
+      const projectVersion = project.versions.find(version => version.version === version);
+      // now we have the project version, we need to get the articles ids from that version
+      const projectVersionArticles = projectVersion.articles;
+      const projectArr = await Article.find({project: {$in: projectVersionArticles}}).sort({position: -1});
+      for(let i = 0; i < projectArr.length; i++) {
+        const article = projectArr[i];
+        // article.versions is an array of subdocuments, so we need to find the subdocument with that version
+        const articleVersion = article.versions.find(version => version.version === version);
+        const articleOutput = {
+          _id: article._id,
+          text_es: articleVersion.text_es,
+          text_pt: articleVersion.text_pt,
+          version: projectVersion.version,
+          position: articleVersion.position,
+          createdAt: articleVersion.createdAt,
+          updatedAt: articleVersion.updatedAt,
+        }
+        articles.push(articleOutput);
+      }
+      // now we need to sort the articles by position
+      articles.sort((a, b) => a.position - b.position);
+    }
+  
+    return articles;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+exports.getProjectComments = async (projectId, version) => {
+  try {
+    // this one is easier, we just need to get the comments for the project
+    // that is, comments that have project != null, and article == null
+    const comments = await Comment.find({ project: projectId, article: null }).populate({
+      path: 'user',
+      select: '_id name country',
+      populate: {
+        path: 'country',
+        select: '_id name code emoji unicode image'
+      }
+    }).populate({
+      path: 'replies',
+      select: '_id text createdAt updatedAt',
+      order: {createdAt: -1},
+      populate: {
+        path: 'user',
+        select: '_id name country',
+        populate: {
+          path: 'country',
+          select: '_id name code emoji unicode image'
+        }
+      }
+    }).sort({createdAt: -1});
+    return comments;
   } catch (error) {
     console.error(error);
     throw error;

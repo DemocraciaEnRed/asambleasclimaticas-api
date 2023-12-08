@@ -10,10 +10,10 @@ const exists = require('../middlewares/exists');
 const router = express.Router();
 
 
-// GET /project
+// GET /projects
 router.get('/', ProjectController.list);
 
-// POST /project
+// POST /projects
 router.post('/',
 	[
 		body('title_es').isString().withMessage('Title (es) must be a string'),
@@ -22,16 +22,22 @@ router.post('/',
 		body('path_pt').isString().withMessage('Path (pt) must be a string'),
 		body('about_es').isString().withMessage('About (es) must be a string'),
 		body('about_pt').isString().withMessage('About (pt) must be a string'),
+		body('closedAt').isISO8601().withMessage('Closed at must be a valid date'),
+		body('articles').isArray().withMessage('Articles must be an array'),
+		body('articles.*.position').isInt().withMessage('Article position must be an integer'),
+		body('articles.*.body_es').isString().withMessage('Article body (es) must be a string'),
+		body('articles.*.body_pt').isString().withMessage('Article body (pt) must be a string'),
 	],
 	validate, // validates the array of checks above
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR), // checks if the user is authenticated and adds it to the request object (req.user)
 	ProjectController.create
 )
 
-
-// GET /project/:id
+// GET /projects/:projectId
 router.get('/:projectId', 
 	[
+		query('withComments').optional().isBoolean().withMessage('withComments must be a boolean'),
+		query('withArticles').optional().isBoolean().withMessage('withArticles must be a boolean'),
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 	], 
 	validate, // validates the array of checks above
@@ -39,12 +45,37 @@ router.get('/:projectId',
 	ProjectController.get // calls the controller
 )
 
-// PUT /project/:id
-// router.put('/:projectId', [
-// 	check('projectId').isMongoId().withMessage('Invalid Project ID'),
-// ], validate, authenticate(constants.ROLES.ADMIN_OR_AUTHOR), ProjectController.update)
+// PUT /projects/:projectId
+router.put('/:projectId',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		body('title_es').isString().withMessage('Title (es) must be a string'),
+		body('title_pt').isString().withMessage('Title (pt) must be a string'),
+		body('path_es').isString().withMessage('Path (es) must be a string'),
+		body('path_pt').isString().withMessage('Path (pt) must be a string'),
+		body('about_es').isString().withMessage('About (es) must be a string'),
+		body('about_pt').isString().withMessage('About (pt) must be a string'),
+		body('closedAt').isISO8601().withMessage('Closed at must be a valid date'),
+	],
+	validate,
+	exists.project,
+	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	ProjectController.update
+)
 
-// POST /project/:id/hide
+// POST /projects/:projectId/publish
+router.post('/:projectId/publish',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+	], 
+	validate,
+	exists.project,
+	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	ProjectController.publish
+)
+
+
+// POST /projects/:projectId/hide
 router.post('/:projectId/hide',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
@@ -55,7 +86,7 @@ router.post('/:projectId/hide',
 	ProjectController.toggleHide
 )
 
-// POST 	/project/:projectId/like
+// POST 	/projects/:projectId/like
 router.post('/:projectId/like',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
@@ -66,7 +97,7 @@ router.post('/:projectId/like',
 	ProjectController.toggleLike
 )
 
-// POST 	/project/:projectId/dislike
+// POST 	/projects/:projectId/dislike
 router.post('/:projectId/dislike',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
@@ -77,12 +108,12 @@ router.post('/:projectId/dislike',
 	ProjectController.toggleDislike
 )
 
-// POST 	/project/:projectId/event
-// POST 	/project/:projectId/version
-// GET 		/project/:projectId/version/:version
-// GET 		/project/:projectId/version/:version/article
-// POST 	/project/:projectId/comment
-router.post('/:projectId/comment',
+// POST 	/projects/:projectId/event
+// POST 	/projects/:projectId/version
+// GET 		/projects/:projectId/version/:version
+// GET 		/projects/:projectId/version/:version/articles
+// POST 	/projects/:projectId/comments
+router.post('/:projectId/comments',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		body('body').isString().withMessage('Content must be a string'),
@@ -94,8 +125,8 @@ router.post('/:projectId/comment',
 )
 
 
-// DELETE /project/:projectId/comment/:commentId
-router.delete('/:projectId/comment/:commentId',
+// DELETE /projects/:projectId/comments/:commentId
+router.delete('/:projectId/comments/:commentId',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
@@ -107,8 +138,8 @@ router.delete('/:projectId/comment/:commentId',
 	ProjectController.deleteComment
 )
 
-// POST 	/project/:projectId/comment/:commentId/like
-router.post('/:projectId/comment/:commentId/like',
+// POST 	/projects/:projectId/comments/:commentId/like
+router.post('/:projectId/comments/:commentId/like',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
@@ -120,8 +151,8 @@ router.post('/:projectId/comment/:commentId/like',
 	ProjectController.toggleLike
 )
 
-// POST 	/project/:projectId/comment/:commentId/dislike
-router.post('/:projectId/comment/:commentId/dislike',
+// POST 	/projects/:projectId/comments/:commentId/dislike
+router.post('/:projectId/comments/:commentId/dislike',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
@@ -133,8 +164,8 @@ router.post('/:projectId/comment/:commentId/dislike',
 	ProjectController.toggleDislike
 )
 
-// POST 	/project/:projectId/comment/:commentId/reply
-router.post('/:projectId/comment/:commentId/reply',
+// POST 	/projects/:projectId/comments/:commentId/replies
+router.post('/:projectId/comments/:commentId/replies',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
@@ -147,8 +178,8 @@ router.post('/:projectId/comment/:commentId/reply',
 	ProjectController.createReply	
 )
 
-// POST 	/project/:projectId/comment/:commentId/reply/:replyId/like
-router.post('/:projectId/comment/:commentId/reply/:replyId/like',
+// POST 	/projects/:projectId/comments/:commentId/replies/:replyId/like
+router.post('/:projectId/comments/:commentId/replies/:replyId/like',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
@@ -161,8 +192,8 @@ router.post('/:projectId/comment/:commentId/reply/:replyId/like',
 	authenticate(),
 	ProjectController.toggleLike
 )
-// POST 	/project/:projectId/comment/:commentId/reply/:replyId/dislike
-router.post('/:projectId/comment/:commentId/reply/:replyId/dislike',
+// POST 	/projects/:projectId/comments/:commentId/replies/:replyId/dislike
+router.post('/:projectId/comments/:commentId/replies/:replyId/dislike',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
@@ -176,10 +207,10 @@ router.post('/:projectId/comment/:commentId/reply/:replyId/dislike',
 	ProjectController.toggleDislike
 )
 
-// GET 		/project/:projectId/article
+// GET 		/projects/:projectId/articles
 
-// POST		/project/:projectId/article/:articleId/like
-router.post('/:projectId/article/:articleId/like',
+// POST		/projects/:projectId/articles/:articleId/like
+router.post('/:projectId/articles/:articleId/like',
 	[
 		check('projectId').isMongoId().withMessage('Invalid Project ID'),
 		check('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -191,8 +222,8 @@ router.post('/:projectId/article/:articleId/like',
 	ProjectController.toggleLike
 )
 
-// POST		/project/:projectId/article/:articleId/dislike
-router.post('/:projectId/article/:articleId/dislike',
+// POST		/projects/:projectId/articles/:articleId/dislike
+router.post('/:projectId/articles/:articleId/dislike',
 	[
 		check('projectId').isMongoId().withMessage('Invalid Project ID'),
 		check('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -204,8 +235,8 @@ router.post('/:projectId/article/:articleId/dislike',
 	ProjectController.toggleDislike
 )
 
-// POST 	/project/:projectId/article/:articleId/comment
-router.post('/:projectId/article/:articleId/comment',
+// POST 	/projects/:projectId/articles/:articleId/comments
+router.post('/:projectId/articles/:articleId/comments',
 	[
 		check('projectId').isMongoId().withMessage('Invalid Project ID'),
 		check('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -217,8 +248,8 @@ router.post('/:projectId/article/:articleId/comment',
 	authenticate(),
 	ProjectController.createComment
 )
-// DELETE /project/:projectId/article/:articleId/comment/:commentId
-router.delete('/:projectId/article/:articleId/comment/:commentId',
+// DELETE /projects/:projectId/articles/:articleId/comments/:commentId
+router.delete('/:projectId/articles/:articleId/comments/:commentId',
 	[
 		check('projectId').isMongoId().withMessage('Invalid Project ID'),
 		check('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -232,8 +263,8 @@ router.delete('/:projectId/article/:articleId/comment/:commentId',
 	ProjectController.deleteComment
 )
 
-// POST 	/project/:projectId/article/:articleId/comment/:commentId/like
-router.post('/:projectId/article/:articleId/comment/:commentId/like',
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/like
+router.post('/:projectId/articles/:articleId/comments/:commentId/like',
 	[
 		check('projectId').isMongoId().withMessage('Invalid Project ID'),
 		check('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -247,8 +278,8 @@ router.post('/:projectId/article/:articleId/comment/:commentId/like',
 	ProjectController.toggleLike
 )
 
-// POST 	/project/:projectId/article/:articleId/comment/:commentId/dislike
-router.post('/:projectId/article/:articleId/comment/:commentId/dislike',
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/dislike
+router.post('/:projectId/articles/:articleId/comments/:commentId/dislike',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -262,8 +293,8 @@ router.post('/:projectId/article/:articleId/comment/:commentId/dislike',
 	ProjectController.toggleDislike
 )
 
-// POST 	/project/:projectId/article/:articleId/comment/:commentId/resolve
-router.post('/:projectId/article/:articleId/comment/:commentId/resolve',
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/resolve
+router.post('/:projectId/articles/:articleId/comments/:commentId/resolve',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -277,8 +308,8 @@ router.post('/:projectId/article/:articleId/comment/:commentId/resolve',
 	ProjectController.resolveComment
 )
 
-// POST 	/project/:projectId/article/:articleId/comment/:commentId/highlight
-router.post('/:projectId/article/:articleId/comment/:commentId/highlight',
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/highlight
+router.post('/:projectId/articles/:articleId/comments/:commentId/highlight',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -292,8 +323,8 @@ router.post('/:projectId/article/:articleId/comment/:commentId/highlight',
 	ProjectController.highlightComment
 )
 
-// POST 	/project/:projectId/article/:articleId/comment/:commentId/reply
-router.post('/:projectId/article/:articleId/comment/:commentId/reply',
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/replies
+router.post('/:projectId/articles/:articleId/comments/:commentId/replies',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
@@ -308,8 +339,42 @@ router.post('/:projectId/article/:articleId/comment/:commentId/reply',
 	ProjectController.createReply	
 )
 
-// DELETE	/project/:projectId/article/:articleId/comment/:commentId/reply/:replyId/delete
-router.delete('/:projectId/article/:articleId/comment/:commentId/reply/:replyId/delete',
+// POST		/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/like
+router.post('/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/like',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
+	], 
+	validate,
+	exists.project,
+	exists.article,
+	exists.comment,
+	exists.reply,
+	authenticate(),
+	ProjectController.toggleLike
+)
+
+// POST		/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/dislike
+router.post('/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/dislike',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
+	], 
+	validate,
+	exists.project,
+	exists.article,
+	exists.comment,
+	exists.reply,
+	authenticate(),
+	ProjectController.toggleDislike
+)
+
+// DELETE	/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/delete
+router.delete('/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/delete',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
