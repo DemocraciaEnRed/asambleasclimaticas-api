@@ -71,7 +71,7 @@ module.exports = {
             code: country.code,
             emoji: countryData.emoji,
             unicode: countryData.unicode,
-            image: country.image,
+            image: countryData.image,
           });
           console.log(`Country "${country.name}" addded!`)
         }
