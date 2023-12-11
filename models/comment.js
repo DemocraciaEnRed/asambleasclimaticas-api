@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Like = require('./like');
+const Reply = require('./reply');
 
 const CommentSchema = new mongoose.Schema({
   user: {
@@ -38,22 +40,21 @@ const CommentSchema = new mongoose.Schema({
   },
 }, {timestamps: true});
 
-/**
- * Retrieves the number of likes for the comment.
- * @param {function} cb - The callback function to handle the result.
- * @returns {Promise<number>} The number of likes for the comment.
- */
-CommentSchema.methods.getLikesCount = function(cb) {
-  return mongoose.model('Like').count({comment: this._id, type: 'like'}, cb);
+
+CommentSchema.methods.getLikesCount = async function () {
+  return await Like.countDocuments({comment: this._id, type: 'like'});
 }
 
-/**
- * Retrieves the number of dislikes for the comment.
- * @param {function} cb - The callback function to handle the result.
- * @returns {Promise<number>} The number of dislikes for the comment.
- */
-CommentSchema.methods.getDislikesCount = function(cb) {
-  return mongoose.model('Like').count({comment: this._id, type: 'dislike'}, cb);
+
+CommentSchema.methods.getDislikesCount = async function () {
+  return await Like.countDocuments({comment: this._id, type: 'dislike'});
 }
+
+
+CommentSchema.methods.getRepliesCount = async function () {
+  return await Reply.countDocuments({comment: this._id});
+}
+
+
 
 module.exports = mongoose.model('Comment', CommentSchema);

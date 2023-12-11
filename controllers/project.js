@@ -6,7 +6,7 @@ const Like = require('../models/like');
 const ProjectHelper = require('../helpers/project');
 
 // DONE
-exports.list = async (req, res) => {
+exports.listProjects = async (req, res) => {
   try {
 		const page = req.query.page || 1;
 		const limit = req.query.limit || 10;
@@ -20,7 +20,7 @@ exports.list = async (req, res) => {
   }
 }
 
-exports.get = async (req, res) => {
+exports.getProject = async (req, res) => {
   try{
     const projectId = req.project._id;
     const withArticles = req.query.withArticles || false;
@@ -48,7 +48,8 @@ exports.get = async (req, res) => {
     return res.status(500).json({message: error.message})
   }
 }
-exports.create = async (req, res) => {
+
+exports.createProject = async (req, res) => {
   try {
     const projectData = {
       user: req.user._id,
@@ -90,7 +91,7 @@ exports.create = async (req, res) => {
   }
 }
 
-exports.update = async (req, res) => {
+exports.updateProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
     await ProjectHelper.canEdit(req.user, req.params.id)
@@ -116,7 +117,7 @@ exports.update = async (req, res) => {
   }
 }
 
-exports.publish = async (req, res) => {
+exports.publishProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
     await ProjectHelper.canEdit(req.user, req.project)
@@ -146,7 +147,7 @@ exports.publish = async (req, res) => {
   }
 }
 
-exports.toggleHide = async (req, res) => {
+exports.toggleHideProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
     await ProjectHelper.canEdit(req.user, req.project)
@@ -171,7 +172,7 @@ exports.toggleHide = async (req, res) => {
   }
 }
 
-exports.newVersion = async (req, res) => {
+exports.createVersion = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
     await ProjectHelper.canEdit(req.user, req.params.id)
@@ -601,3 +602,32 @@ exports.toggleDislike = async (req,res) => {
     return res.status(500).json({ message: error.message })
   }
 }
+
+exports.listComments = async (req,res) => {
+  try {
+    const projectId = req.params.projectId;
+    const articleId = req.params.articleId || null;
+    const version = req.params.version || null;
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const resData = await ProjectHelper.listComments(projectId, articleId, version, page, limit)
+    return res.status(200).json(resData);
+  } catch(error) {
+    console.error(error)
+    return res.status(500).json({ message: error.message })
+  }
+}
+
+exports.listReplies = async (req,res) => {
+  try {
+    const commentId = req.params.commentId;
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const resData = await ProjectHelper.listReplies(commentId, page, limit)
+    return res.status(200).json(resData);
+  } catch(error) {
+    console.error(error)
+    return res.status(500).json({ message: error.message })
+  }
+}
+

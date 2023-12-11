@@ -11,7 +11,13 @@ const router = express.Router();
 
 
 // GET /projects
-router.get('/', ProjectController.list);
+router.get('/',
+	[
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	ProjectController.listProjects
+);
 
 // POST /projects
 router.post('/',
@@ -30,7 +36,7 @@ router.post('/',
 	],
 	validate, // validates the array of checks above
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR), // checks if the user is authenticated and adds it to the request object (req.user)
-	ProjectController.create
+	ProjectController.createProject
 )
 
 // GET /projects/:projectId
@@ -42,7 +48,7 @@ router.get('/:projectId',
 	], 
 	validate, // validates the array of checks above
 	exists.project, // checks if the project exists and adds it to the request object
-	ProjectController.get // calls the controller
+	ProjectController.getProject // calls the controller
 )
 
 // PUT /projects/:projectId
@@ -60,7 +66,7 @@ router.put('/:projectId',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
-	ProjectController.update
+	ProjectController.updateProject
 )
 
 // POST /projects/:projectId/publish
@@ -71,7 +77,7 @@ router.post('/:projectId/publish',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
-	ProjectController.publish
+	ProjectController.publishProject
 )
 
 
@@ -83,7 +89,7 @@ router.post('/:projectId/hide',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
-	ProjectController.toggleHide
+	ProjectController.toggleHideProject
 )
 
 // POST 	/projects/:projectId/like
@@ -109,9 +115,95 @@ router.post('/:projectId/dislike',
 )
 
 // POST 	/projects/:projectId/event
+router.post('/:projectId/event',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		body('title_es').isString().withMessage('Title (es) must be a string'),
+		body('title_pt').isString().withMessage('Title (pt) must be a string'),
+		body('text_es').isString().withMessage('Text (es) must be a string'),
+		body('text_pt').isString().withMessage('Text (pt) must be a string'),
+		body('date').isISO8601().withMessage('Date must be a valid date'),
+	],
+	validate,
+	exists.project,
+	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	ProjectController.createEvent
+)
+
+// DELETE /projects/:projectId/event/:eventId
+router.delete('/:projectId/event/:eventId',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('eventId').isMongoId().withMessage('Invalid Event ID'),
+	], 
+	validate,
+	exists.project,
+	exists.event,
+	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	ProjectController.deleteEvent
+)
+
 // POST 	/projects/:projectId/version
+router.post('/:projectId/version',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		body('title_es').isString().withMessage('Title (es) must be a string'),
+		body('title_pt').isString().withMessage('Title (pt) must be a string'),
+		body('about_es').isString().withMessage('About (es) must be a string'),
+		body('about_pt').isString().withMessage('About (pt) must be a string'),
+		body('closedAt').isISO8601().withMessage('Closed at must be a valid date'),
+		body('articles').isArray().withMessage('Articles must be an array'),
+		body('articles.*.position').isInt().withMessage('Article position must be an integer'),
+		body('articles.*.body_es').isString().withMessage('Article body (es) must be a string'),
+		body('articles.*.body_pt').isString().withMessage('Article body (pt) must be a string'),
+	],
+	validate,
+	exists.project,
+	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	ProjectController.createVersion
+
+)
 // GET 		/projects/:projectId/version/:version
+// GET		/projects/:projectId/version/:version/comments
+router.get('/:projectId/version/:version/comments',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('version').isInt({min: 1}).withMessage('Invalid Version'),
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	validate,
+	exists.project,
+	ProjectController.listComments
+)
+// GET		/projects/:projectId/version/:version/comments/:commentId/replies
+router.get('/:projectId/version/:version/comments/:commentId/replies',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('version').isInt({min: 1}).withMessage('Invalid Version'),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	validate,
+	exists.project,
+	exists.comment,
+	ProjectController.listReplies
+)
 // GET 		/projects/:projectId/version/:version/articles
+// GET		/projects/:projectId/version/:version/articles/:articleId/comments
+// POST		/projects/:projectId/version/:version/articles/:articleId/comments/:commentId/replies
+// GET 		/projects/:projectId/comments
+router.get('/:projectId/comments',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	validate,
+	exists.project,
+	ProjectController.listComments
+)
 // POST 	/projects/:projectId/comments
 router.post('/:projectId/comments',
 	[
@@ -162,6 +254,20 @@ router.post('/:projectId/comments/:commentId/dislike',
 	exists.comment,
 	authenticate(),
 	ProjectController.toggleDislike
+)
+
+// GET		/projects/:projectId/comments/:commentId/replies
+router.get('/:projectId/comments/:commentId/replies',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	validate,
+	exists.project,
+	exists.comment,
+	ProjectController.listReplies
 )
 
 // POST 	/projects/:projectId/comments/:commentId/replies
@@ -233,6 +339,20 @@ router.post('/:projectId/articles/:articleId/dislike',
 	exists.article,
 	authenticate(),
 	ProjectController.toggleDislike
+)
+
+// GET 		/projects/:projectId/articles/:articleId/comments
+router.get('/:projectId/articles/:articleId/comments',
+	[
+		check('projectId').isMongoId().withMessage('Invalid Project ID'),
+		check('articleId').isMongoId().withMessage('Invalid Article ID'),
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	validate,
+	exists.project,
+	exists.article,
+	ProjectController.listComments
 )
 
 // POST 	/projects/:projectId/articles/:articleId/comments
@@ -321,6 +441,22 @@ router.post('/:projectId/articles/:articleId/comments/:commentId/highlight',
 	exists.comment,
 	authenticate(),
 	ProjectController.highlightComment
+)
+
+// GET 		/projects/:projectId/articles/:articleId/comments/:commentId/replies
+router.get('/:projectId/articles/:articleId/comments/:commentId/replies',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	validate,
+	exists.project,
+	exists.article,
+	exists.comment,
+	ProjectController.listReplies
 )
 
 // POST 	/projects/:projectId/articles/:articleId/comments/:commentId/replies

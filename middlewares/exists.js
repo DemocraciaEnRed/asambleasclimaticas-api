@@ -40,6 +40,23 @@ exports.article = async (req, res, next) => {
   }
 }
 
+exports.event = async (req, res, next) => {
+  try {
+    const projectId = req.params.projectId;
+    const eventId = req.params.eventId;
+    const project = Project.findById(projectId);
+    const event = await project.events.id(eventId);
+    if(!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    req.event = event;
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 exports.comment = async (req, res, next) => {
   try {
     const projectId = req.params.projectId || null;

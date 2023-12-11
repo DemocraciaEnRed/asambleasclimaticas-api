@@ -5,6 +5,49 @@ const Like = require('../models/like');
 const user = require('../models/user');
 
 
+exports.canEdit = async (user, project) => {
+  try {
+    // if user is admin
+    if(user.role === 'admin') {
+      return true
+    }
+
+    // if user is author
+    if(user.role === 'author') {
+      // check if the user is the author of the project
+      return project.author._id === user._id;
+    }
+  
+    // any other user, cannot
+    return false;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+exports.canModerate = async (user, project) => {
+  try {
+    // user is admin or moderator, they can moderate any project
+    if(user.role === 'admin' || user.role === 'moderator') {
+      return true;
+    }
+    
+    // if user is author, then ok
+    if(user.role === 'author') {
+      return project.author._id === user._id;
+    }
+
+    // any other user, cannot
+    return false;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+
+
 exports.listProjects = async (page = 1, limit = 10) => {
   try {
     const projects = []
@@ -49,7 +92,7 @@ exports.listProjects = async (page = 1, limit = 10) => {
     }
 
     // get pagination metadata
-    const total = await Project.countDocuments({deletedAt: null}); // get total of projects
+    const total = await Project.countDocuments({hidden: false, published: {$ne: null}}); // get total of projects
     const pages = Math.ceil(total / limit); // round up to the next integer
     const nextPage = page < pages ? page + 1 : null; // if there is no next page, return null
     const prevPage = page > 1 ? page - 1 : null; // if there is no previous page, return null
@@ -177,75 +220,160 @@ exports.getArticles = async (projectId, version = null) => {
   }
 }
 
-exports.getProjectComments = async (projectId, version) => {
+exports.listComments = async (projectId, articleId = null, version = null, page = 1, limit = 10, includeHighlighted = false, includeResolved = false) => {
   try {
+    // get the project version
+    const project = await Project.findById(projectId);
+    const comments = []
+    // The base query requires the project id, and the article must be null
+    // Also, the createdInVersion must be less than or equal to the version
+    const query = {
+      projectId: projectId,
+      article: articleId,
+    }
+    // if version is null, or if the version is the current version,
+    // then we need to include the highlighted and resolved messages
+    if(!version || project.version == version) {
+      // include all the messages that:
+      // - createdInVersion is less than or equal to the version
+      // - and any of the following is true:
+      //   - highlightedInVersion is equal to version (highlighted in this version)
+      //   - resolvedInVersion is equal to version (resolved in this version)
+      //   - highlightedInVersion is 0 (not highlighted yet)
+      //   - resolvedInVersion is 0 (not resolved yet)
+      query.createdInVersion = {$lte: project.version};
+      query.$or = [
+        { highlightedInVersion: 0 },
+        { highlightedInVersion: project.version },
+        { resolvedInVersion: 0 },
+        { resolvedInVersion: project.version }
+      ]
+    }
+    if(version && project.version > version) {
+      // we show the messages that:
+      // - createdInVersion is less than or equal to the version
+      // - and highlightedInVersion is equal to version (highlighted in this version)
+      // - and resolvedInVersion is equal to version (resolved in this version)
+      query.createdInVersion = {$lte: version};
+      query.highlightedInVersion = version;
+      query.resolvedInVersion = version;
+    }
     // this one is easier, we just need to get the comments for the project
     // that is, comments that have project != null, and article == null
-    const comments = await Comment.find({ project: projectId, article: null }).populate({
+    // const comments = await Comment.find({ project: projectId, article: null }).populate({
+    //   path: 'user',
+    //   select: '_id name country',
+    //   populate: {
+    //     path: 'country',
+    //     select: '_id name code emoji unicode image'
+    //   }
+    // }).populate({
+    //   path: 'replies',
+    //   select: '_id text createdAt updatedAt',
+    //   order: {createdAt: -1},
+    //   populate: {
+    //     path: 'user',
+    //     select: '_id name country',
+    //     populate: {
+    //       path: 'country',
+    //       select: '_id name code emoji unicode image'
+    //     }
+    //   }
+    // }).sort({createdAt: -1}).skip((page - 1) * limit).limit(limit);
+
+    const commentsArr = await Comment.find(query).populate({
       path: 'user',
       select: '_id name country',
       populate: {
         path: 'country',
         select: '_id name code emoji unicode image'
       }
-    }).populate({
-      path: 'replies',
-      select: '_id text createdAt updatedAt',
-      order: {createdAt: -1},
+    }).sort({createdAt: -1}).skip((page - 1) * limit).limit(limit);
+
+    for(let i = 0; i < commentsArr.length; i++) {
+      const comment = commentsArr[i];
+      const commentOutput = {}
+      commentOutput._id = comment._id;
+      commentOutput.user = comment.user;
+      commentOutput.project = comment.project;
+      commentOutput.article = comment.article;
+      commentOutput.text = comment.text;
+      commentOutput.likes = await comment.getLikesCount();
+      commentOutput.dislikes = await comment.getDislikesCount();
+      commentOutput.repliesCount = await comment.getRepliesCount();
+      commentOutput.createdInVersion = comment.createdInVersion;
+      commentOutput.highlightedInVersion = comment.highlightedInVersion;
+      commentOutput.resolvedInVersion = comment.resolvedInVersion;
+      commentOutput.createdAt = comment.createdAt;
+      commentOutput.updatedAt = comment.updatedAt;
+      comments.push(commentOutput);
+    }
+
+    // get pagination metadata
+    const total = await Comment.countDocuments({project: projectId, article: null}); // get total of projects
+    const pages = Math.ceil(total / limit); // round up to the next integer
+    const nextPage = page < pages ? page + 1 : null; // if there is no next page, return null
+    const prevPage = page > 1 ? page - 1 : null; // if there is no previous page, return null
+
+    return {
+      comments,
+      page,
+      pages,
+      total,
+      limit,
+      nextPage,
+      prevPage
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+exports.listReplies = async (commentId, page = 1, limit = 10) => {
+  try {
+    // get the replies for the comment
+    // that is, replies that have comment != null
+    const replies = []
+    const repliesArr = await Reply.find({ comment: commentId }).populate({
+      path: 'user',
+      select: '_id name country',
       populate: {
-        path: 'user',
-        select: '_id name country',
-        populate: {
-          path: 'country',
-          select: '_id name code emoji unicode image'
-        }
+        path: 'country',
+        select: '_id name code emoji unicode image'
       }
-    }).sort({createdAt: -1});
-    return comments;
+    }).sort({createdAt: -1}).skip((page - 1) * limit).limit(limit);
+    for(let i = 0; i < repliesArr.length; i++) {
+      const reply = repliesArr[i];
+      const replyOutput = {}
+      replyOutput._id = reply._id;
+      replyOutput.user = reply.user;
+      replyOutput.comment = reply.comment;
+      replyOutput.text = reply.text;
+      replyOutput.likes = await reply.getLikesCount();
+      replyOutput.dislikes = await reply.getDislikesCount();
+      replyOutput.createdAt = reply.createdAt;
+      replyOutput.updatedAt = reply.updatedAt;
+      replies.push(replyOutput);
+    }
+
+    // get pagination metadata
+    const total = await Reply.countDocuments({comment: commentId}); // get total of projects
+    const pages = Math.ceil(total / limit); // round up to the next integer
+    const nextPage = page < pages ? page + 1 : null; // if there is no next page, return null
+    const prevPage = page > 1 ? page - 1 : null; // if there is no previous page, return null
+
+    return {
+      replies,
+      page,
+      pages,
+      total,
+      limit,
+      nextPage,
+      prevPage
+    }
   } catch (error) {
     console.error(error);
     throw error;
   }
 }
-
-exports.canEdit = async (user, project) => {
-  try {
-    // if user is admin
-    if(user.role === 'admin') {
-      return true
-    }
-
-    // if user is author
-    if(user.role === 'author') {
-      // check if the user is the author of the project
-      return project.author._id === user._id;
-    }
-  
-    // any other user, cannot
-    return false;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-exports.canModerate = async (user, project) => {
-  try {
-    // user is admin or moderator, they can moderate any project
-    if(user.role === 'admin' || user.role === 'moderator') {
-      return true;
-    }
-    
-    // if user is author, then ok
-    if(user.role === 'author') {
-      return project.author._id === user._id;
-    }
-
-    // any other user, cannot
-    return false;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
