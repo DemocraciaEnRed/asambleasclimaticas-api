@@ -45,7 +45,16 @@ router.post('/',
 
 )
 // GET 		/projects/:projectId/versions/:version
-// TODO
+router.get('/:version',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		param('version').isInt({min: 1}).withMessage('Invalid Version'),
+	],
+	validate,
+	exists.project,
+	exists.version,
+	ProjectController.getVersion
+)
 
 // GET		/projects/:projectId/versions/:version/comments
 router.get('/:version/comments',
@@ -57,6 +66,7 @@ router.get('/:version/comments',
 	],
 	validate,
 	exists.project,
+	exists.version,
 	CommentController.listComments
 )
 
@@ -71,6 +81,7 @@ router.get('/:version/comments/:commentId/replies',
 	],
 	validate,
 	exists.project,
+	exists.version,
 	exists.comment,
 	CommentController.listReplies
 )
@@ -89,6 +100,7 @@ router.get('/:version/articles/:articleId/comments',
 	],
 	validate,
 	exists.project,
+	exists.version,
   exists.article,
 	CommentController.listComments
 )
@@ -98,12 +110,14 @@ router.get('/:version/articles/:articleId/comments/:commentId/replies',
 	[
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
 		param('version').isInt({min: 1}).withMessage('Invalid Version'),
+    param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
 		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
 	],
 	validate,
 	exists.project,
+	exists.version,
   exists.article,
 	exists.comment,
 	CommentController.listReplies

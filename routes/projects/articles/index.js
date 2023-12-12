@@ -31,7 +31,7 @@ router.get('/',
 	],
 	validate,
 	exists.project,
-	ProjectController.listArticles
+	ProjectController.getArticles
 );
 
 // POST		/projects/:projectId/articles/:articleId/like

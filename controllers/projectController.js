@@ -252,12 +252,26 @@ exports.createVersion = async (req, res) => {
   }
 }
 
-exports.listArticles = async (req, res) => {
+exports.getArticles = async (req, res) => {
   try {
     const projectId = req.project._id;
     const version = req.project.version || null;
     // get the articles
     const resData = await ProjectHelper.getArticles(projectId, version);
+    // return the articles
+    return res.status(200).json(resData);
+  } catch (error){
+    console.error(error)
+    return res.status(500).json({message: error.message})
+  }
+}
+
+exports.getVersion = async (req, res) => {
+  try {
+    const projectId = req.project._id;
+    const version = req.params.version;
+    // get the articles
+    const resData = await ProjectHelper.getProject(projectId, version);
     // return the articles
     return res.status(200).json(resData);
   } catch (error){
