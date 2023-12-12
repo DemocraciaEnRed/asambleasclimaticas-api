@@ -10,7 +10,6 @@ const Article = require('../models/article');
  */
 exports.project = async (req, res, next) => {
   try {
-
     const projectId = req.params.projectId;
     const project = await Project.findById(projectId);
     if(!project) {
@@ -90,4 +89,20 @@ exports.reply = async (req, res, next) => {
     console.error(error);
     return res.status(500).json({ message: 'Internal server error' });
   } 
+}
+
+exports.version = async (req, res, next) => {
+  try {
+    const projectId = req.params.projectId;
+    const version = req.params.version;
+    const project = await Project.findOne({ _id: projectId, version: { $gte: version } });
+    if(!project) {
+      return res.status(404).json({ message: 'Project version not found' });
+    }
+    req.project = project;
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 }
