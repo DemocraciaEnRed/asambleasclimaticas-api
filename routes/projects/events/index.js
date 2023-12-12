@@ -19,6 +19,16 @@ const router = express.Router({mergeParams: true});
 // -----------------------------------------------
 
 // GET 	/projects/:projectId/events
+router.get('/',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+	],
+	validate,
+	exists.project,
+	EventController.listEvents
+)
 
 // POST 	/projects/:projectId/events
 router.post('/',

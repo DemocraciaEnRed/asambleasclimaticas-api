@@ -5,19 +5,45 @@ const Reply = require('../models/reply');
 const Like = require('../models/like');
 const ProjectHelper = require('../helpers/projectsHelper');
 
+exports.listEvents = async (req, res) => {
+  try {
+    const project = req.project
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    // get the events
+    const events = project.events
+    // paginate the events
+    const total = events.length
+    const pages = Math.ceil(total / limit)
+    const offset = limit * (page - 1)
+    events.splice(0, offset)
+    events.splice(limit, events.length - limit)
+
+    const resData = {
+      events: events,
+      total: total,
+      pages: pages,
+      page: page,
+      limit: limit
+    }
+
+
+    // return the events
+    return res.status(200).json(resData)
+  } catch(error) {
+    console.error(error)
+    return res.status(500).json({ message: error.message })
+  }
+}
+
 exports.createEvent = async (req, res) => {
   try {
-    // check if the user is an admin or the author of the project
-    await ProjectHelper.canEdit(req.user, req.params.id)
-
     // first, get the project
     const projectId = req.params.id;
-    const project = await Project.findById(projectId);
+    const project = req.project
 
-    // if the project doesn't exists, return 404
-    if(!project){
-      return res.status(404).json({ message: 'Project not found' })
-    } 
+    // check if the user is an admin or the author of the project
+    await ProjectHelper.canEdit(req.user, projectId)
 
     // create a new event
     const newEvent = {
