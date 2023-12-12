@@ -2,8 +2,8 @@ const User = require('../models/user');
 const Token = require('../models/token');
 const mailer = require('../services/mailer');
 const agenda = require('../services/agenda');
-const AuthHelper = require('../helpers/auth');
-const UtilsHelper = require('../helpers/utils');
+const AuthHelper = require('../helpers/authHelper');
+const UtilsHelper = require('../helpers/utilsHelper');
 const express = require('express');
 
 /**

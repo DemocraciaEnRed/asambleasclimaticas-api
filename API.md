@@ -11,6 +11,61 @@
 * `GET /user`
 * `GET /country`
 
+```
+// GET 		/projects
+// POST 	/projects
+// GET 		/projects/:projectId
+// PUT 		/projects/:projectId
+// POST 	/projects/:projectId/publish
+// POST 	/projects/:projectId/hide
+// POST 	/projects/:projectId/like
+// POST 	/projects/:projectId/dislike
+
+api/projects/events/index.js
+// POST 	/projects/:projectId/events
+// DELETE 	/projects/:projectId/events/:eventId
+
+api/projects/versions/index.js
+// POST 	/projects/:projectId/versions
+// GET 		/projects/:projectId/versions/:version
+// GET		/projects/:projectId/versions/:version/comments
+// GET		/projects/:projectId/versions/:version/comments/:commentId/replies
+// GET 		/projects/:projectId/versions/:version/articles
+// GET		/projects/:projectId/versions/:version/articles/:articleId/comments
+// POST		/projects/:projectId/versions/:version/articles/:articleId/comments/:commentId/replies
+
+api/projects/comments/index.js
+// GET 		/projects/:projectId/comments
+// POST 	/projects/:projectId/comments
+// DELETE 	/projects/:projectId/comments/:commentId
+// POST 	/projects/:projectId/comments/:commentId/like
+// POST 	/projects/:projectId/comments/:commentId/dislike
+// GET		/projects/:projectId/comments/:commentId/replies
+// POST 	/projects/:projectId/comments/:commentId/replies
+// POST 	/projects/:projectId/comments/:commentId/replies/:replyId/like
+// POST 	/projects/:projectId/comments/:commentId/replies/:replyId/dislike
+
+api/projects/articles/index.js
+// GET 		/projects/:projectId/articles
+// POST		/projects/:projectId/articles/:articleId/like
+// POST		/projects/:projectId/articles/:articleId/dislike
+
+api/projects/articles/comments/index.js
+// GET 		/projects/:projectId/articles/:articleId/comments
+// POST 	/projects/:projectId/articles/:articleId/comments
+// DELETE 	/projects/:projectId/articles/:articleId/comments/:commentId
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/like
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/dislike
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/resolve
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/highlight
+// GET 		/projects/:projectId/articles/:articleId/comments/:commentId/replies
+// POST 	/projects/:projectId/articles/:articleId/comments/:commentId/replies
+// POST		/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/like
+// POST		/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/dislike
+// DELETE	/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/delete
+```
+
+
 
 ## Endpoints
 

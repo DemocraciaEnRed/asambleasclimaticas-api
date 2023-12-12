@@ -79,6 +79,8 @@ exports.listProjects = async (page = 1, limit = 10) => {
       projectOutput.eventCount = project.eventsCount;
       projectOutput.articleCount = project.articlesCount;
       projectOutput.versionsCount = project.versionsCount;
+      projectOutput.commentsCount = await project.getCommentsCount();
+      projectOutput.articleCommentsCount = await project.getArticleCommentsCount();
       projectOutput.likes = await project.getLikesCount();
       projectOutput.dislikes = await project.getDislikesCount();
       projectOutput.stage = project.stage;
@@ -126,6 +128,8 @@ exports.getProject = async (projectId, version = null) => {
     projectOutput.eventCount = project.eventsCount;
     projectOutput.articleCount = project.articlesCount;
     projectOutput.versionsCount = project.versionsCount;
+    projectOutput.commentsCount = await project.getCommentsCount();
+    projectOutput.articleCommentsCount = await project.getArticleCommentsCount();
     projectOutput.likes = await project.getLikesCount();
     projectOutput.dislikes = await project.getDislikesCount();
     projectOutput.stage = project.stage;

@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const UserHelper = require('../helpers/user');
+const UserHelper = require('../helpers/usersHelper');
 const agenda = require('../services/agenda');
 
 

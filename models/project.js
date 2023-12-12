@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./user');
 const Article = require('./article');
+const Comment = require('./comment');
 const Like = require('./like');
 
 const VersionSchema = new mongoose.Schema({
@@ -135,6 +136,14 @@ ProjectSchema.methods.getLikesCount = async function() {
 
 ProjectSchema.methods.getDislikesCount = async function() {
   return await Like.countDocuments({project: this._id, article: null, comment: null, reply: null, type: 'dislike'});
+}
+
+ProjectSchema.methods.getCommentsCount = async function() {
+  return await Comment.countDocuments({project: this._id, article: null});
+}
+
+ProjectSchema.methods.getArticleCommentsCount = async function() {
+  return await Comment.countDocuments({project: this._id, article: {$ne: null}});
 }
 
 // get author

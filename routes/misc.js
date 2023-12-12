@@ -1,7 +1,7 @@
 const express = require('express');
 const { check } = require('express-validator');
 const validate = require('../middlewares/validate');
-const MiscController = require('../controllers/misc');
+const MiscController = require('../controllers/miscController');
 const constants = require('../services/constants');
 const authenticate = require('../middlewares/authenticate');
 
