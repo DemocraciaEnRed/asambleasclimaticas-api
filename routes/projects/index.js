@@ -16,7 +16,7 @@ const ArticlesRoutes = require('./articles');
 const EventsRoutes = require('./events');
 
 // initialize router
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 // -----------------------------------------------
 // BASE     /projects

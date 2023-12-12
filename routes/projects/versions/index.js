@@ -9,7 +9,7 @@ const ProjectController = require('../../../controllers/projectController');
 const CommentController = require('../../../controllers/commentController');
 
 // initialize router
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 // -----------------------------------------------
 // BASE     /projects/:projectId/versions

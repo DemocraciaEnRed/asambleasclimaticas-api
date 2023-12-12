@@ -10,7 +10,7 @@ const LikeController = require('../../../../controllers/likeController');
 const ProjectController = require('../../../../controllers/projectController');
 
 // initialize router
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 // -----------------------------------------------
 // BASE     /projects/:projectId/articles/:articleId/comments

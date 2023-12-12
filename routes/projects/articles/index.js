@@ -12,7 +12,7 @@ const ProjectController = require('../../../controllers/projectController');
 const CommentsRoutes = require('./comments');
 
 // initialize router
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 // -----------------------------------------------
 // BASE     /projects/:projectId/articles
@@ -25,7 +25,14 @@ const router = express.Router();
 // -----------------------------------------------
 
 // GET 		/projects/:projectId/articles
-// TODO
+router.get('/',
+	[
+		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+	],
+	validate,
+	exists.project,
+	ProjectController.listArticles
+);
 
 // POST		/projects/:projectId/articles/:articleId/like
 router.post('/:articleId/like',

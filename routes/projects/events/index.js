@@ -8,7 +8,7 @@ const validate = require('../../../middlewares/validate');
 const EventController = require('../../../controllers/eventController');
 
 // initialize router
-const router = express.Router();
+const router = express.Router({mergeParams: true});
 
 // -----------------------------------------------
 // BASE     /projects/:projectId/events
