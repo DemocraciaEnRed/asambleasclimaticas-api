@@ -176,7 +176,6 @@ exports.getArticles = async (projectId, version = null) => {
       // then the ids for the articles is in project.articles
       const articlesIds = project.articles
       const projectArr = await Article.find({_id: {$in: articlesIds}}).sort({position: 1});
-      console.log(projectArr)
       for(let i = 0; i < projectArr.length; i++) {
         const article = projectArr[i];
         const articleOutput = {
