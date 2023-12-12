@@ -52,10 +52,11 @@ exports.listProjects = async (page = 1, limit = 10) => {
   try {
     const projects = []
     // get the projects by page
-    const projectList = await Project.find({
+    const query = {
       hidden: false,
       publishedAt: {$ne: null}
-     }).populate({
+     }
+    const projectList = await Project.find(query).populate({
       path: 'author',
       select: '_id name country',
       populate: {
@@ -94,7 +95,7 @@ exports.listProjects = async (page = 1, limit = 10) => {
     }
 
     // get pagination metadata
-    const total = await Project.countDocuments({hidden: false, published: {$ne: null}}); // get total of projects
+    const total = await Project.countDocuments(query); // get total of projects
     const pages = Math.ceil(total / limit); // round up to the next integer
     const nextPage = page < pages ? page + 1 : null; // if there is no next page, return null
     const prevPage = page > 1 ? page - 1 : null; // if there is no previous page, return null
@@ -140,7 +141,7 @@ exports.getProject = async (projectId, version = null) => {
     projectOutput.createdAt = project.createdAt;
     projectOutput.updatedAt = project.updatedAt;
     // what is the current version?
-    if(!version || version === project.version) {
+    if(!version || version === project.version || version == 1) {
       // if no version is specified,
       // or if the version is the current version,
       // then we return the project as it is
@@ -156,6 +157,8 @@ exports.getProject = async (projectId, version = null) => {
       projectOutput.about_es = projectVersion.about_es;
       projectOutput.about_pt = projectVersion.about_pt;
       projectOutput.version = projectVersion.version;
+      projectOutput.versionCreatedAt = projectVersion.createdAt;
+      projectOutput.versionUpdatedAt = projectVersion.updatedAt;
     }
     
     return projectOutput;
@@ -231,12 +234,12 @@ exports.listComments = async (projectId, articleId = null, version = null, page 
     // The base query requires the project id, and the article must be null
     // Also, the createdInVersion must be less than or equal to the version
     const query = {
-      projectId: projectId,
+      project: projectId,
       article: articleId,
     }
     // if version is null, or if the version is the current version,
     // then we need to include the highlighted and resolved messages
-    if(!version || project.version == version) {
+    if(!version || project.version == version || version == 1) {
       // include all the messages that:
       // - createdInVersion is less than or equal to the version
       // - and any of the following is true:
@@ -252,7 +255,7 @@ exports.listComments = async (projectId, articleId = null, version = null, page 
         { resolvedInVersion: project.version }
       ]
     }
-    if(version && project.version > version) {
+    if(version !== project.version && version > 1 && version <= project.version) {
       // we show the messages that:
       // - createdInVersion is less than or equal to the version
       // - and highlightedInVersion is equal to version (highlighted in this version)
@@ -283,7 +286,6 @@ exports.listComments = async (projectId, articleId = null, version = null, page 
     //     }
     //   }
     // }).sort({createdAt: -1}).skip((page - 1) * limit).limit(limit);
-
     const commentsArr = await Comment.find(query).populate({
       path: 'user',
       select: '_id name country',
@@ -313,7 +315,7 @@ exports.listComments = async (projectId, articleId = null, version = null, page 
     }
 
     // get pagination metadata
-    const total = await Comment.countDocuments({project: projectId, article: null}); // get total of projects
+    const total = await Comment.countDocuments(query); // get total of projects
     const pages = Math.ceil(total / limit); // round up to the next integer
     const nextPage = page < pages ? page + 1 : null; // if there is no next page, return null
     const prevPage = page > 1 ? page - 1 : null; // if there is no previous page, return null
@@ -338,7 +340,8 @@ exports.listReplies = async (commentId, page = 1, limit = 10) => {
     // get the replies for the comment
     // that is, replies that have comment != null
     const replies = []
-    const repliesArr = await Reply.find({ comment: commentId }).populate({
+    const query = { comment: commentId }
+    const repliesArr = await Reply.find(query).populate({
       path: 'user',
       select: '_id name country',
       populate: {
@@ -361,7 +364,7 @@ exports.listReplies = async (commentId, page = 1, limit = 10) => {
     }
 
     // get pagination metadata
-    const total = await Reply.countDocuments({comment: commentId}); // get total of projects
+    const total = await Reply.countDocuments(query); // get total of projects
     const pages = Math.ceil(total / limit); // round up to the next integer
     const nextPage = page < pages ? page + 1 : null; // if there is no next page, return null
     const prevPage = page > 1 ? page - 1 : null; // if there is no previous page, return null
