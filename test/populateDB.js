@@ -212,9 +212,9 @@ async function createProjects(){
       project.articles = articles.map(article => article._id);
       await project.save();
       console.log(`* Project ${project._id} updated with articles: ${articleCount}`);
-      // now lets create 30 events
+      // now lets create 25 events
       const events = []
-      for(let j = 0; j < 10; j++) {
+      for(let j = 0; j < 25; j++) {
         const event = {
           title_es: faker.lorem.sentence(5),
           title_pt: faker.lorem.sentence(5),
@@ -225,6 +225,7 @@ async function createProjects(){
         events.push(event);
       }
       // save it
+      project.events = events;
       await project.save();
       console.log(`* Project ${project._id} updated with events: 30`);
       projects.push(project);
