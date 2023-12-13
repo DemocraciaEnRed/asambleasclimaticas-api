@@ -22,6 +22,7 @@
 // POST 	/projects/:projectId/dislike
 
 api/projects/events/index.js
+// GET 		/projects/:projectId/events
 // POST 	/projects/:projectId/events
 // DELETE 	/projects/:projectId/events/:eventId
 
