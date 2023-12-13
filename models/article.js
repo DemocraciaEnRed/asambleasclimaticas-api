@@ -67,6 +67,10 @@ ArticleSchema.methods.getDislikesCount = function(cb) {
   return mongoose.model('Like').count({article: this._id, type: 'dislike'}, cb);
 }
 
+// TODO get the comments count
+// TODO get count of highlithed comments
+// TODO get count of comments with replies
+
 
 module.exports = mongoose.model('Article', ArticleSchema);
 
