@@ -35,7 +35,6 @@ router.get('/users/:userId',
     param('userId').isMongoId().withMessage('Invalid User ID'),
   ],
   validate,
-  exists.user,
   authenticate(constants.ROLES.ADMINISTRATOR),
   UserController.get
 )
