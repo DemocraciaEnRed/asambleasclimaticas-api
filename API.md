@@ -12,6 +12,26 @@
 * `GET /country`
 
 ```
+routes/auth.js
+// POST 	/auth/register
+// POST 	/auth/resend
+// GET 		/auth/verify/:token
+// POST 	/auth/forgot
+// POST 	/auth/reset/:token
+// POST 	/auth/login
+// GET 		/auth/logged
+
+routes/user.js
+// GET 		/user/me
+// GET 		/user/:userId
+
+routes/misc.js
+// GET 		/misc/countries
+
+routes/admin/index.js
+// GET 		/admin/users
+// GET 		/admin/users/:userId
+
 // GET 		/projects
 // POST 	/projects
 // GET 		/projects/:projectId
@@ -21,12 +41,12 @@
 // POST 	/projects/:projectId/like
 // POST 	/projects/:projectId/dislike
 
-api/projects/events/index.js
+routes/projects/events/index.js
 // GET 		/projects/:projectId/events
 // POST 	/projects/:projectId/events
 // DELETE 	/projects/:projectId/events/:eventId
 
-api/projects/versions/index.js
+routes/projects/versions/index.js
 // POST 	/projects/:projectId/versions
 // GET 		/projects/:projectId/versions/:version
 // GET		/projects/:projectId/versions/:version/comments
@@ -35,7 +55,7 @@ api/projects/versions/index.js
 // GET		/projects/:projectId/versions/:version/articles/:articleId/comments
 // POST		/projects/:projectId/versions/:version/articles/:articleId/comments/:commentId/replies
 
-api/projects/comments/index.js
+routes/projects/comments/index.js
 // GET 		/projects/:projectId/comments
 // POST 	/projects/:projectId/comments
 // DELETE 	/projects/:projectId/comments/:commentId
@@ -46,12 +66,12 @@ api/projects/comments/index.js
 // POST 	/projects/:projectId/comments/:commentId/replies/:replyId/like
 // POST 	/projects/:projectId/comments/:commentId/replies/:replyId/dislike
 
-api/projects/articles/index.js
+routes/projects/articles/index.js
 // GET 		/projects/:projectId/articles
 // POST		/projects/:projectId/articles/:articleId/like
 // POST		/projects/:projectId/articles/:articleId/dislike
 
-api/projects/articles/comments/index.js
+routes/projects/articles/comments/index.js
 // GET 		/projects/:projectId/articles/:articleId/comments
 // POST 	/projects/:projectId/articles/:articleId/comments
 // DELETE 	/projects/:projectId/articles/:articleId/comments/:commentId
