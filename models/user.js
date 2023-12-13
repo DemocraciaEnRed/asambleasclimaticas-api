@@ -54,6 +54,11 @@ const UserSchema = new mongoose.Schema({
 	resetPasswordExpires: {
 		type: Date,
 		required: false
+	},
+	deletedAt: {
+		type: Date,
+		required: false,
+		default: null
 	}
 }, { timestamps: true });
 
@@ -89,10 +94,7 @@ UserSchema.methods.comparePassword = function (password) {
  * @returns {Object} The signed JWT token for the user
  */
 UserSchema.methods.generateJWT = function () {
-	const today = new Date();
-	const expirationDate = new Date(today);
-	// expires in 60 days
-	expirationDate.setDate(today.getDate() + 60);
+	const expiresIn = '2d';
 
 	let payload = {
 		_id: this._id,
@@ -103,7 +105,8 @@ UserSchema.methods.generateJWT = function () {
 	};
 
 	return jwt.sign(payload, process.env.JWT_SECRET, {
-		expiresIn: parseInt(expirationDate.getTime() / 1000, 10)
+		// expiresIn: parseInt(expirationDate.getTime() / 1000, 10)
+		expiresIn: expiresIn
 	});
 };
 
