@@ -11,7 +11,7 @@ exports.listEvents = async (req, res) => {
     const page = req.query.page || 1;
     const limit = req.query.limit || 10;
     // get the events
-    const events = project.events
+    const events = project.events.sort((a, b) => b.date - a.date)
     // paginate the events
     const total = events.length
     const pages = Math.ceil(total / limit)
