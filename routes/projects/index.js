@@ -68,9 +68,9 @@ router.post('/',
 // GET /projects/:projectId
 router.get('/:projectId', 
 	[
-		query('withComments').optional().isBoolean().withMessage('withComments must be a boolean'),
-		query('withArticles').optional().isBoolean().withMessage('withArticles must be a boolean'),
 		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		query('withArticles').optional().isBoolean().withMessage('withArticles must be a boolean'),
+		// query('withComments').optional().isBoolean().withMessage('withComments must be a boolean'),
 	], 
 	validate, // validates the array of checks above
 	exists.project, // checks if the project exists and adds it to the request object

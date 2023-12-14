@@ -24,7 +24,7 @@ exports.getProject = async (req, res) => {
   try{
     const projectId = req.project._id;
     const withArticles = req.query.withArticles || false;
-    const withComments = req.query.withComments || false;
+    // const withComments = req.query.withComments || false;
     // return the project
     const project = await ProjectHelper.getProject(projectId);
     // if the query param withArticles is true, add the articles to the project
@@ -36,11 +36,11 @@ exports.getProject = async (req, res) => {
     }
     // if the query param withComments is true, add the comments to the project
     // TODO if they are too many we shouldnt attach it
-    if(withComments) {
-      // get the comments
-      const comments = await ProjectHelper.getProjectComments(projectId);
-      project.comments = comments;
-    }
+    // if(withComments) {
+    //   // get the comments
+    //   const comments = await ProjectHelper.listComments(projectId, null, null, 1, 10, false, false)
+    //   project.comments = comments;
+    // }
       
     return res.status(200).json(project);
   } catch (error) {
