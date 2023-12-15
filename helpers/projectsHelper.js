@@ -3,6 +3,7 @@ const Comment = require('../models/comment');
 const Project = require('../models/project');
 const Like = require('../models/like');
 const user = require('../models/user');
+const Reply = require('../models/reply');
 
 
 exports.canEdit = async (user, project) => {
@@ -187,6 +188,9 @@ exports.getArticles = async (projectId, version = null) => {
           text_pt: article.text_pt,
           position: article.position,
           version: project.version,
+          likes: await article.getLikesCount(),
+          dislikes: await article.getDislikesCount(),
+          commentsCount: await article.getCommentsCount(),
           createdAt: article.createdAt,
           updatedAt: article.updatedAt,
         }
@@ -356,8 +360,8 @@ exports.listReplies = async (commentId, page = 1, limit = 10) => {
       replyOutput.user = reply.user;
       replyOutput.comment = reply.comment;
       replyOutput.text = reply.text;
-      replyOutput.likes = await reply.getLikesCount();
-      replyOutput.dislikes = await reply.getDislikesCount();
+      //replyOutput.likes = await reply.getLikesCount();
+      //replyOutput.dislikes = await reply.getDislikesCount();
       replyOutput.createdAt = reply.createdAt;
       replyOutput.updatedAt = reply.updatedAt;
       replies.push(replyOutput);
