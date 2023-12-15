@@ -1,5 +1,7 @@
 
 const mongoose = require('mongoose');
+const Like = require('./like');
+const comment = require('./comment');
 
 const ArticleVersionSchema = new mongoose.Schema({
   text_es: {
@@ -51,7 +53,7 @@ const ArticleSchema = new mongoose.Schema({
  */
 
 ArticleSchema.methods.getLikesCount = function(cb) {
-  return mongoose.model('Like').count({article: this._id, type: 'like'}, cb);
+  return Like.countDocuments({article: this._id, type: 'like'}, cb);
 }
 
 /**
@@ -64,12 +66,16 @@ ArticleSchema.methods.getLikesCount = function(cb) {
  */
 
 ArticleSchema.methods.getDislikesCount = function(cb) {
-  return mongoose.model('Like').count({article: this._id, type: 'dislike'}, cb);
+  return Like.countDocuments({article: this._id, type: 'dislike'}, cb);
 }
 
 // TODO get the comments count
 // TODO get count of highlithed comments
 // TODO get count of comments with replies
+
+ArticleSchema.methods.getCommentsCount = async function() {
+  return await comment.countDocuments({project: this.project._id, article: this._id});
+}
 
 
 module.exports = mongoose.model('Article', ArticleSchema);
