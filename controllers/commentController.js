@@ -43,8 +43,8 @@ exports.createComment = async (req,res) => {
       user: req.user._id,
       project: projectId,
       article: articleId,
-      body: req.body.body,
-      createdInVersion: project.version,
+      text: req.body.body,
+      createdInVersion: req.project.version,
     }
 
     // create the comment
@@ -141,13 +141,14 @@ exports.createReply = async (req,res) => {
     const newReply = {
       user: req.user._id,
       comment: req.comment._id,
-      text: req.body.text,
+      text: req.body.body,
     }
     // create the reply
     const reply = await Reply.create(newReply);
     // add the reply to the comment
     comment.replies.push(reply._id);
-    
+    // save comment
+    comment.save()
     return res.status(201).json(reply)
   } catch(error) {
     console.error(error)
