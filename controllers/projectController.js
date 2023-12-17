@@ -55,10 +55,18 @@ exports.createProject = async (req, res) => {
       user: req.user._id,
       title_es: req.body.title_es,
       title_pt: req.body.title_pt,
+      coverUrl: req.body.coverUrl,
+      youtubeUrl: req.body.youtubeUrl,
       slug: req.body.slug,
       about_es: req.body.about_es,
       about_pt: req.body.about_pt,
+      stage: req.body.stage,
+      closedAt: req.body.closedAt,
       version: 1,
+    }
+    if(req.body.publishedAt) {
+      projectData.publishedAt = req.body.publishedAt;
+      projectData.hidden = false;
     }
     // create the project
     const project = await Project.create(projectData);
@@ -70,8 +78,8 @@ exports.createProject = async (req, res) => {
     for(let i = 0; i < articles.length; i++) {
       const articleData = {
         project: project._id,
-        body_es: articles[i].body_es,
-        body_pt: articles[i].body_pt,
+        text_es: articles[i].text_es,
+        text_pt: articles[i].text_pt,
         position: i + 1,
       }
       const article = await Article.create(articleData);
@@ -98,12 +106,15 @@ exports.updateProject = async (req, res) => {
     // project should be in req.project
     const project = req.project;
     // update the project
-    project.slug = req.body.slug;
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;
+    project.slug = req.body.slug;
+    project.coveUrl = req.body.coverUrl;
+    project.youtubeUrl = req.body.youtubeUrl;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
-
+    project.stage = req.body.stage;
+    project.closedAt = req.body.closedAt;
     // save the project
     await project.save();
 
@@ -199,15 +210,15 @@ exports.createVersion = async (req, res) => {
       if(articles[i]._id) {
         const article = await Article.findById(articles[i]._id);
         const previousVersion = {
-          body_es: article.body_es,
-          body_pt: article.body_pt,
+          text_es: article.text_es,
+          text_pt: article.text_pt,
           position: article.position,
           version: project.version
         }
         // add the previous version to the article
         article.versions.push(previousVersion);
-        article.body_es = articles[i].body_es;
-        article.body_pt = articles[i].body_pt;
+        article.text_es = articles[i].text_es;
+        article.text_pt = articles[i].text_pt;
         article.position = articles[i].position;
         // save the existing article with its new version stored.
         await article.save();
@@ -217,8 +228,8 @@ exports.createVersion = async (req, res) => {
         // if the article doesn't have an _id, it is a new article
         const articleData = {
           project: project._id,
-          body_es: articles[i].body_es,
-          body_pt: articles[i].body_pt,
+          text_es: articles[i].text_es,
+          text_pt: articles[i].text_pt,
           position: articles[i].position,
         }
         // create the article
@@ -230,11 +241,15 @@ exports.createVersion = async (req, res) => {
 
     // now update the project
     project.slug = req.body.slug;
+    project.coveUrl = req.body.coverUrl;
+    project.youtubeUrl = req.body.youtubeUrl;
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
+    project.stage = req.body.stage;
     project.articles = articlesIds;
+    project.closedAt = req.body.closedAt;
     project.version = project.version + 1;
     
     // save the project
