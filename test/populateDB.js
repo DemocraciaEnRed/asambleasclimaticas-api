@@ -52,6 +52,16 @@ async function pickRandom(arr){
   return arr[randomIndex];
 }
 
+async function getYoutubeUrl() {
+  // flip a coin, if it is heads, return a youtube url
+  // if its tails, return null
+  const coin = Math.random() >= 0.5;
+  if(coin) {
+    return 'https://www.youtube.com/watch?v=WZviVJfepDM&list=FL-7kSn8zXKxkdIfrX4VNuow&index=2&ab_channel=Vulf'
+  }
+  return null;
+}
+
 async function createUsers() {
   try {
     // create 5 users with role admin
@@ -118,6 +128,8 @@ async function createProjects(){
         title_es: faker.lorem.sentence(5),
         title_pt: faker.lorem.sentence(5),
         slug: faker.lorem.slug(3),
+        imageUrl: faker.image.imageUrl(),
+        youtubeUrl: getYoutubeUrl(),
         version: 1,
         // about_es: faker.lorem.sentences(5),
         about_es: await fetchMarkdownContent(),
