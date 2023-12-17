@@ -74,6 +74,8 @@ exports.listProjects = async (page = 1, limit = 10) => {
       projectOutput.author = project.author;
       projectOutput.title_es = project.title_es;
       projectOutput.title_pt = project.title_pt;
+      projectOutput.coverUrl = project.coverUrl;
+      projectOutput.youtubeUrl = project.youtubeUrl;
       projectOutput.about_es = project.about_es;
       projectOutput.about_pt = project.about_pt;  
       projectOutput.version = project.version;
@@ -125,6 +127,8 @@ exports.getProject = async (projectId, version = null) => {
     projectOutput.author = project.author;
     projectOutput.title_es = project.title_es;
     projectOutput.title_pt = project.title_pt;
+    projectOutput.coverUrl = project.coverUrl;
+    projectOutput.youtubeUrl = project.youtubeUrl;
     projectOutput.eventCount = project.eventsCount;
     projectOutput.articleCount = project.articlesCount;
     projectOutput.versionsCount = project.versionsCount;
