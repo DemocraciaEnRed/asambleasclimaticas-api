@@ -1,5 +1,5 @@
 const express = require('express');
-const { check, param, body, query } = require('express-validator');
+const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
 const authenticate = require('../../../middlewares/authenticate');
 const exists = require('../../../middlewares/exists');
@@ -27,7 +27,7 @@ const router = express.Router({mergeParams: true});
 // GET 		/projects/:projectId/articles
 router.get('/',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 	],
 	validate,
 	exists.project,
@@ -37,8 +37,8 @@ router.get('/',
 // POST		/projects/:projectId/articles/:articleId/like
 router.post('/:articleId/like',
 	[
-		check('projectId').isMongoId().withMessage('Invalid Project ID'),
-		check('articleId').isMongoId().withMessage('Invalid Article ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 	], 
 	validate,
 	exists.project,
@@ -50,8 +50,8 @@ router.post('/:articleId/like',
 // POST		/projects/:projectId/articles/:articleId/dislike
 router.post('/:articleId/dislike',
 	[
-		check('projectId').isMongoId().withMessage('Invalid Project ID'),
-		check('articleId').isMongoId().withMessage('Invalid Article ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 	], 
 	validate,
 	exists.project,

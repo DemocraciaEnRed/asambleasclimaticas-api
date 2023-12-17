@@ -2,19 +2,38 @@ const Project = require('../models/project');
 const Reply = require('../models/reply');
 const Comment = require('../models/comment');
 const Article = require('../models/article');
+const { query, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
+
+const isObjectId = (value) => {
+  return mongoose.Types.ObjectId.isValid(value);
+}
 
 /**
  * Middleware exists.project(projectId)
- * @param {String} projectId - The project id
+ * @param {String} projectId - Could be a MongoDB ObjectId or a slug
  * @returns {Function} - A middleware function (req, res, next) => { ... } that checks if the project exists and adds it to the request object (req.project)
  */
 exports.project = async (req, res, next) => {
   try {
     const projectId = req.params.projectId;
-    const project = await Project.findById(projectId);
+    const isTheIdMongo = isObjectId(projectId);
+    let query = {};
+    if(isTheIdMongo) {
+      // the projectId is a MongoDB ObjectId
+      query = { _id: projectId };
+    } else {
+      // the projectId is a slug
+      query = { slug: projectId };
+    }
+    
+    const project = await Project.findOne(query);
     if(!project) {
       return res.status(404).json({ message: 'Project not found' });
     }
+    // After we get the project, we will force the projectId to be the MongoDB ObjectId
+    req.params.projectId = project._id;
+    // And we add the project to the request object
     req.project = project;
     next();
   } catch (error) {

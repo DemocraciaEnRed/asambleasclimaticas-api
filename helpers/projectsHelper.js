@@ -121,7 +121,7 @@ exports.getProject = async (projectId, version = null) => {
     const projectOutput = {}
     const project = await Project.findById(projectId);
     projectOutput._id = project._id;
-    projectOutput.slug = project.path;
+    projectOutput.slug = project.slug;
     projectOutput.author = project.author;
     projectOutput.title_es = project.title_es;
     projectOutput.title_pt = project.title_pt;

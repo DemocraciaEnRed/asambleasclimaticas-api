@@ -1,5 +1,5 @@
 const express = require('express');
-const { check, param, body, query } = require('express-validator');
+const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
 const authenticate = require('../../../middlewares/authenticate');
 const exists = require('../../../middlewares/exists');
@@ -21,7 +21,7 @@ const router = express.Router({mergeParams: true});
 // GET 	/projects/:projectId/events
 router.get('/',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
 		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
 	],
@@ -33,7 +33,7 @@ router.get('/',
 // POST 	/projects/:projectId/events
 router.post('/',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		body('title_es').isString().withMessage('Title (es) must be a string'),
 		body('title_pt').isString().withMessage('Title (pt) must be a string'),
 		body('text_es').isString().withMessage('Text (es) must be a string'),
@@ -49,7 +49,7 @@ router.post('/',
 // DELETE /projects/:projectId/events/:eventId
 router.delete('/:eventId',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('eventId').isMongoId().withMessage('Invalid Event ID'),
 	], 
 	validate,

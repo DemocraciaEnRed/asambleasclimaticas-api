@@ -1,5 +1,5 @@
 const express = require('express');
-const { check, param, body, query } = require('express-validator');
+const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../services/constants');
 const authenticate = require('../../middlewares/authenticate');
 const exists = require('../../middlewares/exists');
@@ -50,8 +50,7 @@ router.post('/',
 	[
 		body('title_es').isString().withMessage('Title (es) must be a string'),
 		body('title_pt').isString().withMessage('Title (pt) must be a string'),
-		body('path_es').isString().withMessage('Path (es) must be a string'),
-		body('path_pt').isString().withMessage('Path (pt) must be a string'),
+		body('slug').isString().isSlug().withMessage('Slug must be a string with no spaces and URL friendly'),
 		body('about_es').isString().withMessage('About (es) must be a string'),
 		body('about_pt').isString().withMessage('About (pt) must be a string'),
 		body('closedAt').isISO8601().withMessage('Closed at must be a valid date'),
@@ -68,7 +67,7 @@ router.post('/',
 // GET /projects/:projectId
 router.get('/:projectId', 
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		query('withArticles').optional().isBoolean().withMessage('withArticles must be a boolean'),
 		// query('withComments').optional().isBoolean().withMessage('withComments must be a boolean'),
 	], 
@@ -80,11 +79,10 @@ router.get('/:projectId',
 // PUT /projects/:projectId
 router.put('/:projectId',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		body('title_es').isString().withMessage('Title (es) must be a string'),
 		body('title_pt').isString().withMessage('Title (pt) must be a string'),
-		body('path_es').isString().withMessage('Path (es) must be a string'),
-		body('path_pt').isString().withMessage('Path (pt) must be a string'),
+		body('slug').isString().isSlug().withMessage('Slug must be a string with no spaces and URL friendly'),
 		body('about_es').isString().withMessage('About (es) must be a string'),
 		body('about_pt').isString().withMessage('About (pt) must be a string'),
 		body('closedAt').isISO8601().withMessage('Closed at must be a valid date'),
@@ -98,7 +96,7 @@ router.put('/:projectId',
 // POST /projects/:projectId/publish
 router.post('/:projectId/publish',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 	], 
 	validate,
 	exists.project,
@@ -110,7 +108,7 @@ router.post('/:projectId/publish',
 // POST /projects/:projectId/hide
 router.post('/:projectId/hide',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 	], 
 	validate,
 	exists.project,
@@ -121,7 +119,7 @@ router.post('/:projectId/hide',
 // POST 	/projects/:projectId/like
 router.post('/:projectId/like',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 	], 
 	validate,
 	exists.project,
@@ -132,7 +130,7 @@ router.post('/:projectId/like',
 // POST 	/projects/:projectId/dislike
 router.post('/:projectId/dislike',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 	], 
 	validate,
 	exists.project,

@@ -1,5 +1,5 @@
 const express = require('express');
-const { check, param, body, query } = require('express-validator');
+const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../../services/constants');
 const authenticate = require('../../../../middlewares/authenticate');
 const exists = require('../../../../middlewares/exists');
@@ -32,8 +32,8 @@ const router = express.Router({mergeParams: true});
 // GET 		/projects/:projectId/articles/:articleId/comments
 router.get('/',
 	[
-		check('projectId').isMongoId().withMessage('Invalid Project ID'),
-		check('articleId').isMongoId().withMessage('Invalid Article ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
 		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
 	],
@@ -46,8 +46,8 @@ router.get('/',
 // POST 	/projects/:projectId/articles/:articleId/comments
 router.post('/',
 	[
-		check('projectId').isMongoId().withMessage('Invalid Project ID'),
-		check('articleId').isMongoId().withMessage('Invalid Article ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		body('body').isString().withMessage('Content must be a string'),
 	],
 	validate,
@@ -59,9 +59,9 @@ router.post('/',
 // DELETE /projects/:projectId/articles/:articleId/comments/:commentId
 router.delete('/:commentId',
 	[
-		check('projectId').isMongoId().withMessage('Invalid Project ID'),
-		check('articleId').isMongoId().withMessage('Invalid Article ID'),
-		check('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
 	validate,
 	exists.project,
@@ -74,9 +74,9 @@ router.delete('/:commentId',
 // POST 	/projects/:projectId/articles/:articleId/comments/:commentId/like
 router.post('/:commentId/like',
 	[
-		check('projectId').isMongoId().withMessage('Invalid Project ID'),
-		check('articleId').isMongoId().withMessage('Invalid Article ID'),
-		check('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('articleId').isMongoId().withMessage('Invalid Article ID'),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
 	validate,
 	exists.project,
@@ -89,7 +89,7 @@ router.post('/:commentId/like',
 // POST 	/projects/:projectId/articles/:articleId/comments/:commentId/dislike
 router.post('/:commentId/dislike',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
@@ -104,7 +104,7 @@ router.post('/:commentId/dislike',
 // POST 	/projects/:projectId/articles/:articleId/comments/:commentId/resolve
 router.post('/:commentId/resolve',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
@@ -119,7 +119,7 @@ router.post('/:commentId/resolve',
 // POST 	/projects/:projectId/articles/:articleId/comments/:commentId/highlight
 router.post('/:commentId/highlight',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
@@ -134,7 +134,7 @@ router.post('/:commentId/highlight',
 // GET 		/projects/:projectId/articles/:articleId/comments/:commentId/replies
 router.get('/:commentId/replies',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
@@ -150,7 +150,7 @@ router.get('/:commentId/replies',
 // POST 	/projects/:projectId/articles/:articleId/comments/:commentId/replies
 router.post('/:commentId/replies',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		body('body').isString().withMessage('Content must be a string'),
@@ -166,7 +166,7 @@ router.post('/:commentId/replies',
 // POST		/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/like
 router.post('/:commentId/replies/:replyId/like',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
@@ -183,7 +183,7 @@ router.post('/:commentId/replies/:replyId/like',
 // POST		/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/dislike
 router.post('/:commentId/replies/:replyId/dislike',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
@@ -200,7 +200,7 @@ router.post('/:commentId/replies/:replyId/dislike',
 // DELETE	/projects/:projectId/articles/:articleId/comments/:commentId/replies/:replyId/delete
 router.delete('/:commentId/replies/:replyId/delete',
 	[
-		param('projectId').isMongoId().withMessage('Invalid Project ID'),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
