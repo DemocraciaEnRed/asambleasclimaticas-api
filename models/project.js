@@ -66,6 +66,16 @@ const ProjectSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
+  coverUrl: {
+    type: String,
+    required: false,
+    default: null
+  },
+  youtubeUrl: {
+    type: String,
+    required: false,
+    default: null
+  },
   version: {
     type: Number,
     required: true,
