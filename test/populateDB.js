@@ -12,6 +12,7 @@ const Reply = require('../models/reply');
 const Like = require('../models/like');
 const Country = require('../models/country');
 const { faker } = require('@faker-js/faker');
+const debug = require('debug')('app:test:populateDB');
 
 
 let countries = [];
@@ -22,7 +23,7 @@ let projects = [];
 
 async function fetchMarkdownContent() {
   try {
-    console.log('---- Fetching markdown content...');
+    debug('---- Fetching markdown content...');
     const response = await axios.get('https://jaspervdj.be/lorem-markdownum/markdown.txt');
     return response.data;
   } catch (error) {
@@ -67,7 +68,7 @@ async function createUsers() {
       });
       await user.save();
       adminUsers.push(user);
-      console.log(`* Admin user created: ${user.email}`);
+      debug(`* Admin user created: ${user.email}`);
     }
     // create 10 users with role author
     for(let i = 0; i < 10; i++) {
@@ -83,7 +84,7 @@ async function createUsers() {
       });
       await user.save();
       authorUsers.push(user);
-      console.log(`* Author user created: ${user.email}`);
+      debug(`* Author user created: ${user.email}`);
     }
     // create 20 users with role 'user'
     for(let i = 0; i < 20; i++) {
@@ -99,7 +100,7 @@ async function createUsers() {
       });
       await user.save();
       users.push(user);
-      console.log(`* User created: ${user.email}`);
+      debug(`* User created: ${user.email}`);
     }
     return users;
   } catch (error) {
@@ -130,7 +131,7 @@ async function createProjects(){
         publishedAt: new Date(),
       });
       await project.save();
-      console.log(`* Project created: ${project._id}`);
+      debug(`* Project created: ${project._id}`);
       // create [8,20] comments for the project
       const commentsCount = 8 + Math.floor(Math.random() * 12);
       for(let j = 0; j < commentsCount; j++) {
@@ -141,7 +142,7 @@ async function createProjects(){
           createdInVersion: project.version,
         });
         await comment.save();
-        console.log(`** Comment ${comment._id} created for project ${project._id}`);
+        debug(`** Comment ${comment._id} created for project ${project._id}`);
         // now we need to create [2,20] replies for each comment
         const repliesCount = 2 + Math.floor(Math.random() * 18);
         const replies = []
@@ -153,13 +154,13 @@ async function createProjects(){
           });
           await reply.save();
           replies.push(reply);
-          console.log(`*** Reply ${reply._id} created for comment ${comment._id}`);
+          debug(`*** Reply ${reply._id} created for comment ${comment._id}`);
         }
         // submit the array of replies ids to the comment
         comment.replies = replies.map(reply => reply._id);
         // save it
         await comment.save();
-        console.log(`** Comment ${comment._id} of project ${project._id} updated with replies: ${repliesCount}`);
+        debug(`** Comment ${comment._id} of project ${project._id} updated with replies: ${repliesCount}`);
       }
       // now we need to create [2,6] articles for each project
       const articleCount = 2 + Math.floor(Math.random() * 5);
@@ -175,7 +176,7 @@ async function createProjects(){
         });
         await article.save();
         articles.push(article);
-        console.log(`** Article ${article._id} created for project ${project._id}`);
+        debug(`** Article ${article._id} created for project ${project._id}`);
         // now we need to create [13,30] comments for each article
         const commentsCount = 13 + Math.floor(Math.random() * 17);
         for(let j = 0; j < commentsCount; j++) {
@@ -187,7 +188,7 @@ async function createProjects(){
             createdInVersion: project.version,
           });
           await comment.save();
-          console.log(`*** Comment ${comment._id} created for article ${article._id}`);
+          debug(`*** Comment ${comment._id} created for article ${article._id}`);
           // now we need to create [20,40] replies for each comment
           const replies = []
           const repliesCount = 20 + Math.floor(Math.random() * 20);
@@ -199,19 +200,19 @@ async function createProjects(){
             });
             await reply.save();
             replies.push(reply);
-            console.log(`**** Reply ${reply._id} created for comment ${comment._id}`);
+            debug(`**** Reply ${reply._id} created for comment ${comment._id}`);
           }
           // submit the array of replies ids to the comment
           comment.replies = replies.map(reply => reply._id);
           // save it
           await comment.save();
-          console.log(`*** Comment ${comment._id} of article ${article._id} updated with replies: ${repliesCount}`);
+          debug(`*** Comment ${comment._id} of article ${article._id} updated with replies: ${repliesCount}`);
         }
       }
       // submit the array of articles ids to the project
       project.articles = articles.map(article => article._id);
       await project.save();
-      console.log(`* Project ${project._id} updated with articles: ${articleCount}`);
+      debug(`* Project ${project._id} updated with articles: ${articleCount}`);
       // now lets create 25 events
       const events = []
       for(let j = 0; j < 25; j++) {
@@ -227,7 +228,7 @@ async function createProjects(){
       // save it
       project.events = events;
       await project.save();
-      console.log(`* Project ${project._id} updated with events: 30`);
+      debug(`* Project ${project._id} updated with events: 30`);
       projects.push(project);
     }
   } catch (error) {
@@ -238,13 +239,25 @@ async function createProjects(){
 
 async function cleanDatabase() {
   try {
-    await User.deleteMany({});
-    await Project.deleteMany({});
-    await Article.deleteMany({});
-    await Comment.deleteMany({});
-    await Reply.deleteMany({});
-    await Like.deleteMany({});
-    console.log('* Database prunned');
+    const countries = await Country.countDocuments({})
+    // check if country has been populated
+    if(countries == 0) {
+      throw new Error('Countries collection is empty. Please "run npm dev" first to run migrations');
+    }
+    // Drop User collection
+    await User.collection.drop()
+    // Drop Project collection
+    await Project.collection.drop()
+    // Drop Article collection
+    await Article.collection.drop()
+    // Drop Comment collection
+    await Comment.collection.drop()
+    // Drop Reply collection
+    await Reply.collection.drop()
+    // Drop Like collection
+    await Like.collection.drop()
+    // -----------------
+    debug('* Database prunned');
   } catch (error) {
     console.error(error);
     throw error;
@@ -253,24 +266,24 @@ async function cleanDatabase() {
 
 async function main() {
   try {
-    console.log('Populating database...');
+    debug('Populating database...');
     await mongoose.connect(process.env.MONGODB_URL);
-    console.log('Connected to database');
-    console.log('Prunning database...');
+    debug('Connected to database');
+    debug('Prunning database...');
     await cleanDatabase();
-    console.log('Database is empty!');
-    console.log('----------------------')
-    console.log('Creating users...')
+    debug('Database is empty!');
+    debug('----------------------')
+    debug('Creating users...')
     await createUsers();
-    console.log('Users created');
+    debug('Users created');
     await createProjects();
-    console.log('Projects created');
-    console.log('Database populated');
+    debug('Projects created');
+    debug('Database populated');
 
     process.exit(0);
   } catch (error) {
     console.error(error);
-    throw error;
+    process.exit(1);
   }
 }
 
