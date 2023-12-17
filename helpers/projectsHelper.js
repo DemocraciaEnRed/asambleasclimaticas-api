@@ -70,11 +70,10 @@ exports.listProjects = async (page = 1, limit = 10) => {
       const project = projectList[i];
       const projectOutput = {}
       projectOutput._id = project._id;
+      projectOutput.slug = project.slug;
       projectOutput.author = project.author;
       projectOutput.title_es = project.title_es;
       projectOutput.title_pt = project.title_pt;
-      projectOutput.path_es = project.path_es;
-      projectOutput.path_pt = project.path_pt;
       projectOutput.about_es = project.about_es;
       projectOutput.about_pt = project.about_pt;  
       projectOutput.version = project.version;
@@ -122,11 +121,10 @@ exports.getProject = async (projectId, version = null) => {
     const projectOutput = {}
     const project = await Project.findById(projectId);
     projectOutput._id = project._id;
+    projectOutput.slug = project.path;
     projectOutput.author = project.author;
     projectOutput.title_es = project.title_es;
     projectOutput.title_pt = project.title_pt;
-    projectOutput.path_es = project.path_es;
-    projectOutput.path_pt = project.path_pt;
     projectOutput.eventCount = project.eventsCount;
     projectOutput.articleCount = project.articlesCount;
     projectOutput.versionsCount = project.versionsCount;

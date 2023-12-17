@@ -116,7 +116,7 @@ async function createProjects(){
         author: (await pickRandom(authorUsers))._id,
         title_es: faker.lorem.sentence(5),
         title_pt: faker.lorem.sentence(5),
-        path: faker.lorem.slug(3),
+        slug: faker.lorem.slug(3),
         version: 1,
         // about_es: faker.lorem.sentences(5),
         about_es: await fetchMarkdownContent(),

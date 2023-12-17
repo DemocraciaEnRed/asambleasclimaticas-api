@@ -55,8 +55,7 @@ exports.createProject = async (req, res) => {
       user: req.user._id,
       title_es: req.body.title_es,
       title_pt: req.body.title_pt,
-      path_es: req.body.path_es,
-      path_pt: req.body.path_pt,
+      slug: req.body.slug,
       about_es: req.body.about_es,
       about_pt: req.body.about_pt,
       version: 1,
@@ -99,10 +98,9 @@ exports.updateProject = async (req, res) => {
     // project should be in req.project
     const project = req.project;
     // update the project
+    project.slug = req.body.slug;
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;
-    project.path_es = req.body.path_es;
-    project.path_pt = req.body.path_pt;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
 
@@ -231,10 +229,9 @@ exports.createVersion = async (req, res) => {
     }
 
     // now update the project
+    project.slug = req.body.slug;
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;
-    project.path_es = req.body.path_es;
-    project.path_pt = req.body.path_pt;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
     project.articles = articlesIds;

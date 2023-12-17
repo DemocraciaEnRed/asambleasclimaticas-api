@@ -60,7 +60,7 @@ const ProjectSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  path: {
+  slug: {
     type: String,
     index: true,
     unique: true,
