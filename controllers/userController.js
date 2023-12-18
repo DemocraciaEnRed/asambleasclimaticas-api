@@ -30,6 +30,32 @@ exports.list = async function (req, res) {
 	}
 }
 
+exports.listAuthors = async function (req, res) {
+	try {
+		const user = req.user;
+		const page = req.query.page || 1;
+		const limit = req.query.limit || 10;
+		let includeDeleted = false;
+		let public = true;
+		let extraQuery = {role: 'author'};
+		// if it is an admin
+		if (user && user.role === 'admin') {
+			public = false;
+			// check req.query.includeDeleted
+			if (req.query.includeDeleted && req.query.includeDeleted === 'true') {
+				includeDeleted = true;
+			}
+		}
+
+		// get the users
+		const output = await UserHelper.listUsers(page, limit, extraQuery, public, includeDeleted);
+		return res.json(output);
+	} catch (error) {
+		console.error(error)
+		return res.status(500).json({ message: error.message })
+	}
+}				
+
 exports.me = async function (req, res) {
 	try {
 		const userId = req.user._id;

@@ -29,6 +29,18 @@ router.get('/users',
   UserController.list
 )
 
+// GET 		/admin/users/authors
+router.get('/users/authors',
+  [
+    query('page').optional().isInt({ min: 1 }).withMessage('Page must be an integer greater than 0'),
+    query('limit').optional().isInt({ min: 10 }).withMessage('Limit must be an integer greater than 0'),
+    query('includeDeleted').optional().isBoolean().withMessage('Include deleted must be a boolean'),
+  ],
+  validate,
+  authenticate(constants.ROLES.ADMINISTRATOR),
+  UserController.listAuthors
+)
+
 // GET 		/admin/users/:userId
 router.get('/users/:userId',
   [
