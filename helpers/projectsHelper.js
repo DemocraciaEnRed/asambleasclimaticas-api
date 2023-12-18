@@ -121,7 +121,14 @@ exports.listProjects = async (page = 1, limit = 10) => {
 exports.getProject = async (projectId, version = null) => {
   try {
     const projectOutput = {}
-    const project = await Project.findById(projectId);
+    const project = await Project.findOne({ _id: projectId }).populate({
+      path: 'author',
+      select: '_id name country',
+      populate: {
+        path: 'country',
+        select: '_id name code emoji unicode image'
+      }
+    });
     projectOutput._id = project._id;
     projectOutput.slug = project.slug;
     projectOutput.author = project.author;
