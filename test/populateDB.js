@@ -52,10 +52,10 @@ async function pickRandom(arr){
   return arr[randomIndex];
 }
 
-async function getYoutubeUrl() {
+function getYoutubeUrl() {
   // flip a coin, if it is heads, return a youtube url
   // if its tails, return null
-  const coin = Math.random() >= 0.5;
+  const coin = Math.random() >= 0.75;
   if(coin) {
     return 'https://www.youtube.com/watch?v=WZviVJfepDM&list=FL-7kSn8zXKxkdIfrX4VNuow&index=2&ab_channel=Vulf'
   }
@@ -122,13 +122,13 @@ async function createUsers() {
 async function createProjects(){
   try {
     // create 15 projects
-    for(let i = 0; i < 2; i++) {
+    for(let i = 0; i < 4; i++) {
       const project = new Project({
         author: (await pickRandom(authorUsers))._id,
         title_es: faker.lorem.sentence(5),
         title_pt: faker.lorem.sentence(5),
         slug: faker.lorem.slug(3),
-        imageUrl: faker.image.imageUrl(),
+        imageUrl: faker.image.url(),
         youtubeUrl: getYoutubeUrl(),
         version: 1,
         // about_es: faker.lorem.sentences(5),
