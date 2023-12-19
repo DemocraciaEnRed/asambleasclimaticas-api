@@ -8,8 +8,8 @@ const ProjectHelper = require('../helpers/projectsHelper');
 exports.listEvents = async (req, res) => {
   try {
     const project = req.project
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     // get the events
     const events = project.events.sort((a, b) => b.date - a.date)
     // paginate the events

@@ -9,9 +9,9 @@ exports.listComments = async (req,res) => {
   try {
     const projectId = req.params.projectId;
     const articleId = req.params.articleId || null;
-    const version = req.params.version || null;
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
+    const version = parseInt(req.params.version) || null;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const resData = await ProjectHelper.listComments(projectId, articleId, version, page, limit)
     return res.status(200).json(resData);
   } catch(error) {
@@ -23,8 +23,8 @@ exports.listComments = async (req,res) => {
 exports.listReplies = async (req,res) => {
   try {
     const commentId = req.params.commentId;
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 10;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const resData = await ProjectHelper.listReplies(commentId, page, limit)
     return res.status(200).json(resData);
   } catch(error) {

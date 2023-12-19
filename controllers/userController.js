@@ -6,8 +6,8 @@ const agenda = require('../services/agenda');
 exports.list = async function (req, res) {
 	try {
 		const user = req.user;
-		const page = req.query.page || 1;
-		const limit = req.query.limit || 10;
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 10;
 		let includeDeleted = false;
 		let public = true;
 		let extraQuery = null;
@@ -33,8 +33,8 @@ exports.list = async function (req, res) {
 exports.listAuthors = async function (req, res) {
 	try {
 		const user = req.user;
-		const page = req.query.page || 1;
-		const limit = req.query.limit || 10;
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 10;
 		let includeDeleted = false;
 		let public = true;
 		let extraQuery = {role: 'author'};

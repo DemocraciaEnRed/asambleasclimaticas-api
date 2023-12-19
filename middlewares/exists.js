@@ -113,7 +113,7 @@ exports.reply = async (req, res, next) => {
 exports.version = async (req, res, next) => {
   try {
     const projectId = req.params.projectId;
-    const version = req.params.version;
+    const version = parseInt(req.params.version) || 1;
     const project = await Project.findOne({ _id: projectId, version: { $gte: version } });
     if(!project) {
       return res.status(404).json({ message: 'Project version not found' });

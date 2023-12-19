@@ -8,8 +8,8 @@ const ProjectHelper = require('../helpers/projectsHelper');
 // DONE
 exports.listProjects = async (req, res) => {
   try {
-		const page = req.query.page || 1;
-		const limit = req.query.limit || 10;
+		const page = parseInt(req.query.page) || 1;
+		const limit = parseInt(req.query.limit) || 10;
     // get the projects
     const resData = await ProjectHelper.listProjects(page, limit);
     // return the projects
@@ -281,7 +281,7 @@ exports.getArticles = async (req, res) => {
 exports.getVersion = async (req, res) => {
   try {
     const projectId = req.project._id;
-    const version = req.params.version;
+    const version = parseInt(req.params.version) || 1;
     // get the articles
     const resData = await ProjectHelper.getProject(projectId, version);
     // return the articles

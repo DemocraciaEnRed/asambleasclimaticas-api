@@ -21,7 +21,7 @@ const router = express.Router({mergeParams: true});
 router.get('/users',
   [
     query('page').optional().isInt({ min: 1 }).withMessage('Page must be an integer greater than 0'),
-    query('limit').optional().isInt({ min: 10 }).withMessage('Limit must be an integer greater than 0'),
+    query('limit').optional().isInt({ min: 10 }).withMessage('Limit must be an integer greater than 1'),
     query('includeDeleted').optional().isBoolean().withMessage('Include deleted must be a boolean'),
   ],
   validate,
@@ -33,7 +33,7 @@ router.get('/users',
 router.get('/users/authors',
   [
     query('page').optional().isInt({ min: 1 }).withMessage('Page must be an integer greater than 0'),
-    query('limit').optional().isInt({ min: 10 }).withMessage('Limit must be an integer greater than 0'),
+    query('limit').optional().isInt({ min: 1 }).withMessage('Limit must be an integer greater than 1'),
     query('includeDeleted').optional().isBoolean().withMessage('Include deleted must be a boolean'),
   ],
   validate,
