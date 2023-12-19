@@ -52,7 +52,7 @@ exports.getProject = async (req, res) => {
 exports.createProject = async (req, res) => {
   try {
     const projectData = {
-      user: req.user._id,
+      author: req.user._id,
       title_es: req.body.title_es,
       title_pt: req.body.title_pt,
       coverUrl: req.body.coverUrl,
@@ -67,6 +67,17 @@ exports.createProject = async (req, res) => {
     if(req.body.publishedAt) {
       projectData.publishedAt = req.body.publishedAt;
       projectData.hidden = false;
+    }
+    // if user is an admin, the payload might contain an author id
+    if(req.user.role == 'admin'){
+      // check if the author exists
+      if(req.body.author) {
+        // if it does, then add it to the project data
+        projectData.author = req.body.author;
+      } else {
+        // if it doesn't, then add the admin user id as the author
+        projectData.author = req.user._id;
+      }
     }
     // create the project
     const project = await Project.create(projectData);
@@ -101,7 +112,7 @@ exports.createProject = async (req, res) => {
 exports.updateProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
-    await ProjectHelper.canEdit(req.user, req.params.id)
+    await ProjectHelper.canEdit(req.user, req.params.projectId)
 
     // project should be in req.project
     const project = req.project;
@@ -109,12 +120,22 @@ exports.updateProject = async (req, res) => {
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;
     project.slug = req.body.slug;
-    project.coveUrl = req.body.coverUrl;
+    project.coverUrl = req.body.coverUrl;
     project.youtubeUrl = req.body.youtubeUrl;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
     project.stage = req.body.stage;
     project.closedAt = req.body.closedAt;
+
+    // if the user is an admin, the payload might contain an author id
+    if(req.user.role == 'admin'){
+      // check if the author exists
+      if(req.body.author) {
+        // if it does, then add it to the project data
+        project.author = req.body.author;
+      }
+    }
+
     // save the project
     await project.save();
 
