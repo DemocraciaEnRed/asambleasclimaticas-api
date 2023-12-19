@@ -49,6 +49,7 @@ exports.listUsers = async (page = 1, limit = 10, extraQuery = null, public = tru
     return {
       users,
       page,
+      total,
       pages,
       nextPage,
       prevPage
