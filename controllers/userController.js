@@ -37,7 +37,7 @@ exports.listAuthors = async function (req, res) {
 		const limit = parseInt(req.query.limit) || 10;
 		let includeDeleted = false;
 		let public = true;
-		let extraQuery = {role: 'author'};
+		let extraQuery = {role: {$in: ['author', 'admin']}}; // only authors and admins
 		// if it is an admin
 		if (user && user.role === 'admin') {
 			public = false;
