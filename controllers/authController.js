@@ -61,7 +61,10 @@ exports.login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
 
-		const user = await User.findOne({ email });
+		const user = await User.findOne({ email }).populate({
+			path: 'country',
+			select: 'name code emoji unicode image'
+		});
 
 		if (!user){
 			return res.status(401).json({ message: 'Invalid email or password' });
@@ -82,10 +85,11 @@ exports.login = async (req, res) => {
 			email: user.email,
 			name: user.name,
 			role: user.role,
-			lang: user.lang
+			lang: user.lang,
+			country: user.country,
 		}
 		// Login successful, write token, and send back user
-		res.status(200).json({ token: user.generateJWT(), user: outputUser });
+		res.status(200).json({ token: await user.generateJWT(), user: outputUser });
 	} catch (error) {
 		res.status(500).json({ message: error.message })
 	}

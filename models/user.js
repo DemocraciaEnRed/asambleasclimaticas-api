@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const Country = require('./country');
 
 const Token = require('../models/token');
 
@@ -93,7 +94,8 @@ UserSchema.methods.comparePassword = function (password) {
  * Generate the JWT for the user
  * @returns {Object} The signed JWT token for the user
  */
-UserSchema.methods.generateJWT = function () {
+UserSchema.methods.generateJWT = async function () {
+	let country = await Country.findById(this.country).select('name code emoji unicode');
 	const expiresIn = '2d';
 
 	let payload = {
@@ -102,6 +104,7 @@ UserSchema.methods.generateJWT = function () {
 		name: this.name,
 		role: this.role,
 		lang: this.lang,
+		country: country,
 	};
 
 	return jwt.sign(payload, process.env.JWT_SECRET, {
