@@ -128,7 +128,7 @@ async function createProjects(){
         title_es: faker.lorem.sentence(5),
         title_pt: faker.lorem.sentence(5),
         slug: faker.lorem.slug(3),
-        imageUrl: faker.image.url(),
+        coverUrl: faker.image.url(),
         youtubeUrl: getYoutubeUrl(),
         version: 1,
         // about_es: faker.lorem.sentences(5),
