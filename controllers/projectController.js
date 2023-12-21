@@ -136,6 +136,59 @@ exports.updateProject = async (req, res) => {
       }
     }
 
+    // req.body.articles is an array of objects that contains {_id, body_es, body_pt, position}
+    // articles with _id are existing articles, articles without _id are new articles
+    // if an _id is not found, then the article was deleted
+    const articles = req.body.articles;
+    const articlesIds = [];
+    
+    for(let i = 0; i < articles.length; i++) {
+      // if the article has an _id, it is an existing article
+      if(articles[i]._id) {
+        const article = await Article.findById(articles[i]._id);
+        // if the project is not published, then you can delete articles
+        if(!project.publishedAt){
+          // if the article has deleted: true, then delete it
+          if(articles[i].deleted) {
+            await article.deleteOne()
+            continue; 
+          }
+        }
+        // if the article is not deleted, then update it
+        article.text_es = articles[i].text_es;
+        article.text_pt = articles[i].text_pt;
+        article.position = articles[i].position;
+        // save the existing article
+        await article.save();
+        // add the article to the project.articles Ids list
+        articlesIds.push(article._id);
+      } else {
+        // if the article has been published, then you cannot add new articles
+        if(!project.publishedAt) {
+          // if the article doesn't have an _id, it is a new article
+          const articleData = {
+            project: project._id,
+            text_es: articles[i].text_es,
+            text_pt: articles[i].text_pt,
+            position: articles[i].position,
+          }
+          
+          // create the article
+          const article = await Article.create(articleData);
+          // add the article to the project.articles Ids list
+          articlesIds.push(article._id);
+        }
+      }
+    }
+    // update the project with the new articles
+    project.articles = articlesIds;
+
+    // if(req.body.publishedAt && !project.publishedAt) {
+    if(req.body.publishedAt && !project.publishedAt) {
+      project.publishedAt = req.body.publishedAt;
+      project.hidden = false;
+    }
+
     // save the project
     await project.save();
 
