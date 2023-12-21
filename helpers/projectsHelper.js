@@ -16,7 +16,7 @@ exports.canEdit = async (user, project) => {
     // if user is author
     if(user.role === 'author') {
       // check if the user is the author of the project
-      return project.author._id === user._id;
+      return project.author === user._id;
     }
   
     // any other user, cannot
@@ -36,7 +36,7 @@ exports.canModerate = async (user, project) => {
     
     // if user is author, then ok
     if(user.role === 'author') {
-      return project.author._id === user._id;
+      return project.author === user._id;
     }
 
     // any other user, cannot
