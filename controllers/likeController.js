@@ -77,7 +77,14 @@ exports.toggleLike = async (req,res) => {
         resData.result = 'changed';
       } else {
         // if it is a like, delete it
-        await like.remove();
+        await Like.deleteOne({
+          user: req.user._id,
+          project: projectId,
+          article: articleId,
+          comment: commentId,
+          reply: replyId,
+        });
+        //await like.remove();
         resData.result = 'removed';
       }
     }
@@ -165,7 +172,14 @@ exports.toggleDislike = async (req,res) => {
         resData.result = 'changed';
       } else {
         // if it is a dislike, delete it
-        await like.remove();
+        await Like.deleteOne({
+          user: req.user._id,
+          project: projectId,
+          article: articleId,
+          comment: commentId,
+          reply: replyId,
+        });
+        //await like.remove();
         resData.result = 'removed';
       }
     }
