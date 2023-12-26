@@ -10,6 +10,7 @@ const LikeController = require('../../../controllers/likeController');
 const ProjectController = require('../../../controllers/projectController');
 
 const CommentsRoutes = require('./comments');
+const optionalAuthenticate = require('../../../middlewares/optionalAuthenticate');
 
 // initialize router
 const router = express.Router({mergeParams: true});
@@ -31,6 +32,7 @@ router.get('/',
 	],
 	validate,
 	exists.project,
+	optionalAuthenticate,
 	ProjectController.getArticles
 );
 

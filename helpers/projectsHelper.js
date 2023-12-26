@@ -4,6 +4,7 @@ const Project = require('../models/project');
 const Like = require('../models/like');
 const user = require('../models/user');
 const Reply = require('../models/reply');
+const like = require('../models/like');
 
 
 exports.canEdit = async (user, project) => {
@@ -178,7 +179,7 @@ exports.getProject = async (projectId, version = null) => {
   }
 }
 
-exports.getArticles = async (projectId, version = null) => {
+exports.getArticles = async (projectId, version = null, currentUser) => {
   try {
     const articles = []
     // what is the current version?
@@ -202,6 +203,15 @@ exports.getArticles = async (projectId, version = null) => {
           commentsCount: await article.getCommentsCount(),
           createdAt: article.createdAt,
           updatedAt: article.updatedAt,
+        
+        }
+        if(currentUser){
+          const articleLikedByUser = await like.findOne({article: article._id, user: currentUser._id})
+          if(articleLikedByUser){
+            articleOutput.userLikeThis = articleLikedByUser.type === 'like'
+            articleOutput.userDislikeThis = articleLikedByUser.type === 'dislike'
+          }
+        
         }
         articles.push(articleOutput);
       }

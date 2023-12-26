@@ -343,7 +343,7 @@ exports.getArticles = async (req, res) => {
     const projectId = req.project._id;
     const version = req.project.version || null;
     // get the articles
-    const resData = await ProjectHelper.getArticles(projectId, version);
+    const resData = await ProjectHelper.getArticles(projectId, version, req.user);
     // return the articles
     return res.status(200).json(resData);
   } catch (error){
