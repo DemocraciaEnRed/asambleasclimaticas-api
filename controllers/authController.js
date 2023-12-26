@@ -16,7 +16,7 @@ const express = require('express');
  */
 exports.register = async (req, res) => {
 	try {
-		const { email, password, name, lang } = req.body;
+		const { email, password, name, lang, country } = req.body;
 
 		// Make sure this account doesn't already exist
 		const user = await User.findOne({ email });
@@ -29,7 +29,8 @@ exports.register = async (req, res) => {
 			email: email,
 			password: password,
 			name: name,
-			lang: lang
+			lang: lang,
+			country: country
 		});
 
 		await newUser.save();	
