@@ -268,6 +268,8 @@ async function cleanDatabase() {
     await Reply.collection.drop()
     // Drop Like collection
     await Like.collection.drop()
+    // Drop Replies collection
+    await Reply.collection.drop()
     // -----------------
     debug('* Database prunned');
   } catch (error) {
