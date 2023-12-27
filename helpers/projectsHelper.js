@@ -124,7 +124,6 @@ exports.listProjects = async (page = 1, limit = 10, currentUserId = null) => {
 
 exports.getProject = async (projectId, version = null, currentUserId = null) => {
   try {
-    console.log(currentUserId)
     const projectOutput = {}
     const project = await Project.findOne({ _id: projectId }).populate({
       path: 'author',

@@ -23,7 +23,6 @@ exports.listProjects = async (req, res) => {
 
 exports.getProject = async (req, res) => {
   try{
-    console.log(req.user)
     const currentUserId = req.user ? req.user._id : null;
     const projectId = req.project._id;
     const withArticles = req.query.withArticles || false;
