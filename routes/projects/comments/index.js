@@ -8,6 +8,7 @@ const validate = require('../../../middlewares/validate');
 const CommentController = require('../../../controllers/commentController');
 const LikeController = require('../../../controllers/likeController');  
 const ProjectController = require('../../../controllers/projectController');
+const optionalAuthenticate = require('../../../middlewares/optionalAuthenticate');
 
 // initialize router
 const router = express.Router({mergeParams: true});
@@ -35,6 +36,7 @@ router.get('/',
 	],
 	validate,
 	exists.project,
+	optionalAuthenticate,
 	CommentController.listComments
 )
 // POST 	/projects/:projectId/comments
@@ -100,6 +102,7 @@ router.get('/:commentId/replies',
 	validate,
 	exists.project,
 	exists.comment,
+	optionalAuthenticate,
 	CommentController.listReplies
 )
 

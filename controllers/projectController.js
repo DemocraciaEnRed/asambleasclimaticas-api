@@ -8,10 +8,11 @@ const ProjectHelper = require('../helpers/projectsHelper');
 // DONE
 exports.listProjects = async (req, res) => {
   try {
+    const currentUserId = req.user ? req.user._id : null;
 		const page = parseInt(req.query.page) || 1;
 		const limit = parseInt(req.query.limit) || 10;
     // get the projects
-    const resData = await ProjectHelper.listProjects(page, limit);
+    const resData = await ProjectHelper.listProjects(page, limit, currentUserId);
     // return the projects
     return res.status(200).json(resData);
   } catch (error){
@@ -22,16 +23,18 @@ exports.listProjects = async (req, res) => {
 
 exports.getProject = async (req, res) => {
   try{
+    console.log(req.user)
+    const currentUserId = req.user ? req.user._id : null;
     const projectId = req.project._id;
     const withArticles = req.query.withArticles || false;
     // const withComments = req.query.withComments || false;
     // return the project
-    const project = await ProjectHelper.getProject(projectId);
+    const project = await ProjectHelper.getProject(projectId, null, currentUserId);
     // if the query param withArticles is true, add the articles to the project
     // NOTE they dont come with comments
     if(withArticles) {
       // get the articles
-      const articles = await ProjectHelper.getArticles(projectId);
+      const articles = await ProjectHelper.getArticles(projectId, null, currentUserId);
       project.articles = articles;
     }
     // if the query param withComments is true, add the comments to the project
@@ -340,10 +343,11 @@ exports.createVersion = async (req, res) => {
 
 exports.getArticles = async (req, res) => {
   try {
+    const currentUserId = req.user ? req.user._id : null;
     const projectId = req.project._id;
     const version = req.project.version || null;
     // get the articles
-    const resData = await ProjectHelper.getArticles(projectId, version, req.user);
+    const resData = await ProjectHelper.getArticles(projectId, version, currentUserId);
     // return the articles
     return res.status(200).json(resData);
   } catch (error){
@@ -354,10 +358,11 @@ exports.getArticles = async (req, res) => {
 
 exports.getVersion = async (req, res) => {
   try {
+    const currentUserId = req.user ? req.user._id : null;
     const projectId = req.project._id;
     const version = parseInt(req.params.version) || 1;
     // get the articles
-    const resData = await ProjectHelper.getProject(projectId, version);
+    const resData = await ProjectHelper.getProject(projectId, version, currentUserId);
     // return the articles
     return res.status(200).json(resData);
   } catch (error){

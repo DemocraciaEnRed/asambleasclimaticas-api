@@ -55,6 +55,21 @@ CommentSchema.methods.getRepliesCount = async function () {
   return await Reply.countDocuments({comment: this._id});
 }
 
+// get if user has liked or disliked the comment
+CommentSchema.methods.getIfLikedOrDislikedByUser = async function (userId) {
+  if(!userId) {
+    return {
+      liked: false,
+      disliked: false
+    }
+  }
+  const likeStatus = await Like.findOne({project: this.project._id, article: this.article, comment: this._id, user: userId});
+  return {
+    liked: likeStatus && likeStatus.type === 'like' || false,
+    disliked: likeStatus && likeStatus.type === 'dislike' || false
+  }
+}
+
 
 
 module.exports = mongoose.model('Comment', CommentSchema);

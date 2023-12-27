@@ -69,13 +69,30 @@ ArticleSchema.methods.getDislikesCount = function(cb) {
   return Like.countDocuments({article: this._id, type: 'dislike'}, cb);
 }
 
-// TODO get the comments count
-// TODO get count of highlithed comments
-// TODO get count of comments with replies
+// get the comments count
 
 ArticleSchema.methods.getCommentsCount = async function() {
   return await comment.countDocuments({project: this.project._id, article: this._id});
 }
+
+// Get if a user has liked or disliked an article
+ArticleSchema.methods.getIfLikedOrDislikedByUser = async function(userId) {
+  if(!userId) {
+    return {
+      liked: false,
+      disliked: false
+    }
+  }
+  const likeStatus = await Like.findOne({project: this.project, article: this._id, comment: null, reply: null, user: userId});
+
+  return {
+    liked: likeStatus && likeStatus.type === 'like' || false,
+    disliked: likeStatus && likeStatus.type === 'dislike' || false
+  }
+}
+
+// TODO get count of highlithed comments
+// TODO get count of comments with replies
 
 
 module.exports = mongoose.model('Article', ArticleSchema);

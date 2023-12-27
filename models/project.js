@@ -161,4 +161,19 @@ ProjectSchema.methods.getAuthor = async function() {
   return await User.findById(this.author);
 }
 
+// get if user likes the project
+ProjectSchema.methods.getIfLikedOrDislikedByUser = async function(userId) {
+  if(!userId) {
+    return {
+      liked: false,
+      disliked: false,
+    }
+  }
+  const likeStatus = await Like.findOne({project: this._id, article: null, comment: null, reply: null, user: userId});
+  return {
+    liked: likeStatus && likeStatus.type === 'like' || false,
+    disliked: likeStatus && likeStatus.type === 'dislike' || false
+  }
+}
+
 module.exports = mongoose.model('Project', ProjectSchema);

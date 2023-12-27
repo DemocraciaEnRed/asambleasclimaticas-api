@@ -14,6 +14,7 @@ const CommentsRoutes = require('./comments');
 const VersionsRoutes = require('./versions');
 const ArticlesRoutes = require('./articles');
 const EventsRoutes = require('./events');
+const optionalAuthenticate = require('../../middlewares/optionalAuthenticate');
 
 // initialize router
 const router = express.Router({mergeParams: true});
@@ -42,6 +43,7 @@ router.get('/',
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
 		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
 	],
+	optionalAuthenticate,
 	ProjectController.listProjects
 );
 
@@ -78,6 +80,7 @@ router.get('/:projectId',
 	], 
 	validate, // validates the array of checks above
 	exists.project, // checks if the project exists and adds it to the request object
+	optionalAuthenticate,
 	ProjectController.getProject // calls the controller
 )
 
@@ -150,7 +153,6 @@ router.post('/:projectId/dislike',
 // add /articles routes
 // -----------------------------------------------
 router.use('/:projectId/articles', ArticlesRoutes);
-// -----------------------------------------------
 // -----------------------------------------------
 // add /comments routes
 // -----------------------------------------------

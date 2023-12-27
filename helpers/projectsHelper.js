@@ -50,7 +50,7 @@ exports.canModerate = async (user, project) => {
 
 
 
-exports.listProjects = async (page = 1, limit = 10) => {
+exports.listProjects = async (page = 1, limit = 10, currentUserId = null) => {
   try {
     const projects = []
     // get the projects by page
@@ -87,6 +87,9 @@ exports.listProjects = async (page = 1, limit = 10) => {
       projectOutput.articleCommentsCount = await project.getArticleCommentsCount();
       projectOutput.likes = await project.getLikesCount();
       projectOutput.dislikes = await project.getDislikesCount();
+      const likedAndDisliked = await project.getIfLikedOrDislikedByUser(currentUserId)
+      projectOutput.liked = likedAndDisliked.liked;
+      projectOutput.disliked = likedAndDisliked.disliked;
       projectOutput.stage = project.stage;
       projectOutput.closed = project.closed;
       projectOutput.closedAt = project.closedAt;
@@ -119,8 +122,9 @@ exports.listProjects = async (page = 1, limit = 10) => {
   }
 }
 
-exports.getProject = async (projectId, version = null) => {
+exports.getProject = async (projectId, version = null, currentUserId = null) => {
   try {
+    console.log(currentUserId)
     const projectOutput = {}
     const project = await Project.findOne({ _id: projectId }).populate({
       path: 'author',
@@ -144,6 +148,9 @@ exports.getProject = async (projectId, version = null) => {
     projectOutput.articleCommentsCount = await project.getArticleCommentsCount();
     projectOutput.likes = await project.getLikesCount();
     projectOutput.dislikes = await project.getDislikesCount();
+    const likedAndDisliked = await project.getIfLikedOrDislikedByUser(currentUserId)
+    projectOutput.liked = likedAndDisliked.liked;
+    projectOutput.disliked = likedAndDisliked.disliked;
     projectOutput.stage = project.stage;
     projectOutput.closed = project.closed;
     projectOutput.closedAt = project.closedAt;
@@ -179,7 +186,7 @@ exports.getProject = async (projectId, version = null) => {
   }
 }
 
-exports.getArticles = async (projectId, version = null, currentUser) => {
+exports.getArticles = async (projectId, version = null, currentUserId = null) => {
   try {
     const articles = []
     // what is the current version?
@@ -192,27 +199,20 @@ exports.getArticles = async (projectId, version = null, currentUser) => {
       const projectArr = await Article.find({_id: {$in: articlesIds}}).sort({position: 1});
       for(let i = 0; i < projectArr.length; i++) {
         const article = projectArr[i];
-        const articleOutput = {
-          _id: article._id,
-          text_es: article.text_es,
-          text_pt: article.text_pt,
-          position: article.position,
-          version: project.version,
-          likes: await article.getLikesCount(),
-          dislikes: await article.getDislikesCount(),
-          commentsCount: await article.getCommentsCount(),
-          createdAt: article.createdAt,
-          updatedAt: article.updatedAt,
-        
-        }
-        if(currentUser){
-          const articleLikedByUser = await like.findOne({article: article._id, user: currentUser._id})
-          if(articleLikedByUser){
-            articleOutput.userLikeThis = articleLikedByUser.type === 'like'
-            articleOutput.userDislikeThis = articleLikedByUser.type === 'dislike'
-          }
-        
-        }
+        const articleOutput = {}
+        articleOutput._id = article._id
+        articleOutput.text_es = article.text_es
+        articleOutput.text_pt = article.text_pt
+        articleOutput.position = article.position
+        articleOutput.version = project.version
+        articleOutput.likes = await article.getLikesCount()
+        articleOutput.dislikes = await article.getDislikesCount()
+        articleOutput.commentsCount = await article.getCommentsCount()
+        const likedAndDisliked = await article.getIfLikedOrDislikedByUser(currentUserId)
+        articleOutput.liked = likedAndDisliked.liked
+        articleOutput.disliked = likedAndDisliked.disliked
+        articleOutput.createdAt = article.createdAt
+        articleOutput.updatedAt = article.updatedAt
         articles.push(articleOutput);
       }
     }
@@ -227,15 +227,18 @@ exports.getArticles = async (projectId, version = null, currentUser) => {
         const article = projectArr[i];
         // article.versions is an array of subdocuments, so we need to find the subdocument with that version
         const articleVersion = article.versions.find(version => version.version === version);
-        const articleOutput = {
-          _id: article._id,
-          text_es: articleVersion.text_es,
-          text_pt: articleVersion.text_pt,
-          version: projectVersion.version,
-          position: articleVersion.position,
-          createdAt: articleVersion.createdAt,
-          updatedAt: articleVersion.updatedAt,
-        }
+        const articleOutput = {}
+        articleOutput._id = article._id
+        articleOutput.text_es = articleVersion.text_es
+        articleOutput.text_pt = articleVersion.text_pt
+        articleOutput.version = projectVersion.version
+        articleOutput.position = articleVersion.position
+        // even if it is another version, we attach the likes and dislikes from the current version
+        const likedAndDisliked = await article.getIfLikedOrDislikedByUser(currentUserId)
+        articleOutput.liked = likedAndDisliked.liked
+        articleOutput.disliked = likedAndDisliked.disliked
+        articleOutput.createdAt = articleVersion.createdAt
+        articleOutput.updatedAt = articleVersion.updatedAt
         articles.push(articleOutput);
       }
       // now we need to sort the articles by position
@@ -249,7 +252,7 @@ exports.getArticles = async (projectId, version = null, currentUser) => {
   }
 }
 
-exports.listComments = async (projectId, articleId = null, version = null, page = 1, limit = 10, includeHighlighted = false, includeResolved = false) => {
+exports.listComments = async (projectId, articleId = null, version = null, currentUserId = null, page = 1, limit = 10, includeHighlighted = false, includeResolved = false) => {
   try {
     // get the project version
     const project = await Project.findById(projectId);
@@ -329,6 +332,9 @@ exports.listComments = async (projectId, articleId = null, version = null, page 
       commentOutput.likes = await comment.getLikesCount();
       commentOutput.dislikes = await comment.getDislikesCount();
       commentOutput.repliesCount = await comment.getRepliesCount();
+      const likedAndDisliked = await comment.getIfLikedOrDislikedByUser(currentUserId)
+      commentOutput.liked = likedAndDisliked.liked;
+      commentOutput.disliked = likedAndDisliked.disliked;
       commentOutput.createdInVersion = comment.createdInVersion;
       commentOutput.highlightedInVersion = comment.highlightedInVersion;
       commentOutput.resolvedInVersion = comment.resolvedInVersion;
@@ -358,7 +364,7 @@ exports.listComments = async (projectId, articleId = null, version = null, page 
   }
 }
 
-exports.listReplies = async (commentId, page = 1, limit = 10) => {
+exports.listReplies = async (commentId, currentUserId = null, page = 1, limit = 10) => {
   try {
     // get the replies for the comment
     // that is, replies that have comment != null
@@ -381,6 +387,9 @@ exports.listReplies = async (commentId, page = 1, limit = 10) => {
       replyOutput.text = reply.text;
       //replyOutput.likes = await reply.getLikesCount();
       //replyOutput.dislikes = await reply.getDislikesCount();
+      const likedAndDisliked = await reply.getIfLikedOrDislikedByUser(currentUserId)
+      replyOutput.liked = likedAndDisliked.liked;
+      replyOutput.disliked = likedAndDisliked.disliked;
       replyOutput.createdAt = reply.createdAt;
       replyOutput.updatedAt = reply.updatedAt;
       replies.push(replyOutput);

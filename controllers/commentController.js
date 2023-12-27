@@ -7,12 +7,13 @@ const ProjectHelper = require('../helpers/projectsHelper');
 
 exports.listComments = async (req,res) => {
   try {
+    const currentUserId = req.user ? req.user._id : null;
     const projectId = req.params.projectId;
     const articleId = req.params.articleId || null;
     const version = parseInt(req.params.version) || null;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const resData = await ProjectHelper.listComments(projectId, articleId, version, page, limit)
+    const resData = await ProjectHelper.listComments(projectId, articleId, version, currentUserId, page, limit)
     return res.status(200).json(resData);
   } catch(error) {
     console.error(error)
@@ -22,10 +23,11 @@ exports.listComments = async (req,res) => {
 
 exports.listReplies = async (req,res) => {
   try {
+    const currentUserId = req.user ? req.user._id : null;
     const commentId = req.params.commentId;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const resData = await ProjectHelper.listReplies(commentId, page, limit)
+    const resData = await ProjectHelper.listReplies(commentId, currentUserId, page, limit)
     return res.status(200).json(resData);
   } catch(error) {
     console.error(error)

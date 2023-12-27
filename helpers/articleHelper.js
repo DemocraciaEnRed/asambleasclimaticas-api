@@ -13,7 +13,9 @@ exports.count = async (projectId) => {
   }
 }
 
-exports.get = async (projectId) => {
+// Not in use currently...
+// If you're going to use it, you should attach if the current user has liked or disliked the article
+exports.get = async (projectId, currentUserId = null) => {
   try {
     const articles = await Article.find({project: projectId, deletedAt: null}).sort({order: 1});
     // for each article, get the comments
@@ -21,6 +23,9 @@ exports.get = async (projectId) => {
       const article = articles[i];
       const comments = await CommentHelper.get(projectId, article._id)
       article.comments = comments;
+      const likedAndDisliked = await article.getIfLikedOrDislikedByUser(currentUserId);
+      article.liked = likedAndDisliked.liked;
+      article.disliked = likedAndDisliked.disliked;
     }
     return articles;
   } catch (error) {
