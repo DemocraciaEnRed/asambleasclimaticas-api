@@ -17,7 +17,7 @@ exports.canEdit = async (user, project) => {
     // if user is author
     if(user.role === 'author') {
       // check if the user is the author of the project
-      return project.author === user._id;
+      return project.author.equals(user._id);
     }
   
     // any other user, cannot
@@ -151,6 +151,7 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
     projectOutput.liked = likedAndDisliked.liked;
     projectOutput.disliked = likedAndDisliked.disliked;
     projectOutput.stage = project.stage;
+    projectOutput.hidden = project.hidden;
     projectOutput.closed = project.closed;
     projectOutput.closedAt = project.closedAt;
     projectOutput.publishedAt = project.publishedAt;
