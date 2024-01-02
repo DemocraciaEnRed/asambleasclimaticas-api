@@ -25,25 +25,27 @@ exports.getProject = async (req, res) => {
   try{
     const currentUserId = req.user ? req.user._id : null;
     const projectId = req.project._id;
+    const theProject = req.project
     const withArticles = req.query.withArticles || false;
-    // const withComments = req.query.withComments || false;
+
+    // check if the user is an admin or the author of the project
+    let canEdit = await ProjectHelper.canEdit(req.user, theProject)
+
+    if(theProject.hidden && !canEdit) {
+      return res.status(404).json({ message: 'Project not found' })
+    }
+    
     // return the project
     const project = await ProjectHelper.getProject(projectId, null, currentUserId);
-    // if the query param withArticles is true, add the articles to the project
+    
+
     // NOTE they dont come with comments
     if(withArticles) {
       // get the articles
       const articles = await ProjectHelper.getArticles(projectId, null, currentUserId);
       project.articles = articles;
     }
-    // if the query param withComments is true, add the comments to the project
-    // TODO if they are too many we shouldnt attach it
-    // if(withComments) {
-    //   // get the comments
-    //   const comments = await ProjectHelper.listComments(projectId, null, null, 1, 10, false, false)
-    //   project.comments = comments;
-    // }
-      
+          
     return res.status(200).json(project);
   } catch (error) {
     console.error(error)
@@ -53,6 +55,19 @@ exports.getProject = async (req, res) => {
 
 exports.createProject = async (req, res) => {
   try {
+
+    // if user is an admin, the payload might contain an author id
+    if(req.user.role == 'admin'){
+      // check if the author exists
+      if(req.body.author) {
+        // if it does, then add it to the project data
+        projectData.author = req.body.author;
+      } else {
+        // if it doesn't, then add the admin user id as the author
+        projectData.author = req.user._id;
+      }
+    }
+    // project data
     const projectData = {
       author: req.user._id,
       title_es: req.body.title_es,
@@ -69,17 +84,6 @@ exports.createProject = async (req, res) => {
     if(req.body.publishedAt) {
       projectData.publishedAt = req.body.publishedAt;
       projectData.hidden = false;
-    }
-    // if user is an admin, the payload might contain an author id
-    if(req.user.role == 'admin'){
-      // check if the author exists
-      if(req.body.author) {
-        // if it does, then add it to the project data
-        projectData.author = req.body.author;
-      } else {
-        // if it doesn't, then add the admin user id as the author
-        projectData.author = req.user._id;
-      }
     }
     // create the project
     const project = await Project.create(projectData);
@@ -114,7 +118,10 @@ exports.createProject = async (req, res) => {
 exports.updateProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
-    await ProjectHelper.canEdit(req.user, req.params.projectId)
+    let canEdit = await ProjectHelper.canEdit(req.user, req.params.projectId)
+    if(!canEdit) {
+      return res.status(403).json({ message: 'You are not allowed to edit this project' })
+    }
 
     // project should be in req.project
     const project = req.project;
@@ -205,13 +212,16 @@ exports.updateProject = async (req, res) => {
 exports.publishProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
-    await ProjectHelper.canEdit(req.user, req.project)
+    let canEdit = await ProjectHelper.canEdit(req.user, req.project)
+    if(!canEdit) {
+      return res.status(403).json({ message: 'You are not allowed to edit this project' })
+    }
 
     // project should be in req.project
     const project = req.project;
 
     // if the project is already published, return 403
-    if(project.publishedAt !== undefined) {
+    if(project.publishedAt) {
       return res.status(403).json({ message: 'Project is already published' })
     }
 
@@ -225,6 +235,7 @@ exports.publishProject = async (req, res) => {
     // return
     return res.status(200).json({
       message: 'Project published',
+      publishedAt: project.publishedAt,
     });
   } catch (error) {
     console.error(error)
@@ -235,10 +246,16 @@ exports.publishProject = async (req, res) => {
 exports.toggleHideProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
-    await ProjectHelper.canEdit(req.user, req.project)
+    let canEdit = await ProjectHelper.canEdit(req.user, req.project)
+    if(!canEdit) {
+      return res.status(403).json({ message: 'You are not allowed to edit this project' })
+    }
 
+    // project should be in req.project
+    const project = req.project;
+    
     // if project is not published, cannot unhide it
-    if(req.project.publishedAt === undefined) {
+    if(project.publishedAt == null || project.publishedAt == undefined) {
       return res.status(403).json({ message: 'Project is not published. Publish the project before to make it public.' })
     }
 
@@ -260,7 +277,10 @@ exports.toggleHideProject = async (req, res) => {
 exports.createVersion = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
-    await ProjectHelper.canEdit(req.user, req.params.id)
+    let canEdit = await ProjectHelper.canEdit(req.user, req.params.id)
+    if(!canEdit) {
+      return res.status(403).json({ message: 'You are not allowed to edit this project' })
+    }
 
     // project should be in req.project
     const project = req.project
