@@ -16,7 +16,17 @@ let PORT = process.env.PORT || 3000;
 // Creating express app and configuring middleware needed for authentication
 const app = express();
 
-app.use(cors());
+let appOrigins = ['http://localhost:4000']
+if(process.env.APP_URL){
+	appOrigins = process.env.APP_URL.split(',')
+}
+
+app.use(cors({
+	origin: appOrigins,
+	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+	credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
