@@ -118,7 +118,7 @@ exports.createProject = async (req, res) => {
 exports.updateProject = async (req, res) => {
   try {
     // check if the user is an admin or the author of the project
-    let canEdit = await ProjectHelper.canEdit(req.user, req.params.projectId)
+    let canEdit = await ProjectHelper.canEdit(req.user, req.project)
     if(!canEdit) {
       return res.status(403).json({ message: 'You are not allowed to edit this project' })
     }
