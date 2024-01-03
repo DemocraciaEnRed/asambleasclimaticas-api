@@ -9,6 +9,14 @@ const like = require('../models/like');
 
 exports.canEdit = async (user, project) => {
   try {
+    if(!user) {
+      console.log('ProjectHelper.canEdit: user is null.. returning false')
+      return false;
+    }
+    if(!project) {
+      console.log('ProjectHelper.canEdit: project is null.. returning false')
+      return false;
+    }
     // if user is admin
     if(user.role === 'admin') {
       return true
@@ -37,7 +45,7 @@ exports.canModerate = async (user, project) => {
     
     // if user is author, then ok
     if(user.role === 'author') {
-      return project.author === user._id;
+      return project.author.equals(user._id);
     }
 
     // any other user, cannot
