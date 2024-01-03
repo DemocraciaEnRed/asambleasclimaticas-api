@@ -27,14 +27,11 @@ exports.getProject = async (req, res) => {
     const projectId = req.project._id;
     const theProject = req.project
     const withArticles = req.query.withArticles || false;
+  
+    // projectAuthorization.isAccesible is called before this controller
+    // if code reaches this point, it means the project is accesible to common users
+    // or the user is an admin or the author of the project
 
-    // check if the user is an admin or the author of the project
-    let canEdit = await ProjectHelper.canEdit(req.user, theProject)
-
-    if(theProject.hidden && !canEdit) {
-      return res.status(404).json({ message: 'Project not found' })
-    }
-    
     // return the project
     const project = await ProjectHelper.getProject(projectId, null, currentUserId);
     
@@ -55,6 +52,9 @@ exports.getProject = async (req, res) => {
 
 exports.createProject = async (req, res) => {
   try {
+    // projectAuthorization.onlyEditors is called before this controller
+    // if code reaches this point, it means the user is an admin or the author of the project
+
 
     // if user is an admin, the payload might contain an author id
     if(req.user.role == 'admin'){
@@ -117,14 +117,12 @@ exports.createProject = async (req, res) => {
 
 exports.updateProject = async (req, res) => {
   try {
-    // check if the user is an admin or the author of the project
-    let canEdit = await ProjectHelper.canEdit(req.user, req.project)
-    if(!canEdit) {
-      return res.status(403).json({ message: 'You are not allowed to edit this project' })
-    }
+    // projectAuthorization.onlyEditors is called before this controller
+    // if code reaches this point, it means the user is an admin or the author of the project
 
     // project should be in req.project
     const project = req.project;
+
     // update the project
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;
@@ -211,11 +209,8 @@ exports.updateProject = async (req, res) => {
 
 exports.publishProject = async (req, res) => {
   try {
-    // check if the user is an admin or the author of the project
-    let canEdit = await ProjectHelper.canEdit(req.user, req.project)
-    if(!canEdit) {
-      return res.status(403).json({ message: 'You are not allowed to edit this project' })
-    }
+    // projectAuthorization.onlyEditors is called before this controller
+    // if code reaches this point, it means the user is an admin or the author of the project
 
     // project should be in req.project
     const project = req.project;
@@ -245,11 +240,8 @@ exports.publishProject = async (req, res) => {
 
 exports.toggleHideProject = async (req, res) => {
   try {
-    // check if the user is an admin or the author of the project
-    let canEdit = await ProjectHelper.canEdit(req.user, req.project)
-    if(!canEdit) {
-      return res.status(403).json({ message: 'You are not allowed to edit this project' })
-    }
+    // projectAuthorization.onlyEditors is called before this controller
+    // if code reaches this point, it means the user is an admin or the author of the project
 
     // project should be in req.project
     const project = req.project;
@@ -276,11 +268,8 @@ exports.toggleHideProject = async (req, res) => {
 
 exports.createVersion = async (req, res) => {
   try {
-    // check if the user is an admin or the author of the project
-    let canEdit = await ProjectHelper.canEdit(req.user, req.params.id)
-    if(!canEdit) {
-      return res.status(403).json({ message: 'You are not allowed to edit this project' })
-    }
+    // projectAuthorization.onlyEditors is called before this controller
+    // if code reaches this point, it means the user is an admin or the author of the project
 
     // project should be in req.project
     const project = req.project
