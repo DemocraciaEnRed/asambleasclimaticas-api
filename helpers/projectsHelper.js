@@ -10,12 +10,11 @@ const like = require('../models/like');
 exports.canEdit = async (user, project) => {
   try {
     if(!user) {
-      console.log('ProjectHelper.canEdit: user is null.. returning false')
-      return false;
+      throw new Error('ProjectHelper.canEdit: user is null');
     }
     if(!project) {
-      console.log('ProjectHelper.canEdit: project is null.. returning false')
-      return false;
+      throw new Error('ProjectHelper.canEdit: project is null');
+
     }
     // if user is admin
     if(user.role === 'admin') {
