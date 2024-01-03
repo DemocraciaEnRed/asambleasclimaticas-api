@@ -3,6 +3,7 @@ const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
 const authenticate = require('../../../middlewares/authenticate');
 const exists = require('../../../middlewares/exists');
+const projectAuthorization = require('../../../middlewares/projectAuthorization');
 const validate = require('../../../middlewares/validate');
 
 const EventController = require('../../../controllers/eventController');
@@ -27,6 +28,7 @@ router.get('/',
 	],
 	validate,
 	exists.project,
+	projectAuthorization.isAccesible,
 	EventController.listEvents
 )
 
@@ -43,6 +45,7 @@ router.post('/',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	projectAuthorization.onlyEditors,
 	EventController.createEvent
 )
 
@@ -56,6 +59,7 @@ router.delete('/:eventId',
 	exists.project,
 	exists.event,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	projectAuthorization.onlyEditors,
 	EventController.deleteEvent
 )
 

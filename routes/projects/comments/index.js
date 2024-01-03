@@ -3,12 +3,14 @@ const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
 const authenticate = require('../../../middlewares/authenticate');
 const exists = require('../../../middlewares/exists');
+const projectAuthorization = require('../../../middlewares/projectAuthorization');
 const validate = require('../../../middlewares/validate');
 
 const CommentController = require('../../../controllers/commentController');
 const LikeController = require('../../../controllers/likeController');  
 const ProjectController = require('../../../controllers/projectController');
 const optionalAuthenticate = require('../../../middlewares/optionalAuthenticate');
+const project = require('../../../models/project');
 
 // initialize router
 const router = express.Router({mergeParams: true});
@@ -37,6 +39,7 @@ router.get('/',
 	validate,
 	exists.project,
 	optionalAuthenticate,
+	projectAuthorization.isAccesible,
 	CommentController.listComments
 )
 // POST 	/projects/:projectId/comments
@@ -48,6 +51,8 @@ router.post('/',
 	validate,
 	exists.project,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	CommentController.createComment
 )
 
@@ -62,6 +67,7 @@ router.delete('/:commentId',
 	exists.project,
 	exists.comment,
 	authenticate(),
+	projectAuthorization.onlyModerators,
 	CommentController.deleteComment
 )
 
@@ -75,6 +81,8 @@ router.post('/:commentId/like',
 	exists.project,
 	exists.comment,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
 )
 
@@ -88,6 +96,8 @@ router.post('/:commentId/dislike',
 	exists.project,
 	exists.comment,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
 
@@ -103,6 +113,8 @@ router.get('/:commentId/replies',
 	exists.project,
 	exists.comment,
 	optionalAuthenticate,
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	CommentController.listReplies
 )
 
@@ -117,6 +129,8 @@ router.post('/:commentId/replies',
 	exists.project,
 	exists.comment,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	CommentController.createReply	
 )
 
@@ -132,6 +146,8 @@ router.post('/:commentId/replies/:replyId/like',
 	exists.comment,
 	exists.reply,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
 )
 
@@ -147,6 +163,8 @@ router.post('/:commentId/replies/:replyId/dislike',
 	exists.comment,
 	exists.reply,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
 

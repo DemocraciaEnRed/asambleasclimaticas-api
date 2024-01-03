@@ -3,6 +3,7 @@ const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../services/constants');
 const authenticate = require('../../middlewares/authenticate');
 const exists = require('../../middlewares/exists');
+const projectAuthorization = require('../../middlewares/projectAuthorization');
 const validate = require('../../middlewares/validate');
 
 
@@ -80,7 +81,8 @@ router.get('/:projectId',
 	], 
 	validate, // validates the array of checks above
 	exists.project, // checks if the project exists and adds it to the request object
-	optionalAuthenticate,
+	optionalAuthenticate, // if there is a user logged in, it adds it to the request object (req.user)
+	projectAuthorization.isAccesible, // checks if the project is accesible
 	ProjectController.getProject // calls the controller
 )
 
@@ -102,6 +104,7 @@ router.put('/:projectId',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	projectAuthorization.onlyEditors,
 	ProjectController.updateProject
 )
 
@@ -113,6 +116,7 @@ router.post('/:projectId/publish',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	projectAuthorization.onlyEditors,
 	ProjectController.publishProject
 )
 
@@ -125,6 +129,7 @@ router.post('/:projectId/hide',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	projectAuthorization.onlyEditors,
 	ProjectController.toggleHideProject
 )
 
@@ -136,6 +141,8 @@ router.post('/:projectId/like',
 	validate,
 	exists.project,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
 )
 
@@ -147,6 +154,8 @@ router.post('/:projectId/dislike',
 	validate,
 	exists.project,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
 

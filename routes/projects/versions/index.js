@@ -3,10 +3,12 @@ const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
 const authenticate = require('../../../middlewares/authenticate');
 const exists = require('../../../middlewares/exists');
+const projectAuthorization = require('../../../middlewares/projectAuthorization');
 const validate = require('../../../middlewares/validate');
 
 const ProjectController = require('../../../controllers/projectController');
 const CommentController = require('../../../controllers/commentController');
+const project = require('../../../models/project');
 
 // initialize router
 const router = express.Router({mergeParams: true});
@@ -44,6 +46,7 @@ router.post('/',
 	validate,
 	exists.project,
 	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	projectAuthorization.onlyEditors,
 	ProjectController.createVersion
 
 )
@@ -56,6 +59,7 @@ router.get('/:version',
 	validate,
 	exists.project,
 	exists.version,
+	projectAuthorization.isAccesible,
 	ProjectController.getVersion
 )
 
@@ -70,6 +74,7 @@ router.get('/:version/comments',
 	validate,
 	exists.project,
 	exists.version,
+	projectAuthorization.isAccesible,
 	CommentController.listComments
 )
 
@@ -86,6 +91,7 @@ router.get('/:version/comments/:commentId/replies',
 	exists.project,
 	exists.version,
 	exists.comment,
+	projectAuthorization.isAccesible,
 	CommentController.listReplies
 )
 
@@ -105,6 +111,7 @@ router.get('/:version/articles/:articleId/comments',
 	exists.project,
 	exists.version,
   exists.article,
+	projectAuthorization.isAccesible,
 	CommentController.listComments
 )
 
@@ -123,6 +130,7 @@ router.get('/:version/articles/:articleId/comments/:commentId/replies',
 	exists.version,
   exists.article,
 	exists.comment,
+	projectAuthorization.isAccesible,
 	CommentController.listReplies
 )
 

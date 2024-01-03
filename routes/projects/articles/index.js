@@ -3,6 +3,7 @@ const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
 const authenticate = require('../../../middlewares/authenticate');
 const exists = require('../../../middlewares/exists');
+const projectAuthorization = require('../../../middlewares/projectAuthorization');
 const validate = require('../../../middlewares/validate');
 
 const CommentController = require('../../../controllers/commentController');
@@ -33,6 +34,7 @@ router.get('/',
 	validate,
 	exists.project,
 	optionalAuthenticate,
+	projectAuthorization.isAccesible,
 	ProjectController.getArticles
 );
 
@@ -46,6 +48,8 @@ router.post('/:articleId/like',
 	exists.project,
 	exists.article,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
 )
 
@@ -59,6 +63,8 @@ router.post('/:articleId/dislike',
 	exists.project,
 	exists.article,
 	authenticate(),
+	projectAuthorization.isAccesible,
+	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
 
