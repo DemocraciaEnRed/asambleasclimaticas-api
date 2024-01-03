@@ -30,6 +30,11 @@ const Like = require('../models/like');
  */
 exports.toggleLike = async (req,res) => {
   try {
+    // projectAuthorization.isAccesible is called before this controller
+    // projectAuthorization.isOpenForContributions is called before this controller
+    // if the code reaches this point, the user has access to the project and it is open for contributions
+
+
     // A like can be for:
     // - A project (projectId != null && articleId/commentId/replyId == null)
     // - An article (projectId/articleId != null && commentId/replyId == null)
@@ -126,6 +131,10 @@ exports.toggleLike = async (req,res) => {
  */
 exports.toggleDislike = async (req,res) => {
   try {
+    // projectAuthorization.isAccesible is called before this controller
+    // projectAuthorization.isOpenForContributions is called before this controller
+    // if the code reaches this point, the user has access to the project and it is open for contributions
+
     // A like can be for:
     // - A project (projectId != null && articleId/commentId/replyId == null)
     // - An article (projectId/articleId != null && commentId/replyId == null)
