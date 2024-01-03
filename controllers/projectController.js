@@ -4,6 +4,7 @@ const Comment = require('../models/comment');
 const Reply = require('../models/reply');
 const Like = require('../models/like');
 const ProjectHelper = require('../helpers/projectsHelper');
+const ArticleHelper = require('../helpers/articleHelper');
 
 // DONE
 exports.listProjects = async (req, res) => {
@@ -143,52 +144,55 @@ exports.updateProject = async (req, res) => {
       }
     }
 
-    // req.body.articles is an array of objects that contains {_id, body_es, body_pt, position}
-    // articles with _id are existing articles, articles without _id are new articles
-    // if an _id is not found, then the article was deleted
-    const articles = req.body.articles;
-    const articlesIds = [];
-    
-    for(let i = 0; i < articles.length; i++) {
-      // if the article has an _id, it is an existing article
-      if(articles[i]._id) {
-        const article = await Article.findById(articles[i]._id);
-        // if the project is not published, then you can delete articles
-        if(!project.publishedAt){
-          // if the article has deleted: true, then delete it
-          if(articles[i].deleted) {
-            await article.deleteOne()
-            continue; 
+    // if the project is closed, dont update or do anything to the articles
+    if(project.closed) {
+      // req.body.articles is an array of objects that contains {_id, text_es, text_pt, position}
+      // articles with _id are existing articles, articles without _id are new articles
+      // if an _id is not found, then the article was deleted
+      const articles = req.body.articles;
+      const articlesIds = [];
+      
+      for(let i = 0; i < articles.length; i++) {
+        // if the article has an _id, it is an existing article
+        if(articles[i]._id) {
+          const article = await Article.findById(articles[i]._id);
+          // if the project is not published, then you can delete articles because the project is a draft
+          if(!project.publishedAt){
+            // if the article has deleted: true, then delete it
+            if(articles[i].deleted) {
+              await article.deleteOne()
+              continue; 
+            }
           }
-        }
-        // if the article is not deleted, then update it
-        article.text_es = articles[i].text_es;
-        article.text_pt = articles[i].text_pt;
-        article.position = articles[i].position;
-        // save the existing article
-        await article.save();
-        // add the article to the project.articles Ids list
-        articlesIds.push(article._id);
-      } else {
-        // if the article has been published, then you cannot add new articles
-        if(!project.publishedAt) {
-          // if the article doesn't have an _id, it is a new article
-          const articleData = {
-            project: project._id,
-            text_es: articles[i].text_es,
-            text_pt: articles[i].text_pt,
-            position: articles[i].position,
-          }
-          
-          // create the article
-          const article = await Article.create(articleData);
+          // if the article is not deleted, then update it
+          article.text_es = articles[i].text_es;
+          article.text_pt = articles[i].text_pt;
+          article.position = articles[i].position;
+          // save the existing article
+          await article.save();
           // add the article to the project.articles Ids list
           articlesIds.push(article._id);
+        } else {
+          // if the article has been published, then you cannot add new articles
+          if(!project.publishedAt) {
+            // if the article doesn't have an _id, it is a new article
+            const articleData = {
+              project: project._id,
+              text_es: articles[i].text_es,
+              text_pt: articles[i].text_pt,
+              position: articles[i].position,
+            }
+            
+            // create the article
+            const article = await Article.create(articleData);
+            // add the article to the project.articles Ids list
+            articlesIds.push(article._id);
+          }
         }
       }
+      // update the project with the new articles
+      project.articles = articlesIds;
     }
-    // update the project with the new articles
-    project.articles = articlesIds;
 
     // if(req.body.publishedAt && !project.publishedAt) {
     if(req.body.publishedAt && !project.publishedAt) {
@@ -274,6 +278,11 @@ exports.createVersion = async (req, res) => {
     // project should be in req.project
     const project = req.project
 
+    // if the project is not published, return 403
+    if(!project.publishedAt) {
+      return res.status(403).json({ message: 'Project is not published. Publish the project before making a new version.' })
+    }
+
     // we need to create a new version
     const oldVersion = {
       about_es: project.about_es,
@@ -281,10 +290,18 @@ exports.createVersion = async (req, res) => {
       articles: project.articles,
       version: project.version,
     }
+
+    const projectStats = await ProjectHelper.getProjectCurrentStats(project._id);
+    // merge oldVersion with projectStats
+    Object.entries(projectStats).forEach(stat => {
+      const [key, value] = stat;
+      oldVersion[key] = value;
+    });
+
     // add the new version to the project
     project.versions.push(oldVersion);
 
-    // req.body.articles is an array of objects that contains {_id, body_es, body_pt, position}
+    // req.body.articles is an array of objects that contains {_id, body_es, body_pt, position, deleted}
     // articles with _id are existing articles, articles without _id are new articles
     // if an _id is not found, then the article was deleted
     const articles = req.body.articles;
@@ -300,6 +317,12 @@ exports.createVersion = async (req, res) => {
           position: article.position,
           version: project.version
         }
+        const articleStats = await ArticleHelper.getArticleCurrentStats(article._id);
+        // merge previousVersion with articleStats
+        Object.entries(articleStats).forEach(stat => {
+          const [key, value] = stat;
+          previousVersion[key] = value;
+        });
         // add the previous version to the article
         article.versions.push(previousVersion);
         article.text_es = articles[i].text_es;
@@ -326,7 +349,7 @@ exports.createVersion = async (req, res) => {
 
     // now update the project
     project.slug = req.body.slug;
-    project.coveUrl = req.body.coverUrl;
+    project.coverUrl = req.body.coverUrl;
     project.youtubeUrl = req.body.youtubeUrl;
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;

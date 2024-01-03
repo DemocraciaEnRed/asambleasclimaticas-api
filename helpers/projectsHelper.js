@@ -422,3 +422,42 @@ exports.listReplies = async (commentId, currentUserId = null, page = 1, limit = 
     throw error;
   }
 }
+
+exports.getProjectCurrentStats = async (projectId) => {
+  try {
+    const likes = 0                   // how many likes the project had when this version ended
+    const dislikes = 0                // how many dislikes the project had when this version ended
+    const comments = 0                // how many comments the project had when this version ended
+    const replies = 0                 // how many replies the project had when this version ended
+    const commentsLikes = 0           // how many likes the comments had when this version ended
+    const commentsDislikes = 0        // how many dislikes the comments had when this version ended
+    const repliesLikes = 0            // how many likes the replies had when this version ended
+    const repliesDislikes = 0         // how many dislikes the replies had when this version ended
+    const uniqueUsers = 0             // how many unique users interacted with the project when this version ended
+    const uniqueUsersPerCountry = {   // how many unique users per country interacted with the project when this version ended
+      AR: 0,
+      BR: 0,
+      CL: 0,
+    }
+
+    // get the project
+    const project = await Project.findById(projectId);
+
+    return {
+      likes,
+      dislikes,
+      comments,
+      replies,
+      commentsLikes,
+      commentsDislikes,
+      repliesLikes,
+      repliesDislikes,
+      uniqueUsers,
+      uniqueUsersPerCountry
+    }
+    
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

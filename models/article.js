@@ -21,6 +21,67 @@ const ArticleVersionSchema = new mongoose.Schema({
     required: true,
     default: 1
   },
+  likes: { // how many likes the article had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  dislikes: { // how many dislikes the article had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  comments: { // how many comments the article had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  replies: { // how many replies the article had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  commentsLikes: { // how many likes the comments had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  commentsDislikes: { // how many dislikes the comments had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  repliesLikes: { // how many likes the replies had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  repliesDislikes: { // how many dislikes the replies had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  uniqueUsers: { // how many unique users interacted with the article when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  highlightedComments: { // how many comments were highlighted when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  resolvedComments: { // how many comments were resolved when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  uniqueUsersPerCountry: { // how many unique users per country interacted with the article when this version ended
+    type: Map,
+    of: Number,
+    required: true,
+    default: {}
+  },
 }, {timestamps: true});
 
 const ArticleSchema = new mongoose.Schema({

@@ -22,6 +22,57 @@ const VersionSchema = new mongoose.Schema({
     required: true,
     default: 1
   },
+  likes: { // how many likes the project had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  dislikes: { // how many dislikes the project had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  comments: { // how many comments the project had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  replies: { // how many replies the project had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  commentsLikes: { // how many likes the comments had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  commentsDislikes: { // how many dislikes the comments had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  repliesLikes: { // how many likes the replies had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  repliesDislikes: { // how many dislikes the replies had when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  uniqueUsers: { // how many unique users interacted with the project when this version ended
+    type: Number,
+    required: true,
+    default: 0
+  },
+  uniqueUsersPerCountry: { // how many unique users interacted with the project when this version ended
+    type: Map,
+    of: Number,
+    required: true,
+    default: {}
+  },
 }, {timestamps: true});
 
 const EventsSchema = new mongoose.Schema({
