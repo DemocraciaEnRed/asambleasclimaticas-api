@@ -8,6 +8,7 @@ const path = require("path");
 const database = require('./services/database');
 const migrations = require('./services/migrations');
 const agenda = require('./services/agenda')
+const logger = require('./services/logger');
 
 // Setting up port
 let PORT = process.env.PORT || 3000;

@@ -145,13 +145,14 @@ exports.updateProject = async (req, res) => {
     }
 
     // if the project is closed, dont update or do anything to the articles
-    if(project.closed) {
+    if(!project.closed) {
       // req.body.articles is an array of objects that contains {_id, text_es, text_pt, position}
       // articles with _id are existing articles, articles without _id are new articles
       // if an _id is not found, then the article was deleted
       const articles = req.body.articles;
       const articlesIds = [];
-      
+
+      let position = 1;
       for(let i = 0; i < articles.length; i++) {
         // if the article has an _id, it is an existing article
         if(articles[i]._id) {
@@ -167,11 +168,12 @@ exports.updateProject = async (req, res) => {
           // if the article is not deleted, then update it
           article.text_es = articles[i].text_es;
           article.text_pt = articles[i].text_pt;
-          article.position = articles[i].position;
+          article.position = position;
           // save the existing article
           await article.save();
           // add the article to the project.articles Ids list
           articlesIds.push(article._id);
+          position++; // increase the position
         } else {
           // if the article has been published, then you cannot add new articles
           if(!project.publishedAt) {
@@ -180,13 +182,14 @@ exports.updateProject = async (req, res) => {
               project: project._id,
               text_es: articles[i].text_es,
               text_pt: articles[i].text_pt,
-              position: articles[i].position,
+              position: position,
             }
             
             // create the article
             const article = await Article.create(articleData);
             // add the article to the project.articles Ids list
             articlesIds.push(article._id);
+            position++; // increase the position
           }
         }
       }
@@ -291,15 +294,13 @@ exports.createVersion = async (req, res) => {
       version: project.version,
     }
 
-    const projectStats = await ProjectHelper.getProjectCurrentStats(project._id);
-    // merge oldVersion with projectStats
-    Object.entries(projectStats).forEach(stat => {
-      const [key, value] = stat;
-      oldVersion[key] = value;
-    });
-
     // add the new version to the project
     project.versions.push(oldVersion);
+
+    const projectStats = await ProjectHelper.getProjectCurrentStats(project._id);
+
+    // merge oldVersion with projectStats
+    project.versionsStats.push(projectStats);
 
     // req.body.articles is an array of objects that contains {_id, body_es, body_pt, position, deleted}
     // articles with _id are existing articles, articles without _id are new articles
@@ -307,6 +308,7 @@ exports.createVersion = async (req, res) => {
     const articles = req.body.articles;
     const articlesIds = [];
     
+    let position = 1;
     for(let i = 0; i < articles.length; i++) {
       // if the article has an _id, it is an existing article
       if(articles[i]._id) {
@@ -317,33 +319,41 @@ exports.createVersion = async (req, res) => {
           position: article.position,
           version: project.version
         }
-        const articleStats = await ArticleHelper.getArticleCurrentStats(article._id);
-        // merge previousVersion with articleStats
-        Object.entries(articleStats).forEach(stat => {
-          const [key, value] = stat;
-          previousVersion[key] = value;
-        });
         // add the previous version to the article
         article.versions.push(previousVersion);
+
+        const articleStats = await ArticleHelper.getArticleCurrentStats(project._id, article._id);
+        
+        article.versionsStats.push(articleStats);
+
+        if(articles[i].deleted) {
+          // project is deleted, but not from the database..
+          // it will stay in the database, but project.articles will not contain it
+          // it will be in the array of ids of the previous version of the project
+          continue
+        }
+
         article.text_es = articles[i].text_es;
         article.text_pt = articles[i].text_pt;
-        article.position = articles[i].position;
+        article.position = position;
         // save the existing article with its new version stored.
         await article.save();
         // add the article to the project.articles Ids list
         articlesIds.push(article._id);
+        position++; // increase the position
       } else {
         // if the article doesn't have an _id, it is a new article
         const articleData = {
           project: project._id,
           text_es: articles[i].text_es,
           text_pt: articles[i].text_pt,
-          position: articles[i].position,
+          position: position,
         }
         // create the article
         const article = await Article.create(articleData);
         // add the article to the project.articles Ids list
         articlesIds.push(article._id);
+        position++; // increase the position
       }
     }
 
@@ -397,6 +407,18 @@ exports.getVersion = async (req, res) => {
     // return the articles
     return res.status(200).json(resData);
   } catch (error){
+    console.error(error)
+    return res.status(500).json({message: error.message})
+  }
+}
+
+exports.getProjectStats = async (req, res) => {
+  try {
+    const projectId = req.project._id;
+    const resData = await ProjectHelper.getProjectCurrentStats(projectId);
+    resData._id = projectId;
+    return res.status(200).json(resData);
+  } catch (error) {
     console.error(error)
     return res.status(500).json({message: error.message})
   }

@@ -27,6 +27,7 @@ const router = express.Router({mergeParams: true});
 // POST 	  /projects
 // GET 		  /projects/:projectId
 // PUT 		  /projects/:projectId
+// GET			/projects/:projectId/stats
 // POST 	  /projects/:projectId/publish
 // POST 	  /projects/:projectId/hide
 // POST 	  /projects/:projectId/like
@@ -158,6 +159,19 @@ router.post('/:projectId/dislike',
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
+
+// GET /projects/:projectId/stats
+router.get('/:projectId/stats',
+	[
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+	], 
+	validate,
+	exists.project,
+	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
+	projectAuthorization.isAccesible,
+	ProjectController.getProjectStats
+)
+
 
 // add /articles routes
 // -----------------------------------------------

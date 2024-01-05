@@ -1,3 +1,4 @@
+const Project = require('../models/project');
 const Article = require('../models/article');
 const Comment = require('../models/comment');
 
@@ -46,41 +47,56 @@ const Comment = require('../models/comment');
 
 exports.getArticleCurrentStats = async (projectId, articleId) => {
   try {
-    const likes = 0                   // how many likes the article had when this version ended
-    const dislikes = 0                // how many dislikes the article had when this version ended
-    const comments = 0                // how many comments the article had when this version ended
-    const replies = 0                 // how many replies the article had when this version ended
-    const commentsLikes = 0           // how many likes the comments had when this version ended
-    const commentsDislikes = 0        // how many dislikes the comments had when this version ended
-    const repliesLikes = 0            // how many likes the replies had when this version ended
-    const repliesDislikes = 0         // how many dislikes the replies had when this version ended
-    const uniqueUsers = 0             // how many unique users interacted with the article when this version ended
-    const highlightedComments = 0     // how many comments were highlighted when this version ended
-    const resolvedComments = 0        // how many comments were resolved when this version ended
-    const uniqueUsersPerCountry = {   // how many unique users per country interacted with the article when this version ended
-      AR: 0,
-      BR: 0,
-      CL: 0,
-    }
+    let likes = 0 // how many likes the article had when this version ended
+    let dislikes = 0 // how many dislikes the article had when this version ended
+    let comments = 0 // how many comments the article had when this version ended
+    let commentsLikes = 0 // how many likes the article comments had when this version ended
+    let commentsDislikes = 0 // how many dislikes the comments had when this version ended
+    let commentsReplies = 0 // how many article comment replies the project had when this version ended
+    let commentsRepliesLikes = 0 // how many likes the article comments replies had when this version ended
+    let commentsRepliesDislikes = 0 // how many dislikes the article comment replies had when this version ended
+    let commentsCreatedInVersion = 0 // how many article comments were created in this version
+    let commentsHighlightedInVersion = 0 // how many article comments were highlighted when this version ended
+    let commentsResolvedInVersion = 0 // how many article comments were resolved when this version ended
+    let uniqueUsersWhoInteracted = 0 // how many unique users interacted with the article when this version ended
+    let uniqueUsersWhoInteractedPerCountry = {} // how many unique users interacted with the project when this version ended
     
-    const article = Article.findById(articleId);
+    const project = await Project.findById(projectId);
+    const article = await Article.findById(articleId);
+    const currentVersion = project.version;
 
-    const articleStats = {
+    likes = await article.getLikesCount();
+    dislikes = await article.getDislikesCount();
+    comments = await article.getCommentsCount();
+    commentsLikes = await article.getCommentsLikesCount();
+    commentsDislikes = await article.getCommentsDislikesCount();
+    commentsReplies = await article.getCommentsRepliesCount();
+    commentsRepliesLikes = await article.getCommentsRepliesLikesCount()
+    commentsRepliesDislikes = await article.getCommentsRepliesDislikesCount()
+    commentsCreatedInVersion = await article.getCommentsCreatedInVersionCount(currentVersion)
+    commentsHighlightedInVersion = await article.getCommentsHighlightedInVersionCount(currentVersion)
+    commentsResolvedInVersion = await article.getCommentsResolvedInVersionCount(currentVersion)
+
+    const uniqueUsersWhoInteractedStats = await article.getUniqueUsersWhoInteracted();
+    uniqueUsersWhoInteracted = uniqueUsersWhoInteractedStats.count
+    uniqueUsersWhoInteractedPerCountry = uniqueUsersWhoInteractedStats.countPerCountry
+
+    return {
+      version: currentVersion,
       likes,
       dislikes,
       comments,
-      replies,
       commentsLikes,
       commentsDislikes,
-      repliesLikes,
-      repliesDislikes,
-      uniqueUsers,
-      highlightedComments,
-      resolvedComments,
-      uniqueUsersPerCountry,
+      commentsReplies,
+      commentsRepliesLikes,
+      commentsRepliesDislikes,
+      commentsCreatedInVersion,
+      commentsHighlightedInVersion,
+      commentsResolvedInVersion,
+      uniqueUsersWhoInteracted,
+      uniqueUsersWhoInteractedPerCountry
     }
-
-    return articleStats;
   } catch (error) {
     console.error(error);
     throw error;

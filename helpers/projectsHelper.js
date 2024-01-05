@@ -5,6 +5,7 @@ const Like = require('../models/like');
 const user = require('../models/user');
 const Reply = require('../models/reply');
 const like = require('../models/like');
+const ArticleHelper = require('./articleHelper');
 
 
 exports.canEdit = async (user, project) => {
@@ -425,35 +426,63 @@ exports.listReplies = async (commentId, currentUserId = null, page = 1, limit = 
 
 exports.getProjectCurrentStats = async (projectId) => {
   try {
-    const likes = 0                   // how many likes the project had when this version ended
-    const dislikes = 0                // how many dislikes the project had when this version ended
-    const comments = 0                // how many comments the project had when this version ended
-    const replies = 0                 // how many replies the project had when this version ended
-    const commentsLikes = 0           // how many likes the comments had when this version ended
-    const commentsDislikes = 0        // how many dislikes the comments had when this version ended
-    const repliesLikes = 0            // how many likes the replies had when this version ended
-    const repliesDislikes = 0         // how many dislikes the replies had when this version ended
-    const uniqueUsers = 0             // how many unique users interacted with the project when this version ended
-    const uniqueUsersPerCountry = {   // how many unique users per country interacted with the project when this version ended
-      AR: 0,
-      BR: 0,
-      CL: 0,
-    }
+    let likes = 0  // how many likes the project had when this version ended
+    let dislikes = 0  // how many dislikes the project had when this version ended
+    let comments = 0  // how many comments the project had when this version ended
+    let commentsLikes = 0  // how many likes the comments had when this version ended
+    let commentsDislikes = 0  // how many dislikes the comments had when this version ended
+    let commentsReplies = 0  // how many project comment replies the project had when this version ended
+    let commentsRepliesLikes = 0  // how many likes the project comments replies had when this version ended
+    let commentsRepliesDislikes = 0  // how many dislikes the project comment replies had when this version ended
+    let commentsCreatedInVersion = 0  // how many project comments were created in this version
+    let commentsHighlightedInVersion = 0  // how many project comments were highlighted when this version ended
+    let commentsResolvedInVersion = 0  // how many project comments were resolved when this version ended
+    let uniqueUsersWhoInteracted = 0  // how many unique users interacted with the project when this version ended
+    let uniqueUsersWhoInteractedPerCountry = {}  // how many unique users interacted with the project when this version ended
 
     // get the project
     const project = await Project.findById(projectId);
 
+    likes = await project.getLikesCount();
+    dislikes = await project.getDislikesCount();
+    comments = await project.getCommentsCount();
+    commentsLikes = await project.getCommentsLikesCount();
+    commentsDislikes = await project.getCommentsDislikesCount();
+    commentsReplies = await project.getCommentsRepliesCount();
+    commentsRepliesLikes = await project.getCommentsRepliesLikesCount()
+    commentsRepliesDislikes = await project.getCommentsRepliesDislikesCount()
+    commentsCreatedInVersion = await project.getCommentsCreatedInVersionCount()
+    commentsHighlightedInVersion = await project.getCommentsHighlightedInVersionCount()
+    commentsResolvedInVersion = await project.getCommentsResolvedInVersionCount()
+
+    const uniqueUsersWhoInteractedStats = await project.getUniqueUsersWhoInteracted();
+    uniqueUsersWhoInteracted = uniqueUsersWhoInteractedStats.count
+    uniqueUsersWhoInteractedPerCountry = uniqueUsersWhoInteractedStats.countPerCountry
+
+    // let articlesStats = []
+
+    // for(let i = 0; i < project.articles.length; i++) {
+    //   const articleId = project.articles[i];
+    //   const articleStats = await ArticleHelper.getArticleCurrentStats(projectId, articleId);
+    //   articlesStats.push(articleStats);
+    // }
+
     return {
+      version: project.version,
       likes,
       dislikes,
       comments,
-      replies,
       commentsLikes,
       commentsDislikes,
-      repliesLikes,
-      repliesDislikes,
-      uniqueUsers,
-      uniqueUsersPerCountry
+      commentsReplies,
+      commentsRepliesLikes,
+      commentsRepliesDislikes,
+      commentsCreatedInVersion,
+      commentsHighlightedInVersion,
+      commentsResolvedInVersion,
+      uniqueUsersWhoInteracted,
+      uniqueUsersWhoInteractedPerCountry,
+      // articlesStats
     }
     
   } catch (error) {

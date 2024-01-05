@@ -2,6 +2,8 @@ const express = require('express');
 const agenda = require('../services/agenda');
 const router = express.Router();
 const mailer = require('../services/mailer');
+const ProjectsHelper = require('../helpers/projectsHelper')
+const Project = require('../models/project');
 
 router.post('/job', (req, res) => {
   try {
@@ -10,7 +12,7 @@ router.post('/job', (req, res) => {
     agenda.schedule('in 30 seconds', 'test', {message: 'Hello world'})
     
     return res.json({message: 'Job scheduled successfully'})
-  } catch (error){
+  } catch (error) {
     console.error(error)
     return res.status(500).json({message: error.message})
   }
@@ -26,7 +28,17 @@ router.get('/html', async (req, res) => {
     // return as html
     return res.send(html)
     
-  } catch (error){
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({message: error.message})
+  }
+})
+
+router.get('/project/:projectId/stats', async (req, res) => {
+  try {
+    const stats = await ProjectsHelper.getProjectCurrentStats(req.params.projectId)
+    return res.json(stats)
+  } catch (error) {
     console.error(error)
     return res.status(500).json({message: error.message})
   }
