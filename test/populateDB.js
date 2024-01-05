@@ -1,7 +1,6 @@
 // This file is to populate the database with dummy data for testing purposes.
 require('dotenv').config();
 
-
 const mongoose = require('mongoose');
 const axios = require('axios');
 const User = require('../models/user');
@@ -24,7 +23,7 @@ let projects = [];
 async function fetchMarkdownContent() {
   try {
     debug('---- Fetching markdown content...');
-    const response = await axios.get('https://jaspervdj.be/lorem-markdownum/markdown.txt');
+    const response = await axios.get('https://jaspervdj.be/lorem-markdownum/markdown.txt?no-code=on&no-inline-markup=on&reference-links=on&no-wrapping=on');
     return response.data;
   } catch (error) {
     // Handle error, e.g., log it or throw a custom error
@@ -257,21 +256,173 @@ async function cleanDatabase() {
       throw new Error('Countries collection is empty. Please "run npm dev" first to run migrations');
     }
     // Drop User collection
-    await User.collection.drop()
+    debug('Prunning users...');
+    await User.deleteMany({})
     // Drop Project collection
-    await Project.collection.drop()
+    debug('Prunning projects...');
+    await Project.deleteMany({})
     // Drop Article collection
-    await Article.collection.drop()
+    debug('Prunning articles...');
+    await Article.deleteMany({})
     // Drop Comment collection
-    await Comment.collection.drop()
+    debug('Prunning comments...');
+    await Comment.deleteMany({})
     // Drop Reply collection
-    await Reply.collection.drop()
+    debug('Prunning replies...');
+    await Reply.deleteMany({})
     // Drop Like collection
-    await Like.collection.drop()
-    // Drop Replies collection
-    await Reply.collection.drop()
+    debug('Prunning likes...');
+    await Like.deleteMany({})
     // -----------------
     debug('* Database prunned');
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+async function randomUsersLikingProjects(interactionsCount) {
+  try {
+    debug(`---- Creating ${interactionsCount} random likes...`);
+    for(let i = 0; i < interactionsCount; i++) {
+      const user = await pickRandom(users);
+      const project = await pickRandom(projects);
+      // check if the like already exists
+      const like = await Like.findOne({
+        user: user._id,
+        project: project._id,
+        article: null,
+        comment: null,
+        reply: null,
+      });
+      if(like) {
+        debug(`* Like ${like._id} already exists for project ${project._id} by user ${user._id}`);
+        continue;
+      }
+      const newLike = await new Like({
+        user: user._id,
+        project: project._id,
+        article: null,
+        comment: null,
+        reply: null,
+        type: Math.random() >= 0.5 ? 'like' : 'dislike',
+      });
+      await newLike.save();
+      debug(`* Like ${newLike._id} created for project ${project._id} by user ${user._id}`);
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+async function randomUsersLikingArticleProjects(interactionsCount) {
+  try {
+    debug(`---- Creating ${interactionsCount} random likes...`);
+    for(let i = 0; i < interactionsCount; i++) {
+      const user = await pickRandom(users);
+      const project = await pickRandom(projects);
+      const article = await pickRandom(project.articles); // Object Id
+      // check if the like already exists
+      const like = await Like.findOne({
+        user: user._id,
+        project: project._id,
+        article: article,
+        comment: null,
+        reply: null,
+      });
+      if(like) {
+        debug(`* Like ${like._id} already exists for article ${article._id} of project ${project._id} by user ${user._id}`);
+        continue;
+      }
+      const newLike = await new Like({
+        user: user._id,
+        project: project._id,
+        article: article,
+        comment: null,
+        reply: null,
+        type: Math.random() >= 0.5 ? 'like' : 'dislike',
+      });
+      await newLike.save();
+      debug(`* Like ${newLike._id} created for article ${article} of project ${project._id} by user ${user._id}`);
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+async function randomUsersLikingComments(interactionsCount) {
+  try {
+    debug(`---- Creating ${interactionsCount} random likes...`);
+    for(let i = 0; i < interactionsCount; i++) {
+      const user = await pickRandom(users);
+      const project = await pickRandom(projects);
+      const projectComments = await Comment.find({project: project._id});
+      const comment = await pickRandom(projectComments);
+      // check if the like already exists
+      const like = await Like.findOne({
+        user: user._id,
+        project: project._id,
+        article: null,
+        comment: comment._id,
+        reply: null,
+      });
+      if(like) {
+        debug(`* Like ${like._id} already exists for comment ${comment._id} of project ${project._id} by user ${user._id}`);
+        continue;
+      }
+
+      const newLike = await new Like({
+        user: user._id,
+        project: project._id,
+        article: null,
+        comment: comment._id,
+        reply: null,
+        type: Math.random() >= 0.5 ? 'like' : 'dislike',
+      });
+      await newLike.save();
+      debug(`* Like ${newLike._id} created for comment ${comment._id} of project ${project._id} by user ${user._id}`);
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+async function randomUsersLikingReplies(interactionsCount) {
+  try {
+    debug(`---- Creating ${interactionsCount} random likes...`);
+    for(let i = 0; i < interactionsCount; i++) {
+      const user = await pickRandom(users);
+      const project = await pickRandom(projects);
+      const projectComments = await Comment.find({project: project._id});
+      const comment = await pickRandom(projectComments);
+      const commentReplies = await Reply.find({comment: comment._id});
+      const reply = await pickRandom(commentReplies);
+      // check if the like already exists
+      const like = await Like.findOne({
+        user: user._id,
+        project: project._id,
+        article: null,
+        comment: comment._id,
+        reply: reply._id,
+      });
+      if(like) {
+        debug(`* Like ${like._id} already exists for reply ${reply._id} of comment ${comment._id} of project ${project._id} by user ${user._id}`);
+        continue;
+      }
+      const newLike = await new Like({
+        user: user._id,
+        project: project._id,
+        article: null,
+        comment: comment._id,
+        reply: reply._id,
+        type: Math.random() >= 0.5 ? 'like' : 'dislike',
+      });
+      await newLike.save();
+      debug(`* Like ${newLike._id} created for reply ${reply._id} of comment ${comment._id} of project ${project._id} by user ${user._id}`);
+    }
   } catch (error) {
     console.error(error);
     throw error;
@@ -292,6 +443,11 @@ async function main() {
     debug('Users created');
     await createProjects();
     debug('Projects created');
+    await randomUsersLikingProjects(400)
+    await randomUsersLikingArticleProjects(400)
+    await randomUsersLikingComments(400)
+    await randomUsersLikingReplies(400)
+    debug('Project Likes created');
     debug('Database populated');
 
     process.exit(0);
