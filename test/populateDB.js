@@ -118,6 +118,13 @@ async function createUsers() {
   }
 }
 
+async function getDateIn45Days() {
+  const date = new Date();
+  date.setDate(date.getDate() + 45);
+  return date;
+}
+
+
 async function createProjects(){
   try {
     // create 15 projects
@@ -138,7 +145,7 @@ async function createProjects(){
         // articles: [],
         // versions: []
         stage: 'AR',
-        closedAt: null,
+        closedAt: await getDateIn45Days(),
         publishedAt: new Date(),
       });
       await project.save();
