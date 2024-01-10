@@ -56,18 +56,6 @@ exports.createProject = async (req, res) => {
     // projectAuthorization.onlyEditors is called before this controller
     // if code reaches this point, it means the user is an admin or the author of the project
 
-
-    // if user is an admin, the payload might contain an author id
-    if(req.user.role == 'admin'){
-      // check if the author exists
-      if(req.body.author) {
-        // if it does, then add it to the project data
-        projectData.author = req.body.author;
-      } else {
-        // if it doesn't, then add the admin user id as the author
-        projectData.author = req.user._id;
-      }
-    }
     // project data
     const projectData = {
       author: req.user._id,
@@ -82,6 +70,19 @@ exports.createProject = async (req, res) => {
       closedAt: req.body.closedAt,
       version: 1,
     }
+
+    // if user is an admin, the payload might contain an author id
+    if(req.user.role == 'admin'){
+      // check if the author exists
+      if(req.body.author) {
+        // if it does, then add it to the project data
+        projectData.author = req.body.author;
+      } else {
+        // if it doesn't, then add the admin user id as the author
+        projectData.author = req.user._id;
+      }
+    }
+    // if the project is published, then add the publishedAt date
     if(req.body.publishedAt) {
       projectData.publishedAt = req.body.publishedAt;
       projectData.hidden = false;
