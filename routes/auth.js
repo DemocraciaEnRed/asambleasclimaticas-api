@@ -29,7 +29,8 @@ router.post('/register', [
 	check('email').isEmail().withMessage('Enter a valid email address'),
 	check('password').not().isEmpty().isLength({ min: 6 }).withMessage('Must be at least 6 chars long'),
 	check('name').not().isEmpty().withMessage('Your name is required'),
-	check('lang').not().isEmpty().withMessage('Your language is required'),
+	// lang must be 'es' or 'pt'
+	check('lang').not().isEmpty().withMessage('Your language is required').isIn(['es', 'pt']),
 ], validate, AuthController.register);
 
 router.post("/login", [
