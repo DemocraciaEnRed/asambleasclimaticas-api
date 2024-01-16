@@ -23,6 +23,8 @@ const router = express.Router({mergeParams: true});
 // DELETE 	/projects/:projectId/comments/:commentId
 // POST 	  /projects/:projectId/comments/:commentId/like
 // POST 	  /projects/:projectId/comments/:commentId/dislike
+// POST 	  /projects/:projectId/comments/:commentId/resolve
+// POST 	  /projects/:projectId/comments/:commentId/highlight
 // GET		  /projects/:projectId/comments/:commentId/replies
 // POST 	  /projects/:projectId/comments/:commentId/replies
 // POST 	  /projects/:projectId/comments/:commentId/replies/:replyId/like
@@ -99,6 +101,34 @@ router.post('/:commentId/dislike',
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
+)
+
+// POST 	/projects/:projectId/comments/:commentId/resolve
+router.post('/:commentId/resolve',
+	[
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+	], 
+	validate,
+	exists.project,
+	exists.comment,
+	authenticate(),
+	projectAuthorization.onlyEditors,
+	CommentController.resolveComment
+)
+
+// POST 	/projects/:projectId/comments/:commentId/highlight
+router.post('/:commentId/highlight',
+	[
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+	], 
+	validate,
+	exists.project,
+	exists.comment,
+	authenticate(),
+	projectAuthorization.onlyEditors,
+	CommentController.highlightComment
 )
 
 // GET		/projects/:projectId/comments/:commentId/replies
