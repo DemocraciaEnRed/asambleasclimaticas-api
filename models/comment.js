@@ -42,12 +42,12 @@ const CommentSchema = new mongoose.Schema({
 
 
 CommentSchema.methods.getLikesCount = async function () {
-  return await Like.countDocuments({comment: this._id, type: 'like'});
+  return await Like.countDocuments({comment: this._id, reply: null, type: 'like'});
 }
 
 
 CommentSchema.methods.getDislikesCount = async function () {
-  return await Like.countDocuments({comment: this._id, type: 'dislike'});
+  return await Like.countDocuments({comment: this._id, reply: null, type: 'dislike'});
 }
 
 

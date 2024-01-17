@@ -393,8 +393,8 @@ exports.listReplies = async (commentId, currentUserId = null, page = 1, limit = 
       replyOutput.user = reply.user;
       replyOutput.comment = reply.comment;
       replyOutput.text = reply.text;
-      //replyOutput.likes = await reply.getLikesCount();
-      //replyOutput.dislikes = await reply.getDislikesCount();
+      replyOutput.likes = await reply.getLikesCount();
+      replyOutput.dislikes = await reply.getDislikesCount();
       const likedAndDisliked = await reply.getIfLikedOrDislikedByUser(currentUserId)
       replyOutput.liked = likedAndDisliked.liked;
       replyOutput.disliked = likedAndDisliked.disliked;

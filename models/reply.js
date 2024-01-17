@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Like = require('./like');
+const like = require('./like');
 
 const ReplySchema = new mongoose.Schema({
   user: {
@@ -19,11 +20,11 @@ const ReplySchema = new mongoose.Schema({
 }, {timestamps: true});
 
 ReplySchema.methods.getLikesCount = function(cb) {
-  return mongoose.model('Like').count({reply: this._id, type: 'like'}, cb);
+  return like.countDocuments({reply: this._id, type: 'like'}, cb);
 }
 
 ReplySchema.methods.getDislikesCount = function(cb) {
-  return mongoose.model('Like').count({reply: this._id, type: 'dislike'}, cb);
+  return like.countDocuments({reply: this._id, type: 'dislike'}, cb);
 }
 
 // get if user has liked or disliked the reply
