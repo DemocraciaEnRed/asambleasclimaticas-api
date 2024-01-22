@@ -175,11 +175,10 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
       projectOutput.about_pt = project.about_pt;  
       projectOutput.version = project.version;
     }
-
     if(version && version !== project.version && version > 1 && version <= project.version) {
       // if version is specified, then we need to get the project from that version
       // project.versions is a array of subdocuments, so we need to find the subdocument with that version
-      const projectVersion = project.versions.find(version => version.version === version);
+      const projectVersion = project.versions.find(projectVersion => projectVersion.version === version);
       projectOutput.about_es = projectVersion.about_es;
       projectOutput.about_pt = projectVersion.about_pt;
       projectOutput.version = projectVersion.version;
