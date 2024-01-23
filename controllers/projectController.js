@@ -6,7 +6,6 @@ const Like = require('../models/like');
 const ProjectHelper = require('../helpers/projectsHelper');
 const ArticleHelper = require('../helpers/articleHelper');
 
-// DONE
 exports.listProjects = async (req, res) => {
   try {
     const currentUserId = req.user ? req.user._id : null;

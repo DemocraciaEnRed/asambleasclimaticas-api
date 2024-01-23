@@ -57,7 +57,6 @@ exports.canModerate = async (user, project) => {
 }
 
 
-
 exports.listProjects = async (page = 1, limit = 10, currentUserId = null) => {
   try {
     const projects = []
