@@ -166,6 +166,8 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
     projectOutput.published = project.published;
     projectOutput.createdAt = project.createdAt;
     projectOutput.updatedAt = project.updatedAt;
+    projectOutput.versions = project.versions;
+    projectOutput.currentVersion = project.version;
     // what is the current version?
     if(!version || version === project.version || version == 1) {
       // if no version is specified,
