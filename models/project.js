@@ -156,6 +156,14 @@ const ProjectSchema = new mongoose.Schema({
     required: true,
     default: 1
   },
+  shortAbout_es: {
+    type: String,
+    required: true
+  },
+  shortAbout_pt: {
+    type: String,
+    required: true
+  },
   about_es: {
     type: String,
     required: true

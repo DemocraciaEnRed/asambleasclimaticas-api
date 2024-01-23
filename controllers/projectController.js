@@ -64,6 +64,8 @@ exports.createProject = async (req, res) => {
       coverUrl: req.body.coverUrl,
       youtubeUrl: req.body.youtubeUrl,
       slug: req.body.slug,
+      shortAbout_es: req.body.shortAbout_es,
+      shortAbout_pt: req.body.shortAbout_pt,
       about_es: req.body.about_es,
       about_pt: req.body.about_pt,
       stage: req.body.stage,
@@ -131,6 +133,8 @@ exports.updateProject = async (req, res) => {
     project.slug = req.body.slug;
     project.coverUrl = req.body.coverUrl;
     project.youtubeUrl = req.body.youtubeUrl;
+    project.shortAbout_es = req.body.shortAbout_es;
+    project.shortAbout_pt = req.body.shortAbout_pt;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
     project.stage = req.body.stage;
@@ -364,6 +368,8 @@ exports.createVersion = async (req, res) => {
     project.youtubeUrl = req.body.youtubeUrl;
     project.title_es = req.body.title_es;
     project.title_pt = req.body.title_pt;
+    project.shortAbout_es = req.body.shortAbout_es;
+    project.shortAbout_pt = req.body.shortAbout_pt;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
     project.stage = req.body.stage;
