@@ -2,6 +2,7 @@ const express = require('express');
 const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
 const authenticate = require('../../../middlewares/authenticate');
+const optionalAuthenticate = require('../../../middlewares/optionalAuthenticate');
 const exists = require('../../../middlewares/exists');
 const projectAuthorization = require('../../../middlewares/projectAuthorization');
 const validate = require('../../../middlewares/validate');
@@ -96,7 +97,18 @@ router.get('/:version/comments/:commentId/replies',
 )
 
 // GET 		/projects/:projectId/versions/:version/articles
-// TODO
+router.get('/:version/articles',
+	[
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		param('version').isInt({min: 1}).withMessage('Invalid Version')
+	],
+	validate,
+	exists.project,
+	exists.version,
+	optionalAuthenticate,
+	projectAuthorization.isAccesible,
+	ProjectController.getArticles
+)
 
 // GET		/projects/:projectId/versions/:version/articles/:articleId/comments
 router.get('/:version/articles/:articleId/comments',

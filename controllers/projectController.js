@@ -387,7 +387,17 @@ exports.getArticles = async (req, res) => {
   try {
     const currentUserId = req.user ? req.user._id : null;
     const projectId = req.project._id;
-    const version = req.project.version || null;
+    let version = req.project.version
+    // version might come or not as a param
+    let versionParam = req.params.version || null;
+    versionParam = parseInt(versionParam);
+    // check if versionParam is lower than the current version
+    // if it is higher or equal, then use the current version
+    if(versionParam) {
+      if(versionParam <= version) {
+        version = versionParam;
+      }
+    }
     // get the articles
     const resData = await ProjectHelper.getArticles(projectId, version, currentUserId);
     // return the articles

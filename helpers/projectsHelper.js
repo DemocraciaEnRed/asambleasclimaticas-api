@@ -169,7 +169,7 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
     projectOutput.versions = project.versions;
     projectOutput.currentVersion = project.version;
     // what is the current version?
-    if(!version || version === project.version || version == 1) {
+    if(!version || version === project.version) {
       // if no version is specified,
       // or if the version is the current version,
       // then we return the project as it is
@@ -177,7 +177,7 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
       projectOutput.about_pt = project.about_pt;  
       projectOutput.version = project.version;
     }
-    if(version && version !== project.version && version > 1 && version <= project.version) {
+    if(version && version !== project.version && version >= 1 && version < project.version) {
       // if version is specified, then we need to get the project from that version
       // project.versions is a array of subdocuments, so we need to find the subdocument with that version
       const projectVersion = project.versions.find(projectVersion => projectVersion.version === version);
@@ -205,9 +205,9 @@ exports.getArticles = async (projectId, version = null, currentUserId = null) =>
       // or if the version is the current version,
       // then the ids for the articles is in project.articles
       const articlesIds = project.articles
-      const projectArr = await Article.find({_id: {$in: articlesIds}}).sort({position: 1});
-      for(let i = 0; i < projectArr.length; i++) {
-        const article = projectArr[i];
+      const articleArr = await Article.find({_id: {$in: articlesIds}}).sort({position: 1});
+      for(let i = 0; i < articleArr.length; i++) {
+        const article = articleArr[i];
         const articleOutput = {}
         articleOutput._id = article._id
         articleOutput.text_es = article.text_es
@@ -225,29 +225,42 @@ exports.getArticles = async (projectId, version = null, currentUserId = null) =>
         articles.push(articleOutput);
       }
     }
-    if(version && version !== project.version && version > 1 && version <= project.version) {
+    if(version && version !== project.version && version >= 1 && version < project.version) {
       // if version is specified, then we need to get the articles from that version
       // project.versions is a array of subdocuments, so we need to find the subdocument with that version
-      const projectVersion = project.versions.find(version => version.version === version);
+      const projectVersion = project.versions.find(projectVersion => projectVersion.version === version);
       // now we have the project version, we need to get the articles ids from that version
       const projectVersionArticles = projectVersion.articles;
-      const projectArr = await Article.find({project: {$in: projectVersionArticles}}).sort({position: -1});
-      for(let i = 0; i < projectArr.length; i++) {
-        const article = projectArr[i];
+      const articleArr = await Article.find({_id: {$in: projectVersionArticles}}).sort({position: 1});
+      for(let i = 0; i < articleArr.length; i++) {
+        const article = articleArr[i];
         // article.versions is an array of subdocuments, so we need to find the subdocument with that version
-        const articleVersion = article.versions.find(version => version.version === version);
+        const articleVersion = article.versions.find(articleVersion => articleVersion.version === version);
         const articleOutput = {}
         articleOutput._id = article._id
-        articleOutput.text_es = articleVersion.text_es
-        articleOutput.text_pt = articleVersion.text_pt
-        articleOutput.version = projectVersion.version
-        articleOutput.position = articleVersion.position
-        // even if it is another version, we attach the likes and dislikes from the current version
+        if(articleVersion) {
+          // articleVersion was found in the versions array of the article, so we use that one
+          articleOutput.text_es = articleVersion.text_es
+          articleOutput.text_pt = articleVersion.text_pt
+          // articleOutput.version = projectVersion.version
+          articleOutput.version = articleVersion.version
+          articleOutput.position = articleVersion.position
+          // even if it is another version, we attach the likes and dislikes from the current version
+          articleOutput.createdAt = articleVersion.createdAt
+          articleOutput.updatedAt = articleVersion.updatedAt
+        } else {
+          // if the articleVersion is null, then we need to get the article from the current article (which we can assume its the last version)
+          articleOutput.text_es = article.text_es
+          articleOutput.text_pt = article.text_pt
+          articleOutput.version = version
+          articleOutput.position = article.position
+          articleOutput.createdAt = article.createdAt
+          articleOutput.updatedAt = article.updatedAt
+        }
         const likedAndDisliked = await article.getIfLikedOrDislikedByUser(currentUserId)
         articleOutput.liked = likedAndDisliked.liked
         articleOutput.disliked = likedAndDisliked.disliked
-        articleOutput.createdAt = articleVersion.createdAt
-        articleOutput.updatedAt = articleVersion.updatedAt
+          
         articles.push(articleOutput);
       }
       // now we need to sort the articles by position
@@ -274,7 +287,7 @@ exports.listComments = async (projectId, articleId = null, version = null, curre
     }
     // if version is null, or if the version is the current version,
     // then we need to include the highlighted and resolved messages
-    if(!version || project.version == version || version == 1) {
+    if(!version || project.version == version) {
       // include all the messages that:
       // - createdInVersion is less than or equal to the version
       // - and any of the following is true:
@@ -290,7 +303,7 @@ exports.listComments = async (projectId, articleId = null, version = null, curre
         { resolvedInVersion: project.version }
       ]
     }
-    if(version !== project.version && version > 1 && version <= project.version) {
+    if(version !== project.version && version >= 1 && version < project.version) {
       // we show the messages that:
       // - createdInVersion is less than or equal to the version
       // - and highlightedInVersion is equal to version (highlighted in this version)
