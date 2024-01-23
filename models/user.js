@@ -96,7 +96,7 @@ UserSchema.methods.comparePassword = function (password) {
  */
 UserSchema.methods.generateJWT = async function () {
 	let country = await Country.findById(this.country).select('name code emoji unicode');
-	const expiresIn = '2d';
+	const expiresIn = '5d';
 
 	let payload = {
 		_id: this._id,
@@ -108,7 +108,6 @@ UserSchema.methods.generateJWT = async function () {
 	};
 
 	return jwt.sign(payload, process.env.JWT_SECRET, {
-		// expiresIn: parseInt(expirationDate.getTime() / 1000, 10)
 		expiresIn: expiresIn
 	});
 };

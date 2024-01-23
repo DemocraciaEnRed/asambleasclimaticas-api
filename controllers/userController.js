@@ -58,19 +58,31 @@ exports.listAuthors = async function (req, res) {
 
 exports.me = async function (req, res) {
 	try {
+		// check if the query has a "refreshToken" param
+		const refreshToken = req.query.refreshToken || null;
+		// get the userId
 		const userId = req.user._id;
+		const output = {};
+
+		// get the user
 		const user = await User.findById(userId, {
 			password: false,
 			resetPasswordToken: false,
 			resetPasswordExpires: false,
 			createdAt: false,
 			updatedAt: false,
+			deletedAt: false,
 			__v: false
-		}).populate({
+		}, ).populate({
 			path: 'country',
 			select: '_id name code emoji unicode image'
 		})
-		return res.status(200).json(user);
+		output.user = user;
+		// if there is a refreshToken, generate a new token
+		if (refreshToken) {
+			output.token = await user.generateJWT();
+		}
+		return res.status(200).json(output);
 	} catch (error) {
 		console.error(error)
 		return res.status(500).json({ message: error.message })

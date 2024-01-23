@@ -2,6 +2,7 @@ const express = require('express');
 const { check } = require('express-validator');
 
 const validate = require('../middlewares/validate');
+const authenticate = require('../middlewares/authenticate');
 const optionalAuthenticate = require('../middlewares/optionalAuthenticate');
 const AuthController = require('../controllers/authController');
 
@@ -14,6 +15,7 @@ const router = express.Router();
 // GET 		/auth
 // POST 	/auth/register
 // POST 	/auth/login
+// POST 	/auth/refresh-token
 // GET 		/auth/verify/:token
 // POST 	/auth/resend
 // POST 	/auth/forgot
@@ -37,6 +39,8 @@ router.post("/login", [
 	check('email').isEmail().withMessage('Enter a valid email address'),
 	check('password').not().isEmpty(),
 ], validate, AuthController.login);
+
+router.post('/refresh-token', authenticate(), AuthController.refreshToken);
 
 router.get('/verify/:token', [
 	check('token').not().isEmpty().withMessage('Token is required'),

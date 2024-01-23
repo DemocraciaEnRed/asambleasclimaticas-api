@@ -98,6 +98,18 @@ exports.login = async (req, res) => {
 };
 
 
+exports.refreshToken = async (req, res) => {
+	try {
+		// authenticate middleware already checked if the user is logged
+		const user = req.user;
+
+		// Login successful, write token, and send back user
+		res.status(200).json({ token: await user.generateJWT()});
+	} catch (error) {
+		res.status(500).json({ message: error.message })
+	}
+}
+
 /**
  * Verifies a user's email address
  * @route GET /auth/verify/:token
