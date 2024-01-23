@@ -96,7 +96,7 @@ UserSchema.methods.comparePassword = function (password) {
  */
 UserSchema.methods.generateJWT = async function () {
 	let country = await Country.findById(this.country).select('name code emoji unicode');
-	const expiresIn = '5d';
+	const expiresIn = '2d';
 
 	let payload = {
 		_id: this._id,
