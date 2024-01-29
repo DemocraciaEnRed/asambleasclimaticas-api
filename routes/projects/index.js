@@ -1,10 +1,10 @@
 const express = require('express');
 const { check, param, body, query, oneOf } = require('express-validator');
+const validate = require('../../middlewares/validate');
 const constants = require('../../services/constants');
-const authenticate = require('../../middlewares/authenticate');
+const authorize = require('../../middlewares/authorize');
 const exists = require('../../middlewares/exists');
 const projectAuthorization = require('../../middlewares/projectAuthorization');
-const validate = require('../../middlewares/validate');
 
 
 const ProjectController = require('../../controllers/projectController');
@@ -15,7 +15,6 @@ const CommentsRoutes = require('./comments');
 const VersionsRoutes = require('./versions');
 const ArticlesRoutes = require('./articles');
 const EventsRoutes = require('./events');
-const optionalAuthenticate = require('../../middlewares/optionalAuthenticate');
 
 // initialize router
 const router = express.Router({mergeParams: true});
@@ -42,15 +41,15 @@ const router = express.Router({mergeParams: true});
 // GET /projects
 router.get('/',
 	[
-		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
-		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+		query('page').optional().isInt({min: 1}).withMessage('validationError.page'),
+		query('limit').optional().isInt({min: 1, max: 25}).withMessage('validationError.limit'),
 	],
-	optionalAuthenticate,
 	ProjectController.listProjects
 );
 
 // POST /projects
 router.post('/',
+	authorize(constants.ROLES.ADMIN_OR_AUTHOR), // checks if the user is authenticated and adds it to the request object (req.user)
 	[
 		body('title_es').isString().withMessage('Title (es) must be a string'),
 		body('title_pt').isString().withMessage('Title (pt) must be a string'),
@@ -71,28 +70,27 @@ router.post('/',
 		body('articles.*.text_pt').isString().withMessage('Article body (pt) must be a string'),
 	],
 	validate, // validates the array of checks above
-	authenticate(constants.ROLES.ADMIN_OR_AUTHOR), // checks if the user is authenticated and adds it to the request object (req.user)
 	ProjectController.createProject
 )
 
 // GET /projects/:projectId
 router.get('/:projectId', 
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		query('withArticles').optional().isBoolean().withMessage('withArticles must be a boolean'),
 		// query('withComments').optional().isBoolean().withMessage('withComments must be a boolean'),
 	], 
 	validate, // validates the array of checks above
 	exists.project, // checks if the project exists and adds it to the request object
-	optionalAuthenticate, // if there is a user logged in, it adds it to the request object (req.user)
 	projectAuthorization.isAccesible, // checks if the project is accesible
 	ProjectController.getProject // calls the controller
 )
 
 // PUT /projects/:projectId
 router.put('/:projectId',
+	authorize(constants.ROLES.ADMIN_OR_AUTHOR),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		body('title_es').isString().withMessage('Title (es) must be a string'),
 		body('title_pt').isString().withMessage('Title (pt) must be a string'),
 		body('slug').isString().isSlug().withMessage('Slug must be a string with no spaces and URL friendly'),
@@ -108,19 +106,18 @@ router.put('/:projectId',
 	],
 	validate,
 	exists.project,
-	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
 	projectAuthorization.onlyEditors,
 	ProjectController.updateProject
 )
 
 // POST /projects/:projectId/publish
 router.post('/:projectId/publish',
+	authorize(constants.ROLES.ADMIN_OR_AUTHOR),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 	], 
 	validate,
 	exists.project,
-	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
 	projectAuthorization.onlyEditors,
 	ProjectController.publishProject
 )
@@ -128,24 +125,24 @@ router.post('/:projectId/publish',
 
 // POST /projects/:projectId/hide
 router.post('/:projectId/hide',
+	authorize(constants.ROLES.ADMIN_OR_AUTHOR),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 	], 
 	validate,
 	exists.project,
-	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
 	projectAuthorization.onlyEditors,
 	ProjectController.toggleHideProject
 )
 
 // POST 	/projects/:projectId/like
 router.post('/:projectId/like',
+	authorize(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 	], 
 	validate,
 	exists.project,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
@@ -153,12 +150,12 @@ router.post('/:projectId/like',
 
 // POST 	/projects/:projectId/dislike
 router.post('/:projectId/dislike',
+	authorize(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 	], 
 	validate,
 	exists.project,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
@@ -166,12 +163,12 @@ router.post('/:projectId/dislike',
 
 // GET /projects/:projectId/stats
 router.get('/:projectId/stats',
+	authorize(constants.ROLES.ADMIN_OR_AUTHOR),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 	], 
 	validate,
 	exists.project,
-	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
 	projectAuthorization.isAccesible,
 	ProjectController.getProjectStats
 )

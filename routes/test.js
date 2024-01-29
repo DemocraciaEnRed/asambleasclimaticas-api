@@ -9,7 +9,14 @@ router.post('/job', (req, res) => {
   try {
 
 
-    agenda.schedule('in 30 seconds', 'test', {message: 'Hello world'})
+    // agenda.schedule('in 30 seconds', 'test', {message: 'Hello world'})
+    agenda.now('send-mail', {
+			template: "signup",
+      lang: 'es',
+			subject: "Confirma tu cuenta",
+			to: ['guillermo@gmail.com'],
+			url: 'https://google.com'
+		})
     
     return res.json({message: 'Job scheduled successfully'})
   } catch (error) {

@@ -1,7 +1,7 @@
 const express = require('express');
 const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
-const authenticate = require('../../../middlewares/authenticate');
+const authenticate = require('../../../middlewares/authorize');
 const exists = require('../../../middlewares/exists');
 const projectAuthorization = require('../../../middlewares/projectAuthorization');
 const validate = require('../../../middlewares/validate');
@@ -9,7 +9,6 @@ const validate = require('../../../middlewares/validate');
 const CommentController = require('../../../controllers/commentController');
 const LikeController = require('../../../controllers/likeController');  
 const ProjectController = require('../../../controllers/projectController');
-const optionalAuthenticate = require('../../../middlewares/optionalAuthenticate');
 const project = require('../../../models/project');
 
 // initialize router
@@ -34,25 +33,24 @@ const router = express.Router({mergeParams: true});
 // GET 		/projects/:projectId/comments
 router.get('/',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
 		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
 	],
 	validate,
 	exists.project,
-	optionalAuthenticate,
 	projectAuthorization.isAccesible,
 	CommentController.listComments
 )
 // POST 	/projects/:projectId/comments
 router.post('/',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		body('body').isString().withMessage('Content must be a string'),
 	],
 	validate,
 	exists.project,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	CommentController.createComment
@@ -61,28 +59,28 @@ router.post('/',
 
 // DELETE /projects/:projectId/comments/:commentId
 router.delete('/:commentId',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
-	authenticate(),
 	projectAuthorization.onlyModerators,
 	CommentController.deleteComment
 )
 
 // POST 	/projects/:projectId/comments/:commentId/like
 router.post('/:commentId/like',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
@@ -90,14 +88,14 @@ router.post('/:commentId/like',
 
 // POST 	/projects/:projectId/comments/:commentId/dislike
 router.post('/:commentId/dislike',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
@@ -105,28 +103,28 @@ router.post('/:commentId/dislike',
 
 // POST 	/projects/:projectId/comments/:commentId/resolve
 router.post('/:commentId/resolve',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
-	authenticate(),
 	projectAuthorization.onlyEditors,
 	CommentController.resolveComment
 )
 
 // POST 	/projects/:projectId/comments/:commentId/highlight
 router.post('/:commentId/highlight',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
-	authenticate(),
 	projectAuthorization.onlyEditors,
 	CommentController.highlightComment
 )
@@ -134,7 +132,7 @@ router.post('/:commentId/highlight',
 // GET		/projects/:projectId/comments/:commentId/replies
 router.get('/:commentId/replies',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
 		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
@@ -142,7 +140,6 @@ router.get('/:commentId/replies',
 	validate,
 	exists.project,
 	exists.comment,
-	optionalAuthenticate,
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	CommentController.listReplies
@@ -150,15 +147,15 @@ router.get('/:commentId/replies',
 
 // POST 	/projects/:projectId/comments/:commentId/replies
 router.post('/:commentId/replies',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		body('body').isString().withMessage('Content must be a string'),
 	],
 	validate,
 	exists.project,
 	exists.comment,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	CommentController.createReply	
@@ -166,8 +163,9 @@ router.post('/:commentId/replies',
 
 // POST 	/projects/:projectId/comments/:commentId/replies/:replyId/like
 router.post('/:commentId/replies/:replyId/like',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
 	],
@@ -175,7 +173,6 @@ router.post('/:commentId/replies/:replyId/like',
 	exists.project,
 	exists.comment,
 	exists.reply,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
@@ -183,8 +180,9 @@ router.post('/:commentId/replies/:replyId/like',
 
 // POST 	/projects/:projectId/comments/:commentId/replies/:replyId/dislike
 router.post('/:commentId/replies/:replyId/dislike',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
 	],
@@ -192,7 +190,6 @@ router.post('/:commentId/replies/:replyId/dislike',
 	exists.project,
 	exists.comment,
 	exists.reply,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike

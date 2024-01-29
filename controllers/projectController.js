@@ -16,8 +16,8 @@ exports.listProjects = async (req, res) => {
     // return the projects
     return res.status(200).json(resData);
   } catch (error){
-    console.error(error)
-    return res.status(500).json({message: error.message})
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -45,8 +45,8 @@ exports.getProject = async (req, res) => {
           
     return res.status(200).json(project);
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({message: error.message})
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -113,8 +113,8 @@ exports.createProject = async (req, res) => {
     
     return res.status(201).json(project);
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -213,8 +213,8 @@ exports.updateProject = async (req, res) => {
     // return
     return res.status(200).json(project);
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -244,8 +244,8 @@ exports.publishProject = async (req, res) => {
       publishedAt: project.publishedAt,
     });
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -272,8 +272,8 @@ exports.toggleHideProject = async (req, res) => {
       hidden: project.hidden,
     })
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({message: error.message})
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -383,8 +383,8 @@ exports.createVersion = async (req, res) => {
     return res.status(200).json(project);
 
   } catch(error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -408,8 +408,8 @@ exports.getArticles = async (req, res) => {
     // return the articles
     return res.status(200).json(resData);
   } catch (error){
-    console.error(error)
-    return res.status(500).json({message: error.message})
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -435,7 +435,7 @@ exports.getProjectStats = async (req, res) => {
     resData._id = projectId;
     return res.status(200).json(resData);
   } catch (error) {
-    console.error(error)
-    return res.status(500).json({message: error.message})
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }

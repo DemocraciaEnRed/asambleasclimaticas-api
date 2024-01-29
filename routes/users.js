@@ -4,8 +4,7 @@ const { check } = require('express-validator');
 
 const constants = require('../services/constants');
 const validate = require('../middlewares/validate');
-const authenticate = require('../middlewares/authenticate');
-const optionalAuthenticate = require('../middlewares/optionalAuthenticate');
+const authorize = require('../middlewares/authorize');
 const UserController = require('../controllers/userController');
 
 const router = express.Router();
@@ -19,13 +18,12 @@ const router = express.Router();
 
 // GET 		/users/me
 router.get('/me', 
-	authenticate(),
+	authorize(),
 	UserController.me
 );
 
 // GET 		/users/:userId
 router.get('/:userId',
-	optionalAuthenticate,
 	UserController.get
 );
 

@@ -2,8 +2,8 @@ const express = require('express');
 const { check } = require('express-validator');
 
 const validate = require('../middlewares/validate');
-const authenticate = require('../middlewares/authenticate');
-const optionalAuthenticate = require('../middlewares/optionalAuthenticate');
+const authorize = require('../middlewares/authorize');
+const requiresAnon = require('../middlewares/requiresAnon');
 const AuthController = require('../controllers/authController');
 
 // initialize router
@@ -12,7 +12,6 @@ const router = express.Router();
 // -----------------------------------------------
 // BASE     /auth
 // -----------------------------------------------
-// GET 		/auth
 // POST 	/auth/register
 // POST 	/auth/login
 // POST 	/auth/refresh-token
@@ -20,46 +19,76 @@ const router = express.Router();
 // POST 	/auth/resend
 // POST 	/auth/forgot
 // POST 	/auth/reset/:token
-// GET 		/auth/logged
+// GET 		/auth/logged-in
 // -----------------------------------------------
 
-router.get('/', (req, res) => {
-	res.status(200).json({ message: "You are in the Auth Endpoint. Register or Login to test Authentication." });
-});
 
-router.post('/register', [
-	check('email').isEmail().withMessage('Enter a valid email address'),
-	check('password').not().isEmpty().isLength({ min: 6 }).withMessage('Must be at least 6 chars long'),
-	check('name').not().isEmpty().withMessage('Your name is required'),
-	// lang must be 'es' or 'pt'
-	check('lang').not().isEmpty().withMessage('Your language is required').isIn(['es', 'pt']),
-], validate, AuthController.register);
+router.post('/register', 
+	requiresAnon,
+	[
+		check('email').isEmail().withMessage('validationError.email'),
+		check('password').not().isEmpty().isLength({ min: 6 }).withMessage('validationError.password'),
+		check('name').not().isEmpty().withMessage('validationError.name'),
+		check('lang').not().isEmpty().isIn(['es', 'pt']).withMessage('validationError.lang')
+	], 
+	validate,
+	AuthController.register
+);
 
-router.post("/login", [
-	check('email').isEmail().withMessage('Enter a valid email address'),
-	check('password').not().isEmpty(),
-], validate, AuthController.login);
+router.post("/login",
+	requiresAnon,
+	[
+		check('email').isEmail().withMessage('validationError.email'),
+		check('password').not().isEmpty().isLength({ min: 6 }).withMessage('validationError.password'),
+	],
+	validate,
+	AuthController.login
+);
 
-router.post('/refresh-token', authenticate(), AuthController.refreshToken);
+router.post('/refresh-token',
+	authorize(),
+	AuthController.refreshToken
+);
 
-router.get('/verify/:token', [
-	check('token').not().isEmpty().withMessage('Token is required'),
-], validate, AuthController.verify);
+router.get('/verify/:token',
+	[
+		check('token').not().isEmpty().withMessage('Token is required'),
+	],
+	validate,
+	AuthController.verify
+);
 
-router.post('/resend', [
-	check('email').isEmail().withMessage('Enter a valid email address'),
-], validate, AuthController.resendToken);
+router.post('/resend', 
+	requiresAnon,
+	[
+		check('email').isEmail().withMessage('Enter a valid email address'),
+	],
+	validate,
+	AuthController.resendToken
+);
 
-router.post('/forgot', [
-	check('email').isEmail().withMessage('Enter a valid email address'),
-], validate, AuthController.forgot);
+router.post('/forgot', 
+	requiresAnon,
+	[
+		check('email').isEmail().withMessage('Enter a valid email address'),
+	],
+	validate,
+	AuthController.forgot
+);
 
 
-router.post('/reset/:token', [
-	check('password').not().isEmpty().isLength({ min: 6 }).withMessage('Must be at least 6 chars long'),
-	check('confirmPassword', 'Passwords do not match').custom((value, { req }) => (value === req.body.password)),
-], validate, AuthController.resetPassword);
+router.post('/reset/:token',
+	requiresAnon,
+	[
+		check('password').not().isEmpty().isLength({ min: 6 }).withMessage('Must be at least 6 chars long'),
+		check('confirmPassword', 'Passwords do not match').custom((value, { req }) => (value === req.body.password)),
+	],
+	validate,
+	AuthController.resetPassword
+);
 
-router.get('/logged', optionalAuthenticate, AuthController.logged);
+router.get('/logged-in',
+	AuthController.loggedIn
+);
 
 module.exports = router;

@@ -31,8 +31,8 @@ exports.listEvents = async (req, res) => {
     // return the events
     return res.status(200).json(resData)
   } catch(error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -69,8 +69,8 @@ exports.createEvent = async (req, res) => {
     })
 
   } catch(error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -84,6 +84,7 @@ exports.deleteEvent = async (req, res) => {
     const eventId = req.params.eventId;
     const project = await Project.findById(projectId);
 
+    // TODO A middleware already handles this, so we can remove this check
     // if the project doesn't exists, return 404
     if(!project){
       return res.status(404).json({ message: 'Project not found' })
@@ -101,7 +102,7 @@ exports.deleteEvent = async (req, res) => {
     })
  
   } catch(error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }

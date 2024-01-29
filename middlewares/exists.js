@@ -29,7 +29,7 @@ exports.project = async (req, res, next) => {
     
     const project = await Project.findOne(query);
     if(!project) {
-      return res.status(404).json({ message: 'Project not found' });
+      return res.status(404).json({ message: req.__('project.error.notFound') });
     }
     // After we get the project, we will force the projectId to be the MongoDB ObjectId
     req.params.projectId = project._id;
@@ -38,7 +38,7 @@ exports.project = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -48,13 +48,13 @@ exports.article = async (req, res, next) => {
     const articleId = req.params.articleId;
     const article = await Article.findOne({ _id: articleId, project: projectId });
     if(!article) {
-      return res.status(404).json({ message: 'Article not found' });
+      return res.status(404).json({ message: req.__('article.error.notFound') });
     }
     req.article = article;
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -65,13 +65,13 @@ exports.event = async (req, res, next) => {
     const project = Project.findById(projectId);
     const event = await project.events.id(eventId);
     if(!event) {
-      return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ message: req.__('event.error.notFound') });
     }
     req.event = event;
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -82,13 +82,13 @@ exports.comment = async (req, res, next) => {
     const commentId = req.params.commentId || null;
     const comment = await Comment.findOne({ _id: commentId, project: projectId, article: articleId });
     if(!comment) {
-      return res.status(404).json({ message: 'Comment not found' });
+      return res.status(404).json({ message: req.__('comment.error.notFound') });
     }
     req.comment = comment;
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: req.__('error.default') });
   } 
 }
   
@@ -100,13 +100,13 @@ exports.reply = async (req, res, next) => {
     const replyId = req.params.replyId || null;
     const reply = await Reply.findOne({ _id: replyId, comment: commentId });
     if(!reply) {
-      return res.status(404).json({ message: 'Reply not found' });
+      return res.status(404).json({ message: req.__('reply.error.notFound') });
     }
     req.reply = reply;
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: req.__('error.default') });
   } 
 }
 
@@ -116,12 +116,12 @@ exports.version = async (req, res, next) => {
     const version = parseInt(req.params.version) || 1;
     const project = await Project.findOne({ _id: projectId, version: { $gte: version } });
     if(!project) {
-      return res.status(404).json({ message: 'Project version not found' });
+      return res.status(404).json({ message: req.__('version.error.notFound') });
     }
     req.project = project;
     next();
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: req.__('error.default') });
   }
 }

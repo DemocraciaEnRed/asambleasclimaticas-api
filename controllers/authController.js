@@ -48,7 +48,7 @@ exports.register = async (req, res) => {
 		return res.status(200).json({ message: 'An email has been sent to ' + newUser.email + '.' });
 	} catch (error) {
 		console.error(error)
-		return res.status(500).json({ message: error.message })
+		return res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
@@ -93,7 +93,8 @@ exports.login = async (req, res) => {
 		// Login successful, write token, and send back user
 		res.status(200).json({ token: await user.generateJWT(), user: outputUser });
 	} catch (error) {
-		res.status(500).json({ message: error.message })
+		console.error(error)
+		res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
@@ -106,7 +107,8 @@ exports.refreshToken = async (req, res) => {
 		// Login successful, write token, and send back user
 		res.status(200).json({ token: await user.generateJWT()});
 	} catch (error) {
-		res.status(500).json({ message: error.message })
+		console.error(error)
+		res.status(500).json({ message: req.__('error.default') })
 	}
 }
 
@@ -141,7 +143,8 @@ exports.verify = async (req, res) => {
 		// return success
 		return res.status(200).json({ message: "The account has been verified. Please log in." });
 	} catch (error) {
-		res.status(500).json({ message: error.message })
+		console.error(error)
+		res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
@@ -174,7 +177,8 @@ exports.resendToken = async (req, res) => {
 
 		return res.status(200).json({ message: 'A verification email has been sent to ' + user.email + '.' });
 	} catch (error) {
-		res.status(500).json({ message: error.message })
+		console.error(error)
+		res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
@@ -200,7 +204,8 @@ exports.forgot = async (req, res) => {
 
 		res.status(200).json({ message: 'A reset email has been sent to ' + user.email + '.' });
 	} catch (error) {
-		res.status(500).json({ message: error.message })
+		console.error(error)
+		res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
@@ -235,18 +240,19 @@ exports.resetPassword = async (req, res) => {
 		res.status(200).json({ message: 'Your password has been updated.' });
 
 	} catch (error) {
-		res.status(500).json({ message: error.message })
+		console.error(error)
+		res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
-exports.logged = async (req, res) => {
+exports.loggedIn = async (req, res) => {
 	try {
-		let logged = false;
-		if(req.user) logged = true;
-		// return if the user is logged
-		return res.status(200).json({ logged });
+		let loggedIn = false;
+		if(req.user) loggedIn = true;
+		// return if the user is loggedIn
+		return res.status(200).json({ loggedIn: loggedIn });
 	} catch (error) {
 		console.error(error)
-		return res.status(500).json({ message: error.message })
+		res.status(500).json({ message: req.__('error.default') })
 	}
 }

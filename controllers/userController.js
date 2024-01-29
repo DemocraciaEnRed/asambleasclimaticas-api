@@ -25,8 +25,8 @@ exports.list = async function (req, res) {
 		return res.json(output);
 
 	} catch (error) {
-		console.error(error)
-		return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
 	}
 }
 
@@ -51,8 +51,8 @@ exports.listAuthors = async function (req, res) {
 		const output = await UserHelper.listUsers(page, limit, extraQuery, public, includeDeleted);
 		return res.json(output);
 	} catch (error) {
-		console.error(error)
-		return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
 	}
 }				
 
@@ -84,8 +84,8 @@ exports.me = async function (req, res) {
 		}
 		return res.status(200).json(output);
 	} catch (error) {
-		console.error(error)
-		return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
 	}
 };
 
@@ -123,7 +123,8 @@ exports.get = async function (req, res) {
 
 		return res.status(200).json(user);
 	} catch (error) {
-		return res.status(500).json({ message: error.message })
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
 	}
 };
 
@@ -190,7 +191,8 @@ exports.update = async function (req, res) {
 		return res.status(200).json({ user, message: 'User has been updated' });
 
 	} catch (error) {
-		return res.status(500).json({ message: error.message });
+    console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
 	}
 };
 

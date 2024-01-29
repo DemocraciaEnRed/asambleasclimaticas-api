@@ -10,7 +10,7 @@ exports.listProjects = async (req, res) => {
     // return the projects
     return res.status(200).json(resData);
   } catch (error){
-    console.error(error)
-    return res.status(500).json({message: error.message})
+		console.error(error)
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }

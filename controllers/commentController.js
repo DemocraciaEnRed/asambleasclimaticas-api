@@ -16,8 +16,8 @@ exports.listComments = async (req,res) => {
     const resData = await ProjectHelper.listComments(projectId, articleId, version, currentUserId, page, limit)
     return res.status(200).json(resData);
   } catch(error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+		console.error(error)
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }
 
@@ -30,8 +30,8 @@ exports.listReplies = async (req,res) => {
     const resData = await ProjectHelper.listReplies(commentId, currentUserId, page, limit)
     return res.status(200).json(resData);
   } catch(error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+		console.error(error)
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }
 
@@ -55,8 +55,8 @@ exports.createComment = async (req,res) => {
     // return the comment
     return res.status(201).json(comment);
   } catch(error) {
-    console.error(error)
-    return res.status(500).json({ message: error.message })
+		console.error(error)
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }
 
@@ -106,7 +106,8 @@ exports.resolveComment = async (req,res) => {
     await comment.save();
     return res.status(200).json(comment);
   } catch(error) {
-    return res.status(500).json({ message: error.message })
+		console.error(error)
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }
 
@@ -156,7 +157,8 @@ exports.highlightComment = async (req,res) => {
     await comment.save();
     return res.status(200).json(comment);    
   } catch(error) {
-    return res.status(500).json({ message: error.message })
+    console.error(error)
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }
 
@@ -208,7 +210,7 @@ exports.deleteComment = async (req,res) => {
 
   } catch(error) {
     console.error(error)
-    return res.status(500).json({ message: error.message })
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }
 
@@ -231,7 +233,7 @@ exports.createReply = async (req,res) => {
     return res.status(201).json(reply)
   } catch(error) {
     console.error(error)
-    return res.status(500).json({ message: error.message })
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
 
@@ -260,6 +262,6 @@ exports.deleteReply = async (req,res) => {
     return res.status(200).json({ message: 'Reply deleted' });
   } catch (error) {
     console.error(error)
-    return res.status(500).json({ message: error.message })
+		return res.status(500).json({ message: req.__('error.default') })
   }
 }

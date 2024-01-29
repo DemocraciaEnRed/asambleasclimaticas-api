@@ -14,7 +14,7 @@ exports.onlyEditors = async (req, res, next) => {
   const canEdit = await ProjectHelper.canEdit(user, project)
   if (!canEdit) {
     return res.status(403).json({
-      message: 'You are not allowed to edit this project.'
+      message: req.__('project.error.cantEdit')
     });
   }
 
@@ -36,7 +36,7 @@ exports.onlyModerators = async (req, res, next) => {
   const canEdit = await ProjectHelper.canModerate(user, project)
   if (!canEdit) {
     return res.status(403).json({
-      message: 'You are not allowed to moderate this project.'
+      message: req.__('project.error.cantModerate')
     });
   }
 
@@ -61,7 +61,7 @@ exports.isAccesible = async (req, res, next) => {
     if(!project.publishedAt || project.hidden) {
       // the project is not accesible
       return res.status(403).json({
-        message: 'This project is not accesible.'
+        message: req.__('project.error.notAvailable')
       });
     } else {
       // the project is accesible
@@ -76,7 +76,7 @@ exports.isAccesible = async (req, res, next) => {
     if(!project.publishedAt || project.hidden) {
       // the project is not accesible
       return res.status(403).json({
-        message: 'This project is not accesible.'
+        message: req.__('project.error.notAvailable')
       });
     }
   }
@@ -95,16 +95,17 @@ exports.isOpenForContributions = async (req, res, next) => {
   const project = req.project;
   const user = req.user;
 
+  // if there is a user...
   if(user){
-    // if the user is admin or author, then the project is open
+    // check if the user is admin or author
     const canEdit = await ProjectHelper.canEdit(user, project);
     if(canEdit) {
-      // the project is open for admins or the author os the project
+      // admins or the author can contribute to the project even if it is closed
       return next();
     }
   }
 
-  // if the project has no closedAt date, then the project is open
+  // if the project has no closedAt date, then the project is open indefinitely
   if(!project.closedAt) {
     // the project is open
     return next();
@@ -115,7 +116,7 @@ exports.isOpenForContributions = async (req, res, next) => {
   if(now > project.closedAt) {
     // the project is closed
     return res.status(403).json({
-      message: 'This project is closed.'
+      message: req.__('project.error.closed')
     });
   }
 
@@ -144,7 +145,7 @@ exports.mustBeOpen = async (req, res, next) => {
   if(now > project.closedAt) {
     // the project is closed
     return res.status(403).json({
-      message: 'This project is closed.'
+      message: req.__('project.error.isClosed')
     });
   }
 

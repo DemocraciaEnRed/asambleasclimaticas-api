@@ -9,6 +9,7 @@ const database = require('./services/database');
 const migrations = require('./services/migrations');
 const agenda = require('./services/agenda')
 const logger = require('./services/logger');
+const i18n = require('./services/i18n');
 
 // Setting up port
 let PORT = process.env.PORT || 3000;
@@ -30,6 +31,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Set up i18n
+app.use(i18n.init);
 
 //=== 2 - SET UP DATABASE & MIGRATIONS
 database.connect().then(() => {

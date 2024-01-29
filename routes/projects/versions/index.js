@@ -1,11 +1,10 @@
 const express = require('express');
 const { check, param, body, query, oneOf } = require('express-validator');
+const validate = require('../../../middlewares/validate');
 const constants = require('../../../services/constants');
-const authenticate = require('../../../middlewares/authenticate');
-const optionalAuthenticate = require('../../../middlewares/optionalAuthenticate');
+const authorize = require('../../../middlewares/authorize');
 const exists = require('../../../middlewares/exists');
 const projectAuthorization = require('../../../middlewares/projectAuthorization');
-const validate = require('../../../middlewares/validate');
 
 const ProjectController = require('../../../controllers/projectController');
 const CommentController = require('../../../controllers/commentController');
@@ -29,8 +28,9 @@ const router = express.Router({mergeParams: true});
 
 // POST 	/projects/:projectId/versions
 router.post('/',
+	authorize(constants.ROLES.ADMIN_OR_AUTHOR),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		body('title_es').isString().withMessage('Title (es) must be a string'),
 		body('title_pt').isString().withMessage('Title (pt) must be a string'),
 		body('about_es').isString().withMessage('About (es) must be a string'),
@@ -46,7 +46,6 @@ router.post('/',
 	],
 	validate,
 	exists.project,
-	authenticate(constants.ROLES.ADMIN_OR_AUTHOR),
 	projectAuthorization.onlyEditors,
 	ProjectController.createVersion
 
@@ -54,7 +53,7 @@ router.post('/',
 // GET 		/projects/:projectId/versions/:version
 router.get('/:version',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('version').isInt({min: 1}).withMessage('Invalid Version'),
 	],
 	validate,
@@ -67,7 +66,7 @@ router.get('/:version',
 // GET		/projects/:projectId/versions/:version/comments
 router.get('/:version/comments',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('version').isInt({min: 1}).withMessage('Invalid Version'),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
 		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
@@ -82,7 +81,7 @@ router.get('/:version/comments',
 // GET		/projects/:projectId/versions/:version/comments/:commentId/replies
 router.get('/:version/comments/:commentId/replies',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('version').isInt({min: 1}).withMessage('Invalid Version'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
@@ -99,13 +98,12 @@ router.get('/:version/comments/:commentId/replies',
 // GET 		/projects/:projectId/versions/:version/articles
 router.get('/:version/articles',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('version').isInt({min: 1}).withMessage('Invalid Version')
 	],
 	validate,
 	exists.project,
 	exists.version,
-	optionalAuthenticate,
 	projectAuthorization.isAccesible,
 	ProjectController.getArticles
 )
@@ -113,7 +111,7 @@ router.get('/:version/articles',
 // GET		/projects/:projectId/versions/:version/articles/:articleId/comments
 router.get('/:version/articles/:articleId/comments',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('version').isInt({min: 1}).withMessage('Invalid Version'),
     param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
@@ -130,7 +128,7 @@ router.get('/:version/articles/:articleId/comments',
 // POST		/projects/:projectId/versions/:version/articles/:articleId/comments/:commentId/replies
 router.get('/:version/articles/:articleId/comments/:commentId/replies',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('version').isInt({min: 1}).withMessage('Invalid Version'),
     param('articleId').isMongoId().withMessage('Invalid Article ID'),
 		param('commentId').isMongoId().withMessage('Invalid Comment ID'),

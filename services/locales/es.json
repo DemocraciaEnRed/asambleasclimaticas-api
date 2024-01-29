@@ -1,0 +1,75 @@
+{
+	"error": {
+		"default": "Ocurrió un error inesperado."
+	},
+	"auth": {
+		"error": {
+			"alreadyLoggedIn": "Acceso no autorizado - Ya ha iniciado sesión", 
+			"unauthorized": "Acceso no autorizado",
+			"noToken": "Acceso no autorizado - No se encontró token",
+			"forbidden": "Acceso no autorizado - No cuenta con permiso para acceder a este recurso"
+		}
+	},
+	"project": {
+		"error": {
+			"notFound": "Proyecto no encontrado",
+			"notAvailable": "El proyecto no se encuentra disponible",
+			"notAllowed": "No cuenta con los permisos necesarios para acceder a este proyecto",
+			"cantEdit": "No tienes permiso para editar este proyecto",
+			"cantModerate": "No tienes permiso para moderar este proyecto",
+			"isClosed": "El proyecto se encuentra cerrado"
+		}
+	},
+	"version": {
+		"error": {
+			"notFound": "Versión del proyecto no encontrada",
+			"notAvailable": "La versión del proyecto no se encuentra disponible",
+			"notAllowed": "No tienes permiso para ver esta versión del proyecto"
+		}
+	},
+	"article": {
+		"error": {
+			"notFound": "Artículo no encontrado",
+			"notAvailable": "El artículo no se encuentra disponible",
+			"notAllowed": "No tienes permiso para ver este artículo"
+		}
+	},
+	"event": {
+		"error": {
+			"notFound": "Evento no encontrado",
+			"notAvailable": "El evento no se encuentra disponible",
+			"notAllowed": "No tienes permiso para ver este evento"
+		}
+	},
+	"comment": {
+		"error": {
+			"notFound": "Comentario no encontrado",
+			"notAvailable": "El comentario no se encuentra disponible",
+			"notAllowed": "No tienes permiso para ver este comentario"
+		}
+	},
+	"reply": {
+		"error": {
+			"notFound": "Respuesta no encontrada",
+			"notAvailable": "La respuesta no se encuentra disponible",
+			"notAllowed": "No tienes permiso para ver esta respuesta"
+		}
+	},
+	"validationError": {
+		"Invalid value": "Valor inválido",
+		"defaultMessage": "Hubo un error validando los datos",
+		"projectId": "El id o slug del proyecto no es válido",
+		"email": "El email no es válido",
+		"password": "La contraseña no es valida (debe tener al menos 6 caracteres)",
+		"name": "El nombre no es valido",
+		"lang": "Debe elegir un lenguaje válido (es, pt)",
+		"page": "Debe ser un numero entero mayor o igual a 1",
+		"limit": "Debe ser un numero entero entre 1 y 25",
+		"title_es": "El título en español no es válido",
+		"title_pt": "El título en portugués no es válido",
+		"slug": "El slug debe ser una cadena de caracteres alfanuméricos separados por guiones",
+		"coverUrl": "La url de la imagen de portada no es válida",
+		"youtubeUrl": "El id del video de youtube no es válido",
+		"author": "El autor no es válido"
+	}
+}

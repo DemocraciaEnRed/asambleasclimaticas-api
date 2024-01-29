@@ -1,7 +1,7 @@
 const express = require('express');
 const { check, param, body, query, oneOf } = require('express-validator');
 const constants = require('../../../services/constants');
-const authenticate = require('../../../middlewares/authenticate');
+const authenticate = require('../../../middlewares/authorize');
 const exists = require('../../../middlewares/exists');
 const projectAuthorization = require('../../../middlewares/projectAuthorization');
 const validate = require('../../../middlewares/validate');
@@ -11,7 +11,6 @@ const LikeController = require('../../../controllers/likeController');
 const ProjectController = require('../../../controllers/projectController');
 
 const CommentsRoutes = require('./comments');
-const optionalAuthenticate = require('../../../middlewares/optionalAuthenticate');
 
 // initialize router
 const router = express.Router({mergeParams: true});
@@ -29,25 +28,24 @@ const router = express.Router({mergeParams: true});
 // GET 		/projects/:projectId/articles
 router.get('/',
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 	],
 	validate,
 	exists.project,
-	optionalAuthenticate,
 	projectAuthorization.isAccesible,
 	ProjectController.getArticles
 );
 
 // POST		/projects/:projectId/articles/:articleId/like
 router.post('/:articleId/like',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 	], 
 	validate,
 	exists.project,
 	exists.article,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
@@ -55,14 +53,14 @@ router.post('/:articleId/like',
 
 // POST		/projects/:projectId/articles/:articleId/dislike
 router.post('/:articleId/dislike',
+	authenticate(),
 	[
-		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'Invalid Project ID'}),
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
 		param('articleId').isMongoId().withMessage('Invalid Article ID'),
 	], 
 	validate,
 	exists.project,
 	exists.article,
-	authenticate(),
 	projectAuthorization.isAccesible,
 	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike

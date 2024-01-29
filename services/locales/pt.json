@@ -1,0 +1,24 @@
+{
+	"error": {
+		"default": "O servidor teve um erro inesperado"
+	},
+	"auth": {
+		"unauthorized": "Acesso não autorizado",
+		"noToken": "Acesso não autorizado - Token não encontrado",
+		"forbidden": "Acesso não autorizado - Você não tem permissão para acessar este recurso"
+	},
+	"project": {
+		"error": {
+			"notFound": "Projeto não encontrado",
+			"notAllowed": "Você não tem permissão para visualizar este projeto",
+			"invalidId": "O ID ou slug do projeto não é válido"
+		},
+		"notFound": "project.notFound"
+	},
+	"validationError": {
+		"Invalid value": "Valor inválido",
+		"defaultMessage": "Houve um erro validando os dados",
+		"email": "O email não é válido",
+		"password": "A senha não é válida (deve ter pelo menos 6 caracteres)"
+	}
+}

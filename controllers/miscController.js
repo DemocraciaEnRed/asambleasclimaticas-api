@@ -10,6 +10,6 @@ exports.getCountries = async (req, res) => {
     return res.json(countries);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({message: error.message});
+		return res.status(500).json({ message: req.__('error.default') });
   }
 }
