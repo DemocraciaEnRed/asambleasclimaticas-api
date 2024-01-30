@@ -32,6 +32,11 @@ router.get('/users',
   UserController.list
 )
 
+router.get('/users/csv',
+  authorize(constants.ROLES.ADMINISTRATOR),
+  AdminController.exportUsers
+)
+
 // GET 		/admin/users/authors
 router.get('/users/authors',
   authorize(constants.ROLES.ADMINISTRATOR),

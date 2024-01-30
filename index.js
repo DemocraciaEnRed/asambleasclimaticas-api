@@ -26,6 +26,8 @@ if(process.env.APP_URL){
 app.use(cors({
 	origin: appOrigins,
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+	// allow content disposition for file download
+	exposedHeaders: ['Content-Disposition'],
 	credentials: true
 }));
 

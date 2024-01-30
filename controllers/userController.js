@@ -111,13 +111,18 @@ exports.get = async function (req, res) {
 			__v: false
 		}
 		
-		let queryProjection;
+		let queryProjection = querySelect;
 
-		if(userLogged && userLogged.role.includes['admin']){
+		console.log(userLogged)
+
+		if(userLogged && userLogged.role == 'admin'){
 			queryProjection = querySelectForAdmins;
 		}
 
-		const user = await User.findById(userId, querySelect);
+		const user = await User.findById(userId, queryProjection).populate({
+			path: 'country',
+			select: '_id name code emoji unicode image'
+		});
 
 		if (!user) return res.status(401).json({ message: 'User does not exist' });
 

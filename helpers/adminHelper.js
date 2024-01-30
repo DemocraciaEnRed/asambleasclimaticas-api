@@ -1,4 +1,5 @@
 const Project = require('../models/project');
+const User = require('../models/user');
 
 
 exports.listProjects = async (page = 1, limit = 10) => {
@@ -64,6 +65,20 @@ exports.listProjects = async (page = 1, limit = 10) => {
       nextPage,
       prevPage
     }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+exports.listAllUsers = async () => {
+  try {
+    const privateSelect = {
+      password: false,
+      __v: false,
+    };
+    const users = await User.find({}, privateSelect).populate('country')
+    return users;
   } catch (error) {
     console.error(error);
     throw error;
