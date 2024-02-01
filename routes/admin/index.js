@@ -17,6 +17,7 @@ const router = express.Router({mergeParams: true});
 // GET 		/admin/users
 // GET    /admin/users/authors
 // GET 		/admin/users/:userId
+// PUT    /admin/users/:userId/role
 // GET    /admin/projects
 // -----------------------------------------------
 
@@ -57,6 +58,16 @@ router.get('/users/:userId',
   ],
   validate,
   UserController.get
+)
+
+router.put('/users/:userId/role',
+  authorize(constants.ROLES.ADMINISTRATOR),
+  [
+    param('userId').isMongoId().withMessage('Invalid User ID'),
+    body('role').isIn(constants.ROLES.ALL).withMessage('Invalid role'),
+  ],
+  validate,
+  UserController.setRole
 )
 
 router.get('/projects',
