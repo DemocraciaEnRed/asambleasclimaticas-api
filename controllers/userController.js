@@ -113,8 +113,6 @@ exports.get = async function (req, res) {
 		
 		let queryProjection = querySelect;
 
-		console.log(userLogged)
-
 		if(userLogged && userLogged.role == 'admin'){
 			queryProjection = querySelectForAdmins;
 		}
@@ -178,10 +176,6 @@ exports.get = async function (req, res) {
 // 	}
 // };
 
-
-// @route PUT api/user/{id}
-// @desc Update user details
-// @access Public
 exports.update = async function (req, res) {
 	try {
 		const update = req.body;
@@ -201,3 +195,25 @@ exports.update = async function (req, res) {
 	}
 };
 
+
+exports.setRole = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const role = req.body.role;
+
+		// check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // check if the role is valid
+    user.role = role;
+    await user.save();
+
+    return res.status(200).send()
+  } catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
+	}
+}
