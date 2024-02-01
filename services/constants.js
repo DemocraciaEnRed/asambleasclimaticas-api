@@ -8,5 +8,6 @@ module.exports = {
     USER: 'user',
     ADMIN_OR_AUTHOR: ['admin', 'author'],
     ADMIN_OR_AUTHOR_OR_MODERATOR: ['admin', 'author', 'moderator'],
+    ALL: ['admin', 'author', 'moderator', 'user']
   } 
 }
