@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Country = require('../models/country');
 const UserHelper = require('../helpers/usersHelper');
 const agenda = require('../services/agenda');
 
@@ -179,13 +180,26 @@ exports.get = async function (req, res) {
 exports.update = async function (req, res) {
 	try {
 		const update = req.body;
-		const id = req.params.id;
-		const userId = req.user._id;
+		const userId = req.params.userId;
+		const loggedUser = req.user;
 
-		// Make sure the passed id is that of the logged in user
-		if (userId.toString() !== id.toString()) return res.status(401).json({ message: "Sorry, you don't have the permission to upd this data." });
+		if(loggedUser.role != 'admin'){
+			// Make sure the passed id is that of the logged in user
+			if (userId !== loggedUser._id.toString()){
+				return res.status(401).json({ message: "Sorry, you don't have the permission to update this data." });
+			}
+		}
 
-		const user = await User.findByIdAndUpdate(id, { $set: update }, { new: true });
+		if(update.countryCode) {
+			const country = await Country.findOne({ code: update.countryCode });
+			if (!country) return res.status(400).json({ message: 'Invalid country code' });
+			update.country = country._id;
+			delete update.countryCode;
+		}
+
+		console.log(update) 
+
+		const user = await User.findByIdAndUpdate(userId, { $set: update }, { new: true });
 
 		return res.status(200).json({ user, message: 'User has been updated' });
 
