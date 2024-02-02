@@ -11,8 +11,15 @@ exports.listProjects = async (req, res) => {
     const currentUserId = req.user ? req.user._id : null;
 		const page = parseInt(req.query.page) || 1;
 		const limit = parseInt(req.query.limit) || 10;
+    const queryOptions = {}
+    const authorId = req.query.userId || null;
+
+    if(authorId) {
+      queryOptions.author = authorId;
+    }
+
     // get the projects
-    const resData = await ProjectHelper.listProjects(page, limit, currentUserId);
+    const resData = await ProjectHelper.listProjects(page, limit, currentUserId, queryOptions);
     // return the projects
     return res.status(200).json(resData);
   } catch (error){

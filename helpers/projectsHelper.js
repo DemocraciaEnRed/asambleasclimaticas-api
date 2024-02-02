@@ -57,7 +57,7 @@ exports.canModerate = async (user, project) => {
 }
 
 
-exports.listProjects = async (page = 1, limit = 10, currentUserId = null) => {
+exports.listProjects = async (page = 1, limit = 10, currentUserId = null, queryOptions = {}) => {
   try {
     const projects = []
     // get the projects by page
@@ -65,6 +65,10 @@ exports.listProjects = async (page = 1, limit = 10, currentUserId = null) => {
       hidden: false,
       publishedAt: {$ne: null}
      }
+    // if queryOptions is not empty, then we need to add the queryOptions to the query
+    if(Object.keys(queryOptions).length > 0) {
+      Object.assign(query, queryOptions);
+    }
     const projectList = await Project.find(query).populate({
       path: 'author',
       select: '_id name country',
