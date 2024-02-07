@@ -1,5 +1,11 @@
 const Project = require('../models/project');
+const ProjectsHelper = require('../helpers/projectsHelper');
 const User = require('../models/user');
+const Comment = require('../models/comment');
+const Article = require('../models/article');
+const Like = require('../models/like');
+const Reply = require('../models/reply');
+
 
 
 exports.listProjects = async (page = 1, limit = 10) => {
@@ -79,6 +85,97 @@ exports.listAllUsers = async () => {
     };
     const users = await User.find({}, privateSelect).populate('country')
     return users;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+exports.getAppStats = async () => {
+  try {
+
+    // get the users
+    const totalUsers = await User.countDocuments();
+    const totalAdmins = await User.countDocuments({role: 'admin'});
+    const totalAuthors = await User.countDocuments({role: 'author'});
+    const totalVerified = await User.countDocuments({isVerified: true});
+    const totalUnverified = await User.countDocuments({isVerified: false});
+    const totalDeleted = await User.countDocuments({deletedAt: {$ne: null}});
+    // count of the users who logged in in the last 30 days
+    const last30Days = new Date(new Date().setDate(new Date().getDate() - 30));
+    const last30DaysLogins = await User.countDocuments({lastLogin: {$gte: last30Days}});
+    // count of the users who logged in in the last 7 days
+    const last7Days = new Date(new Date().setDate(new Date().getDate() - 7));
+    const last7DaysLogins = await User.countDocuments({lastLogin: {$gte: last7Days}});
+
+    // get the projects
+    const totalProjects = await Project.countDocuments();
+    const totalArticles = await Article.countDocuments();
+    const totalProjectsPublished = await Project.countDocuments({publishedAt: {$ne: null}});
+    const totalProjectsUnpublished = await Project.countDocuments({publishedAt: null});
+    const totalProjectsClosed = await Project.find({closedAt: {$lt: new Date()}}).countDocuments();
+    const totalProjectsHidden = await Project.countDocuments({hidden: true});
+    const totalComments = await Comment.countDocuments();
+    const totalProjectComments = await Comment.countDocuments({project: {$ne: null}, article: null});
+    const totalProjectCommentsResolved = await Comment.countDocuments({project: {$ne: null}, article: null, resolvedInVersion: {$gt: 0}});
+    const totalProjectCommentsHighlighted = await Comment.countDocuments({project: {$ne: null}, article: null, highlightedInVersion: {$gt: 0}});
+    const totalProjectArticleComments = await Comment.countDocuments({project: {$ne: null}, article: {$ne: null}});
+    const totalProjectArticleCommentsResolved = await Comment.countDocuments({project: {$ne: null}, article: {$ne: null}, resolvedInVersion: {$gt: 0}});
+    const totalProjectArticleCommentsHighlighted = await Comment.countDocuments({project: {$ne: null}, article: {$ne: null}, highlightedInVersion: {$gt: 0}});
+    const totalProjectLikes = await Like.countDocuments({project: {$ne: null}, article: null, comment: null, reply: null, type: 'like'});
+    const totalProjectDislikes = await Like.countDocuments({project: {$ne: null}, article: null, comment: null, reply: null, type: 'dislike'});
+    const totalArticleLikes = await Like.countDocuments({project: {$ne: null}, article: {$ne: null}, comment: null, reply: null, type: 'like'});
+    const totalArticleDislikes = await Like.countDocuments({project: {$ne: null}, article: {$ne: null}, comment: null, reply: null, type: 'dislike'});
+    const totalReplies = await Reply.countDocuments();
+
+    // // stats per project
+    // const projectsStats = []
+    // const projects = await Project.find({})
+
+    // for(let i = 0; i < projects.length; i++) {
+    //   const project = projects[i];
+    //   const theProject = {}
+    //   theProject._id = project._id;
+    //   theProject.title_es = project.title_es;
+    //   theProject.title_pt = project.title_pt;
+    //   theProject.stats = await ProjectsHelper.getProjectCurrentStats(project._id);
+    //   projectsStats.push(theProject);
+    // }
+
+    
+    return {
+      users: {
+        totalUsers,
+        totalAdmins,
+        totalAuthors,
+        totalVerified,
+        totalUnverified,
+        totalDeleted,
+        last30DaysLogins,
+        last7DaysLogins,
+      },
+      projects: {
+        totalProjects,
+        totalArticles,
+        totalProjectsPublished,
+        totalProjectsUnpublished,
+        totalProjectsClosed,
+        totalProjectsHidden,
+        totalComments,
+        totalProjectComments,
+        totalProjectCommentsResolved,
+        totalProjectCommentsHighlighted,
+        totalProjectArticleComments,
+        totalProjectArticleCommentsResolved,
+        totalProjectArticleCommentsHighlighted,
+        totalProjectLikes,
+        totalProjectDislikes,
+        totalArticleLikes,
+        totalArticleDislikes,
+        totalReplies
+      },
+    }
+
   } catch (error) {
     console.error(error);
     throw error;

@@ -28,8 +28,12 @@ router.post('/job', (req, res) => {
 router.get('/html', async (req, res) => {
   try {
 
-    const html = await mailer.renderHtml('signup', {
-      title: 'ajhshdahasdbsdab'
+    // const html = await mailer.renderHtml('signup', {
+    //   title: 'ajhshdahasdbsdab'
+    // })
+
+    const html = await mailer.renderHtml('auth/noToken.njk', {
+      appUrl: process.env.APP_URL
     })
 
     // return as html

@@ -73,7 +73,8 @@ async function createUsers() {
         lang: await pickRandomLanguage(),
         bio: faker.lorem.sentence(20),
         role: 'admin',
-        isVerified: true
+        isVerified: true,
+        lastLogin: null
       });
       await user.save();
       adminUsers.push(user);
@@ -89,7 +90,8 @@ async function createUsers() {
         lang: await pickRandomLanguage(),
         bio: faker.lorem.sentence(20),
         role: 'author',
-        isVerified: true
+        isVerified: true,
+        lastLogin: null
       });
       await user.save();
       authorUsers.push(user);
@@ -105,7 +107,8 @@ async function createUsers() {
         lang: await pickRandomLanguage(),
         bio: faker.lorem.sentence(20),
         role: 'user',
-        isVerified: true
+        isVerified: true,
+        lastLogin: null
       });
       await user.save();
       users.push(user);

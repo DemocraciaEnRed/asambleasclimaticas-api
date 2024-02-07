@@ -8,7 +8,7 @@ nunjucks.configure(path.join(__dirname, 'templates'), {
   noCache: true,
 });
 
-let transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: process.env.MAILER_HOST,
   port: process.env.MAILER_PORT,
   auth: {
@@ -31,11 +31,20 @@ exports.sendNow = async (to, subject, html) => {
   }
 }
 
-exports.renderHtml = async (template,lang, data) => {
+exports.renderEmailHtml = async (template, lang, data) => {
   try {
     const language = lang || 'es';
     // Render the nunjucks template
     return nunjucks.render(`${language}/${template}.njk`, data);
+  } catch (error) {
+    throw error;
+  }
+}
+
+exports.renderHtml = async (templatePath, data) => {
+  try {
+    // Render the nunjucks template
+    return nunjucks.render(templatePath, data);
   } catch (error) {
     throw error;
   }

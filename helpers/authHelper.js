@@ -32,3 +32,55 @@ exports.sendPasswordResetEmail = async (user, url) => {
     throw error;
   }
 }
+
+// exports.renderSuccessVerification = async () => {
+//   try {
+    
+//     // this function returns an html of the render of a njk template.
+//     return mailer.renderHtml('/auth/successVerification.njk', {
+//       appUrl: process.env.APP_URL,
+//     });
+//   } catch (error) {
+
+//   }
+// }
+
+// exports.renderAlreadyVerified = async () => {
+//   try {
+//     return mailer.renderHtml('/auth/alreadyVerified.njk', {
+//       appUrl: process.env.APP_URL,
+//     });
+//   } catch (error) {
+
+//   }
+// }
+
+// exports.renderErrorVerification = async () => {
+//   try {
+//     return mailer.renderHtml('/auth/errorVerification.njk', {
+//       appUrl: process.env.APP_URL,
+//     });
+//   } catch (error) {
+
+//   }
+// }
+
+// exports.renderNotFoundToken = async () => {
+//   try {
+//     return mailer.renderHtml('/auth/noToken.njk', {
+//       appUrl: process.env.APP_URL,
+//     });
+//   } catch (error) {
+
+//   }
+// }
+
+// exports.renderNotFoundUser = async () => {
+//   try {
+//     return mailer.renderHtml('/auth/noUser.njk', {
+//       appUrl: process.env.APP_URL,
+//     });
+//   } catch (error) {
+
+//   }
+// }

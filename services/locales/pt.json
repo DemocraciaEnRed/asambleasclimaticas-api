@@ -19,6 +19,9 @@
 		"Invalid value": "Valor inválido",
 		"defaultMessage": "Houve um erro validando os dados",
 		"email": "O email não é válido",
-		"password": "A senha não é válida (deve ter pelo menos 6 caracteres)"
+		"password": "A senha não é válida (deve ter pelo menos 6 caracteres)",
+		"Invalid User ID": "validationError.Invalid User ID",
+		"Old password must be a string": "validationError.Old password must be a string",
+		"Password must be a string": "validationError.Password must be a string"
 	}
 }

@@ -10,7 +10,7 @@ exports.sendMail = async (job) => {
       url 
     } = job.attrs.data;
 
-    const html = await mailer.renderHtml(template, lang, {
+    const html = await mailer.renderEmailHtml(template, lang, {
       subject,
       url
     });

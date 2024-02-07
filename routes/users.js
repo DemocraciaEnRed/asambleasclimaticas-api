@@ -1,7 +1,6 @@
 const express = require('express');
-const { check } = require('express-validator');
 // const multer = require('multer');
-
+const { check, param, body, query } = require('express-validator');
 const constants = require('../services/constants');
 const validate = require('../middlewares/validate');
 const authorize = require('../middlewares/authorize');
@@ -20,6 +19,28 @@ const router = express.Router();
 router.get('/me', 
 	authorize(),
 	UserController.me
+);
+
+router.put('/me', 
+	authorize(),
+  [
+    body('name').isString().withMessage('Name must be a string'),
+    body('bio').isString().withMessage('Bio must be a string'),
+    body('countryCode').isString().withMessage('Country code must be a string'),
+    body('lang').isString().withMessage('Language must be a string'),
+  ],
+  validate,
+	UserController.update
+);
+
+router.put('/me/password', 
+	authorize(),
+  [
+		body('currentPassword').not().isEmpty().isLength({ min: 6 }).withMessage('validationError.password'),
+		body('newPassword').not().isEmpty().isLength({ min: 6 }).withMessage('validationError.password'),
+  ],
+  validate,
+	UserController.changePassword
 );
 
 // GET 		/users/:userId

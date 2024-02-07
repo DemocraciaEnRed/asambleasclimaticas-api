@@ -31,10 +31,10 @@ exports.exportUsers = async (req, res) => {
         countryName: user.country.name,
         role: user.role,
         isVerified: user.isVerified,
+        lastLogin: user.lastLogin,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         deletedAt: user.deletedAt,
-        
       }
       data.push(userOutput);
     }
@@ -53,6 +53,16 @@ exports.exportUsers = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
     return res.send(csv);
     
+  } catch (error){
+    console.error(error)
+    return res.status(500).json({ message: req.__('error.default') })
+  }
+}
+
+exports.getAppStats = async (req, res) => {
+  try {
+    const stats = await AdminHelper.getAppStats();
+    return res.json(stats);
   } catch (error){
     console.error(error)
     return res.status(500).json({ message: req.__('error.default') })

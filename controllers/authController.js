@@ -41,7 +41,7 @@ exports.register = async (req, res) => {
 		// save the verification token
 		await token.save()
 		// make the url
-		const url = `${UtilsHelper.getHost(req)}/auth/verify/${token.token}`
+		const url = `${process.env.APP_URL}/auth/verify/${token.token}`;
 		// send email
 		await AuthHelper.sendVerificationEmail(newUser, url);
 
@@ -91,24 +91,31 @@ exports.login = async (req, res) => {
 			country: user.country,
 		}
 		// Login successful, write token, and send back user
-		res.status(200).json({ token: await user.generateJWT(), user: outputUser });
+		return res.status(200).json({ token: await user.generateJWT(), user: outputUser });
 	} catch (error) {
 		console.error(error)
-		res.status(500).json({ message: req.__('error.default') })
+		return res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
-
+/**
+ * Refreshes the token of a user
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
 exports.refreshToken = async (req, res) => {
 	try {
 		// authenticate middleware already checked if the user is logged
 		const user = req.user;
 
 		// Login successful, write token, and send back user
-		res.status(200).json({ token: await user.generateJWT()});
+		return res.status(200).json({ token: await user.generateJWT()});
+		
 	} catch (error) {
 		console.error(error)
-		res.status(500).json({ message: req.__('error.default') })
+		return res.status(500).json({ message: req.__('error.default') })
 	}
 }
 
@@ -170,7 +177,7 @@ exports.resendToken = async (req, res) => {
 		// Save the verification token
 		await token.save();
 		// make the url
-		const url = `http://${req.headers.host}/api/auth/verify/${token.token}`;
+		const url = `${process.env.APP_URL}/auth/verify/${token.token}`;
 		// send email
 		await AuthHelper.sendVerificationEmail(user, url);
 
@@ -198,7 +205,7 @@ exports.forgot = async (req, res) => {
 		// now send the password change request email
 		
 		// make the url
-		const url = `http://${req.headers.host}/api/auth/reset/${user.resetPasswordToken}`;
+		const url = `${process.env.APP_URL}/auth/verify/${token.token}`;
 
 		await AuthHelper.sendPasswordResetEmail(user, url);
 
@@ -237,11 +244,11 @@ exports.resetPassword = async (req, res) => {
 
 		// await sendEmail({to, from, subject, html});
 
-		res.status(200).json({ message: 'Your password has been updated.' });
+		return res.status(200).json({ message: 'Your password has been updated.' });
 
 	} catch (error) {
 		console.error(error)
-		res.status(500).json({ message: req.__('error.default') })
+		return res.status(500).json({ message: req.__('error.default') })
 	}
 };
 
@@ -253,6 +260,6 @@ exports.loggedIn = async (req, res) => {
 		return res.status(200).json({ loggedIn: loggedIn });
 	} catch (error) {
 		console.error(error)
-		res.status(500).json({ message: req.__('error.default') })
+		return res.status(500).json({ message: req.__('error.default') })
 	}
 }

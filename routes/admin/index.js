@@ -85,6 +85,36 @@ router.put('/users/:userId/role',
   UserController.setRole
 )
 
+router.post('/users/:userId/force-verify',
+  authorize(constants.ROLES.ADMINISTRATOR),
+  [
+    param('userId').isMongoId().withMessage('Invalid User ID'),
+  ],
+  validate,
+  UserController.forceVerifyByAdmin
+)
+
+router.put  ('/users/:userId/password',
+  authorize(constants.ROLES.ADMINISTRATOR),
+  [
+    param('userId').isMongoId().withMessage('Invalid User ID'),
+    body('password').isString().withMessage('Password must be a string'),
+  ],
+  validate,
+  UserController.changePasswordByAdmin
+)
+
+router.put('/users/:userId/email',
+  authorize(constants.ROLES.ADMINISTRATOR),
+  [
+    param('userId').isMongoId().withMessage('Invalid User ID'),
+    body('email').isEmail().withMessage('Invalid email'),
+    body('forceVerified').optional().isBoolean().withMessage('Force verified must be a boolean'),
+  ],
+  validate,
+  UserController.changeEmailByAdmin
+)
+
 router.get('/projects',
   authorize(constants.ROLES.ADMINISTRATOR),
   [
@@ -93,6 +123,11 @@ router.get('/projects',
   ],
   validate,
   AdminController.listProjects
+)
+
+router.get('/stats',
+  authorize(constants.ROLES.ADMINISTRATOR),
+  AdminController.getAppStats
 )
 
 module.exports = router;

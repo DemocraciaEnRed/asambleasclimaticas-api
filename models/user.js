@@ -56,11 +56,16 @@ const UserSchema = new mongoose.Schema({
 		type: Date,
 		required: false
 	},
+	lastLogin: {
+		type: Date,
+		required: false,
+		default: null
+	},
 	deletedAt: {
 		type: Date,
 		required: false,
 		default: null
-	}
+	},
 }, { timestamps: true });
 
 
@@ -98,6 +103,9 @@ UserSchema.methods.generateJWT = async function () {
 	let country = await Country.findById(this.country).select('name code emoji unicode');
 	const expiresIn = '2d';
 
+	this.lastLogin = Date.now();
+	await this.save();
+	
 	let payload = {
 		_id: this._id,
 		email: this.email,

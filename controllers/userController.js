@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const Country = require('../models/country');
 const UserHelper = require('../helpers/usersHelper');
+const AuthHelper = require('../helpers/authHelper');
 const agenda = require('../services/agenda');
 
 
@@ -180,7 +181,7 @@ exports.get = async function (req, res) {
 exports.update = async function (req, res) {
 	try {
 		const update = req.body;
-		const userId = req.params.userId;
+		const userId = req.params.userId || req.user._id;
 		const loggedUser = req.user;
 
 		if(loggedUser.role != 'admin'){
@@ -196,10 +197,8 @@ exports.update = async function (req, res) {
 			update.country = country._id;
 			delete update.countryCode;
 		}
-
-		console.log(update) 
-
-		const user = await User.findByIdAndUpdate(userId, { $set: update }, { new: true });
+		
+		const user = await User.findByIdAndUpdate(userId, { $set: update }, { select: '-password -deletedAt -resetPasswordExpires -lastLogin -updatedAt -deletedAt -__v -createdAt -isVerified', new: true })
 
 		return res.status(200).json({ user, message: 'User has been updated' });
 
@@ -208,6 +207,28 @@ exports.update = async function (req, res) {
 		return res.status(500).json({ message: req.__('error.default') });
 	}
 };
+
+exports.changePassword = async function (req, res) {
+	try {
+		const userId = req.user._id
+		const { currentPassword, newPassword } = req.body;
+
+		const user = await User.findById(userId);
+
+		if (!user.comparePassword(currentPassword)) {
+			return res.status(401).json({ message: 'Invalid current password' });
+		}
+
+		user.password = newPassword;
+		await user.save();
+
+		return res.status(200).json({ message: 'Password has been changed' });
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
+	}
+};
+
 
 
 exports.setRole = async (req, res) => {
@@ -229,5 +250,80 @@ exports.setRole = async (req, res) => {
   } catch (error) {
 		console.error(error);
 		return res.status(500).json({ message: req.__('error.default') });
+	}
+}
+
+
+exports.forceVerifyByAdmin = async (req,res) => {
+	try {
+		const userId = req.params.userId;
+		const user = await User.findById(userId)
+		if (!user) return res.status(404).json({ message: 'User not found' });
+
+		user.isVerified = true;
+		await user.save();
+
+		return res.status(200).json({ message: 'User has been verified' });
+	} catch(error) {
+		console.error(error)
+		return res.status(500).json({message: req.__('error.default') })
+	}
+}
+
+exports.changePasswordByAdmin = async (req,res) => {
+	try {
+		const userId = req.params.userId;
+		const password = req.body.password;
+
+		const user = await User.findById(userId)
+		if (!user) return res.status(404).json({ message: 'User not found' });
+
+		user.password = password;
+		await user.save();		
+
+		return res.status(200).json({ message: 'Password has been changed' });
+	} catch(error) {
+		console.error(error)
+		return res.status(500).json({message: req.__('error.default') })
+	}
+}
+
+exports.changeEmailByAdmin = async (req,res) => {
+	try {
+		const userId = req.params.userId;
+		const email = req.body.email;
+		const forceVerified = req.body.forceVerified;
+
+		const user = await User.findById(userId)
+		if (!user) return res.status(404).json({ message: 'User not found' });
+
+		user.email = email;
+
+		if(forceVerified && req.user.role == 'admin'){
+			user.isVerified = true;
+			await user.save();
+			return res.status(200).json({ message: 'Email has been changed and user has been verified' });
+		}
+
+		// by default, changing the email address will make the user unverified
+		user.isVerified = false;
+		await user.save();
+
+		// generate a new token 
+		const token = user.generateVerificationToken();
+		// Save the verification token
+		await token.save();
+		// make the url
+		const url = `${process.env.APP_URL}/auth/verify/${token.token}`;
+		// send email
+		await AuthHelper.sendVerificationEmail(user, url);
+
+		return res.status(200).json({ 
+			message: 'Email has been changed. A verification email has been sent'
+		});
+
+	} catch(error) {
+		console.error(error)
+		return res.status(500).json({message: req.__('error.default') })
 	}
 }
