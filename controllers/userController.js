@@ -229,7 +229,42 @@ exports.changePassword = async function (req, res) {
 	}
 };
 
+exports.changeEmail = async function (req, res) {
+	// the user will have to match the current password
+	// then a new verification email will be sent
+	try {
+		const userId = req.user._id;
+		const { email, password } = req.body;
 
+		const user = await User.findById(userId)
+
+		if (!user.comparePassword(password)) {
+			return res.status(401).json({ message: 'Invalid password' });
+		}
+
+		user.email = email;
+		user.isVerified = false;
+		await user.save();
+
+		// generate a new token 
+		const token = user.generateVerificationToken();
+		// Save the verification token
+		await token.save();
+		// make the url
+		const url = `${process.env.APP_URL}/auth/verify/${token.token}`;
+		// send email
+		await AuthHelper.sendVerificationEmail(user, url);
+
+		return res.status(200).json({ 
+			message: 'Email has been changed. A verification email has been sent'
+		});
+		
+
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: req.__('error.default') });
+	}	
+}
 
 exports.setRole = async (req, res) => {
   try {
@@ -292,7 +327,7 @@ exports.changeEmailByAdmin = async (req,res) => {
 	try {
 		const userId = req.params.userId;
 		const email = req.body.email;
-		const forceVerified = req.body.forceVerified;
+		const forceVerified = req.body.forceVerified || false;
 
 		const user = await User.findById(userId)
 		if (!user) return res.status(404).json({ message: 'User not found' });

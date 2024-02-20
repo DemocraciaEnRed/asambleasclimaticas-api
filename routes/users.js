@@ -12,6 +12,9 @@ const router = express.Router();
 // BASE     /users
 // -----------------------------------------------
 // GET 		/users/me
+// PUT 	  /users/me
+// PUT 	  /users/me/password
+// PUT 	  /users/me/email
 // GET 		/users/:userId
 // -----------------------------------------------
 
@@ -21,6 +24,7 @@ router.get('/me',
 	UserController.me
 );
 
+// PUT 	  /users/me
 router.put('/me', 
 	authorize(),
   [
@@ -33,6 +37,7 @@ router.put('/me',
 	UserController.update
 );
 
+// PUT 	  /users/me/password
 router.put('/me/password', 
 	authorize(),
   [
@@ -43,20 +48,20 @@ router.put('/me/password',
 	UserController.changePassword
 );
 
+// PUT 	  /users/me/email
+router.put('/me/email', 
+	authorize(),
+  [
+		body('email').isEmail().withMessage('validationError.email'),
+		body('password').not().isEmpty().isLength({ min: 6 }).withMessage('validationError.password'),
+  ],
+  validate,
+	UserController.changeEmail
+);
+
 // GET 		/users/:userId
 router.get('/:userId',
 	UserController.get
 );
-
-// router.post('/', [
-// 	check('email').isEmail().withMessage('Enter a valid email address'),
-// 	check('username').not().isEmpty().withMessage('You username is required'),
-// 	check('firstName').not().isEmpty().withMessage('You first name is required'),
-// 	check('lastName').not().isEmpty().withMessage('You last name is required')
-// ], validate, authenticate(constants.ROLES.ADMINISTRATOR), User.create);
-
-//UPDATE
-// router.put('/:id', upload, User.update);
-//router.put('/:id', optionalAuthenticate, User.update);
 
 module.exports = router;
