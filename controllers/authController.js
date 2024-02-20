@@ -205,7 +205,7 @@ exports.forgot = async (req, res) => {
 		// now send the password change request email
 		
 		// make the url
-		const url = `${process.env.APP_URL}/auth/verify/${token.token}`;
+		const url = `${process.env.APP_URL}/auth/restore-password/${user.resetPasswordToken}`;
 
 		await AuthHelper.sendPasswordResetEmail(user, url);
 
