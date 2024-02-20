@@ -9,7 +9,6 @@ module.exports = (roles) => (req, res, next) => {
 		console.error('JWT - Unauthorized Access - No Token Provided!');
 		return res.status(401).json({ message: req.__('auth.error.noToken') });
 	}
-	console.log(roles)
 	// If roles is not defined, allow access to all roles
 	if (roles == undefined || roles == null) {
 		return next();
