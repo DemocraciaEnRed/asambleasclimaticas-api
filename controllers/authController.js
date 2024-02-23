@@ -45,7 +45,7 @@ exports.register = async (req, res) => {
 		// send email
 		await AuthHelper.sendVerificationEmail(newUser, url);
 
-		return res.status(200).json({ message: 'An email has been sent to ' + newUser.email + '.' });
+		return res.status(200).json({ message: req.__('auth.success.verificationMailSent', { email: newUser.email }) });
 	} catch (error) {
 		console.error(error)
 		return res.status(500).json({ message: req.__('error.default') })
@@ -69,17 +69,17 @@ exports.login = async (req, res) => {
 		});
 
 		if (!user){
-			return res.status(401).json({ message: 'Invalid email or password' });
+			return res.status(401).json({ message: req.__('auth.error.invalidCredentials') });
 		}
 
 		//validate password
 		if (!user.comparePassword(password)) {
-			return res.status(401).json({ message: 'Invalid email or password' });
+			return res.status(401).json({ message: req.__('auth.error.invalidCredentials') });
 		}
 
 		// Make sure the user has been verified
 		if (!user.isVerified) {
-			return res.status(401).json({ message: 'Your account has not been verified.' });
+			return res.status(401).json({ message: req.__('auth.error.unverified') });
 		}
 
 		const outputUser = {
@@ -131,24 +131,24 @@ exports.verify = async (req, res) => {
 		const token = await Token.findOne({ token: req.params.token });
 		// if the token is not found, return an error 
 		if (!token) {
-			return res.status(400).json({ message: 'We were unable to find a valid token. Your token may have expired.' });
+			return res.status(400).json({ message: req.__('auth.error.tokenNotFound') });
 		}
 		// If we found a token, find a matching user
 		const user = await User.findOne({ _id: token.userId });
 		// if the user is not found return an error
 		if (!user) {
-			return res.status(400).json({ message: 'We were unable to find a user for this token.' });
+			return res.status(400).json({ message: req.__('auth.error.userNotFound') });
 		}
 		// if the user is already verified, return error
 		if (user.isVerified) {
-			return res.status(400).json({ message: 'This user has already been verified.' });
+			return res.status(400).json({ message: req.__('auth.error.alreadyVerified') });
 		}
 		// token exists and the user is not verified, so we can verify the user
 		user.isVerified = true;
 		// save it
 		await user.save();
 		// return success
-		return res.status(200).json({ message: "The account has been verified. Please log in." });
+		return res.status(200).json({ message: req.__('auth.success.verification') });
 	} catch (error) {
 		console.error(error)
 		res.status(500).json({ message: req.__('error.default') })
@@ -166,11 +166,11 @@ exports.resendToken = async (req, res) => {
 		const user = await User.findOne({ email });
 		// if the user was not found, return error
 		if (!user) {
-			return res.status(401).json({ message: 'Email not found or invalid email' });
+			return res.status(401).json({ message: req.__('auth.error.emailNotFound') });
 		}
 		// if the user is already verified, return error
 		if (user.isVerified) {
-			return res.status(400).json({ message: 'This account has already been verified. Please log in.' });
+			return res.status(400).json({ message: req.__('auth.error.alreadyVerified') });
 		}
 		// generate a new token 
 		const token = user.generateVerificationToken();
@@ -182,7 +182,7 @@ exports.resendToken = async (req, res) => {
 		await AuthHelper.sendVerificationEmail(user, url);
 
 
-		return res.status(200).json({ message: 'A verification email has been sent to ' + user.email + '.' });
+		return res.status(200).json({ message: req.__('auth.success.verificationResent', { email: user.email }) });
 	} catch (error) {
 		console.error(error)
 		res.status(500).json({ message: req.__('error.default') })
@@ -196,7 +196,7 @@ exports.forgot = async (req, res) => {
 		const user = await User.findOne({ email });
 		// if user is not found, return error
 		if (!user) {
-			return res.status(401).json({ message: 'The email address ' + req.body.email + ' is not associated with any account. Double-check your email address and try again.' });
+			return res.status(401).json({ message: req.__('auth.error.emailNotAssociated', { email: email }) });
 		}
 		// generate and set password reset token
 		user.generatePasswordReset();
@@ -209,7 +209,7 @@ exports.forgot = async (req, res) => {
 
 		await AuthHelper.sendPasswordResetEmail(user, url);
 
-		res.status(200).json({ message: 'A reset email has been sent to ' + user.email + '.' });
+		res.status(200).json({ message: req.__('auth.error.resetMailSent', { email: user.email }) });
 	} catch (error) {
 		console.error(error)
 		res.status(500).json({ message: req.__('error.default') })
@@ -225,7 +225,7 @@ exports.resetPassword = async (req, res) => {
 
 		const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
 
-		if (!user) return res.status(401).json({ message: 'Password reset token is invalid or has expired.' });
+		if (!user) return res.status(401).json({ message: req.__('auth.error.tokenNotFound') });
 
 		//Set the new password
 		user.password = req.body.password;
@@ -244,7 +244,7 @@ exports.resetPassword = async (req, res) => {
 
 		// await sendEmail({to, from, subject, html});
 
-		return res.status(200).json({ message: 'Your password has been updated.' });
+		return res.status(200).json({ message: req.__('auth.success.passwordUpdated') });
 
 	} catch (error) {
 		console.error(error)

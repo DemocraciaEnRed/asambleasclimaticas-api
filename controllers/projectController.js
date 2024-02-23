@@ -235,7 +235,7 @@ exports.publishProject = async (req, res) => {
 
     // if the project is already published, return 403
     if(project.publishedAt) {
-      return res.status(403).json({ message: 'Project is already published' })
+      return res.status(403).json({ message: req.__('project.error.alreadyPublished') });
     }
 
     // project wasn't published, so we can publish it
@@ -266,7 +266,7 @@ exports.toggleHideProject = async (req, res) => {
     
     // if project is not published, cannot unhide it
     if(project.publishedAt == null || project.publishedAt == undefined) {
-      return res.status(403).json({ message: 'Project is not published. Publish the project before to make it public.' })
+      return res.status(403).json({ message: req.__('project.error.notPublished') });
     }
 
     // project was published, toggle the hidden property
@@ -294,7 +294,7 @@ exports.createVersion = async (req, res) => {
 
     // if the project is not published, return 403
     if(!project.publishedAt) {
-      return res.status(403).json({ message: 'Project is not published. Publish the project before making a new version.' })
+      return res.status(403).json({ message: req.__('project.error.notPublished') });
     }
 
     // we need to create a new version

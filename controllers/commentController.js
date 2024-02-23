@@ -76,7 +76,7 @@ exports.resolveComment = async (req,res) => {
       if(comment.highlightedInVersion !== req.project.version) {
         // if it is not, return 403
         return res.status(403).json({
-          message: 'Comment was highlighted in a previous version. Cannot resolve it.'
+          message: req.__('comment.error.alreadyHighlighted')
         })
       } else {
         // if it is, remove the highlightedInVersion
@@ -90,7 +90,7 @@ exports.resolveComment = async (req,res) => {
       req.project.version > comment.resolvedInVersion
     ) {
       return res.status(403).json({
-        message: 'Comment was resolved in a previous version. Cannot resolve it.'
+        message: req.__('comment.error.alreadyResolved')
       })
     }
 
@@ -127,7 +127,7 @@ exports.highlightComment = async (req,res) => {
       if(comment.resolvedInVersion !== req.project.version) {
         // if it is not, return 403
         return res.status(403).json({
-          message: 'Comment was resolved in a previous version. Cannot highlight it.'
+          message: req.__('comment.error.alreadyResolved')
         })
       } else {
         // if it is, remove the resolvedInVersion
@@ -141,7 +141,7 @@ exports.highlightComment = async (req,res) => {
       req.project.version > comment.highlightedInVersion
     ) {
       return res.status(403).json({
-        message: 'Comment was highlighted in a previous version. Cannot highlight it.'
+        message: req.__('comment.error.alreadyHighlighted')
       })
     }
 
@@ -165,14 +165,17 @@ exports.highlightComment = async (req,res) => {
 exports.deleteComment = async (req,res) => {
   try {
     // to delete a comment, only the author, admins and moderators can do it
-    await ProjectHelper.canModerate(req.user, req.project);
+    const canModerate = await ProjectHelper.canModerate(req.user, req.project);
+    if(!canModerate) {
+      return res.status(403).json({ message: req.__('project.error.cantModerate') })
+    }
 
     const comment = req.comment;
 
     // before doing anything, if the project is closed, return 403
     // project.closed is a virtual
     if(req.project.closed) {
-      return res.status(403).json({ message: 'Project is closed. The time to comment has ended.' })
+      return res.status(403).json({ message: req.__('project.error.isClosed') })
     }
 
     // if the comment was highlighted, and in a previous version, return 403
@@ -181,7 +184,7 @@ exports.deleteComment = async (req,res) => {
       req.project.version > comment.highlightedInVersion
     ) {
       return res.status(403).json({
-        message: 'Comment was highlighted in a previous version. Cannot delete it.'
+        message: req.__('comment.error.cantDeleteItsHighlighted')
       })
     }
 
@@ -191,7 +194,7 @@ exports.deleteComment = async (req,res) => {
       req.project.version > comment.resolvedInVersion
     ) {
       return res.status(403).json({
-        message: 'Comment was resolved in a previous version. Cannot delete it.'
+        message: req.__('comment.error.cantDeleteItsResolved')
       })
     }
     
@@ -206,7 +209,7 @@ exports.deleteComment = async (req,res) => {
 
     await comment.remove();
     
-    return res.status(200).json({ message: 'Comment deleted' });
+    return res.status(200).json({ message: req.__('project.success.deleted') });
 
   } catch(error) {
     console.error(error)
@@ -244,7 +247,7 @@ exports.deleteReply = async (req,res) => {
     // to delete a comment, only the author, admins and moderators can do it
     const canModerate = await ProjectHelper.canModerate(req.user, req.project);
     if(!canModerate) {
-      return res.status(403).json({ message: 'Forbidden' })
+      return res.status(403).json({ message: req.__('project.error.cantModerate') })
     }
 
     const replyId = req.params.replyId;
@@ -259,7 +262,7 @@ exports.deleteReply = async (req,res) => {
     // save the comment
     await comment.save();
 
-    return res.status(200).json({ message: 'Reply deleted' });
+    return res.status(200).json({ message: req.__('project.success.deleted') });
   } catch (error) {
     console.error(error)
 		return res.status(500).json({ message: req.__('error.default') })

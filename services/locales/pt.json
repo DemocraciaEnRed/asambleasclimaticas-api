@@ -1,27 +1,124 @@
 {
 	"error": {
-		"default": "O servidor teve um erro inesperado"
+		"default": "Ocorreu um erro inesperado."
 	},
 	"auth": {
-		"unauthorized": "Acesso não autorizado",
-		"noToken": "Acesso não autorizado - Token não encontrado",
-		"forbidden": "Acesso não autorizado - Você não tem permissão para acessar este recurso"
+		"error": {
+			"invalidCredentials": "O e-mail ou a senha estão incorretos",
+			"unverified": "A conta ainda não foi verificada",
+			"alreadyLoggedIn": "Acesso não autorizado - Você já está logado", 
+			"unauthorized": "Acesso não autorizado",
+			"noToken": "Acesso não autorizado - Token não encontrado",
+			"forbidden": "Acesso não autorizado - Você não tem permissão para acessar este recurso",
+			"alreadyVerified": "A conta já foi verificada",
+			"tokenNotFound": "O token não foi encontrado ou pode ter expirado. Por favor, solicite um novo token",
+			"userNotFound": "Usuário não encontrado",
+			"emailNotFound": "O e-mail não foi encontrado ou está incorreto",
+			"emailNotAssociated": "O endereço de e-mail {{email}} não está associado a nenhuma conta. Por favor, verifique se o endereço está correto"
+		},
+		"success": {
+			"login": "Sessão iniciada com sucesso",
+			"logout": "Sessão encerrada com sucesso",
+			"signup": "Conta criada com sucesso",
+			"passwordUpdated": "Senha atualizada com sucesso",
+			"verification": "Conta verificada com sucesso. Por favor, faça login",
+			"verificationMailSent": "Um e-mail de verificação foi enviado para o seu endereço de e-mail {{email}}",
+			"verificationMailResent": "Um novo e-mail de verificação foi enviado para o seu endereço de e-mail {{email}}",
+			"resetMailSent": "Um e-mail com instruções para redefinir sua senha foi enviado para o seu endereço de e-mail {{email}}"
+		}
 	},
 	"project": {
 		"error": {
 			"notFound": "Projeto não encontrado",
-			"notAllowed": "Você não tem permissão para visualizar este projeto",
-			"invalidId": "O ID ou slug do projeto não é válido"
+			"notAvailable": "O projeto não está disponível",
+			"notAllowed": "Você não tem permissão para acessar este projeto",
+			"cantEdit": "Você não tem permissão para editar este projeto",
+			"cantModerate": "Você não tem permissão para moderar este projeto",
+			"isClosed": "O projeto está fechado",
+			"alreadyPublished": "O projeto já foi publicado",
+			"notPublished": "O projeto não foi publicado. Publique o projeto para torná-lo público"
 		},
-		"notFound": "project.notFound"
+		"success": {
+
+		}
+	},
+	"version": {
+		"error": {
+			"notFound": "Versão do projeto não encontrada",
+			"notAvailable": "A versão do projeto não está disponível",
+			"notAllowed": "Você não tem permissão para ver esta versão do projeto"
+		}
+	},
+	"article": {
+		"error": {
+			"notFound": "Artigo não encontrado",
+			"notAvailable": "O artigo não está disponível",
+			"notAllowed": "Você não tem permissão para ver este artigo"
+		}
+	},
+	"event": {
+		"error": {
+			"notFound": "Evento não encontrado",
+			"notAvailable": "O evento não está disponível",
+			"notAllowed": "Você não tem permissão para ver este evento"
+		}
+	},
+	"comment": {
+		"error": {
+			"notFound": "Comentário não encontrado",
+			"notAvailable": "O comentário não está disponível",
+			"notAllowed": "Você não tem permissão para ver este comentário",
+			"alreadyHighlighted": "O comentário já foi destacado em uma versão anterior",
+			"alreadyResolved": "O comentário já foi resolvido em uma versão anterior",
+			"cantDeleteItsHighlighted": "O comentário foi destacado em uma versão anterior. Não pode ser excluído",
+			"cantDeleteItsResolved": "O comentário foi resolvido em uma versão anterior. Não pode ser excluído"
+		},
+		"success": {
+			"deleted": "Comentário excluído com sucesso"
+		}
+	},
+	"reply": {
+		"error": {
+			"notFound": "Resposta não encontrada",
+			"notAvailable": "A resposta não está disponível",
+			"notAllowed": "Você não tem permissão para ver esta resposta"
+		},
+		"success": {
+			"deleted": "Resposta excluída com sucesso"
+		}
+	},
+	"user": {
+		"error": {
+			"notFound": "Usuário não encontrado",
+			"notAvailable": "O usuário não está disponível",
+			"notAllowed": "Você não tem permissão para ver este usuário",
+			"invalidCountryCode": "O código do país não é válido",
+			"invalidPassword": "A senha não é válida"
+
+		},
+		"success": {
+			"updated": "Usuário atualizado com sucesso",
+			"passwordUpdated": "Senha atualizada com sucesso",
+			"verified": "Usuário verificado com sucesso",
+			"emailAndUserVerified": "Usuário e e-mail verificados com sucesso",
+			"emailChanged": "E-mail alterado com sucesso. Um e-mail de verificação foi enviado para o seu novo endereço de e-mail {{email}}"
+		}
 	},
 	"validationError": {
 		"Invalid value": "Valor inválido",
 		"defaultMessage": "Houve um erro validando os dados",
-		"email": "O email não é válido",
+		"projectId": "O id ou slug do projeto não é válido",
+		"email": "O e-mail não é válido",
 		"password": "A senha não é válida (deve ter pelo menos 6 caracteres)",
-		"Invalid User ID": "validationError.Invalid User ID",
-		"Old password must be a string": "validationError.Old password must be a string",
-		"Password must be a string": "validationError.Password must be a string"
+		"name": "O nome não é válido",
+		"lang": "Você deve escolher um idioma válido (es, pt)",
+		"page": "Deve ser um número inteiro maior ou igual a 1",
+		"limit": "Deve ser um número inteiro entre 1 e 25",
+		"title_es": "O título em espanhol não é válido",
+		"title_pt": "O título em português não é válido",
+		"slug": "O slug deve ser uma sequência de caracteres alfanuméricos separados por hífens",
+		"coverUrl": "A URL da imagem de capa não é válida",
+		"youtubeUrl": "O ID do vídeo do YouTube não é válido",
+		"author": "O autor não é válido"
 	}
 }

@@ -124,7 +124,7 @@ exports.get = async function (req, res) {
 			select: '_id name code emoji unicode image'
 		});
 
-		if (!user) return res.status(401).json({ message: 'User does not exist' });
+		if (!user) return res.status(401).json({ message: req.__('user.error.notFound') });
 
 		return res.status(200).json(user);
 	} catch (error) {
@@ -187,20 +187,21 @@ exports.update = async function (req, res) {
 		if(loggedUser.role != 'admin'){
 			// Make sure the passed id is that of the logged in user
 			if (userId !== loggedUser._id.toString()){
-				return res.status(401).json({ message: "Sorry, you don't have the permission to update this data." });
+				return res.status(401).json({ message: req.__('auth.error.forbidden') });
 			}
 		}
 
 		if(update.countryCode) {
 			const country = await Country.findOne({ code: update.countryCode });
-			if (!country) return res.status(400).json({ message: 'Invalid country code' });
+			if (!country) return res.status(400).json({ message: req.__('user.error.invalidCountryCode') });
 			update.country = country._id;
 			delete update.countryCode;
 		}
 		
 		const user = await User.findByIdAndUpdate(userId, { $set: update }, { select: '-password -deletedAt -resetPasswordExpires -lastLogin -updatedAt -deletedAt -__v -createdAt -isVerified', new: true })
+		if (!user) return res.status(404).json({ message: req.__('user.error.notFound') });
 
-		return res.status(200).json({ user, message: 'User has been updated' });
+		return res.status(200).json({ user, message: req.__('user.success.updated') });
 
 	} catch (error) {
     console.error(error);
@@ -214,15 +215,16 @@ exports.changePassword = async function (req, res) {
 		const { currentPassword, newPassword } = req.body;
 
 		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ message: req.__('user.error.notFound') });
 
 		if (!user.comparePassword(currentPassword)) {
-			return res.status(401).json({ message: 'Invalid current password' });
+			return res.status(401).json({ message: req.__('user.error.invalidPassword') });
 		}
 
 		user.password = newPassword;
 		await user.save();
 
-		return res.status(200).json({ message: 'Password has been changed' });
+		return res.status(200).json({ message: req.__('user.success.passwordUpdated') });
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ message: req.__('error.default') });
@@ -237,9 +239,10 @@ exports.changeEmail = async function (req, res) {
 		const { email, password } = req.body;
 
 		const user = await User.findById(userId)
+		if (!user) return res.status(404).json({ message: req.__('user.error.notFound') });
 
 		if (!user.comparePassword(password)) {
-			return res.status(401).json({ message: 'Invalid password' });
+			return res.status(401).json({ message: req.__('user.error.invalidPassword')  });
 		}
 
 		user.email = email;
@@ -256,10 +259,9 @@ exports.changeEmail = async function (req, res) {
 		await AuthHelper.sendVerificationEmail(user, url);
 
 		return res.status(200).json({ 
-			message: 'Email has been changed. A verification email has been sent'
+			message: req.__('auth.success.verificationMailSent.invalidPassword') 
 		});
 		
-
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ message: req.__('error.default') });
@@ -274,7 +276,7 @@ exports.setRole = async (req, res) => {
 		// check if the user exists
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: req.__('user.error.notFound') });
     }
 
     // check if the role is valid
@@ -293,7 +295,7 @@ exports.forceVerifyByAdmin = async (req,res) => {
 	try {
 		const userId = req.params.userId;
 		const user = await User.findById(userId)
-		if (!user) return res.status(404).json({ message: 'User not found' });
+		if (!user) return res.status(404).json({ message: req.__('user.error.notFound') });
 
 		user.isVerified = true;
 		await user.save();
@@ -311,12 +313,12 @@ exports.changePasswordByAdmin = async (req,res) => {
 		const password = req.body.password;
 
 		const user = await User.findById(userId)
-		if (!user) return res.status(404).json({ message: 'User not found' });
+		if (!user) return res.status(404).json({ message: req.__('user.error.notFound') });
 
 		user.password = password;
 		await user.save();		
 
-		return res.status(200).json({ message: 'Password has been changed' });
+		return res.status(200).json({ message: req.__('user.success.passwordUpdated') });
 	} catch(error) {
 		console.error(error)
 		return res.status(500).json({message: req.__('error.default') })
@@ -330,14 +332,14 @@ exports.changeEmailByAdmin = async (req,res) => {
 		const forceVerified = req.body.forceVerified || false;
 
 		const user = await User.findById(userId)
-		if (!user) return res.status(404).json({ message: 'User not found' });
+		if (!user) return res.status(404).json({ message: req.__('user.error.notFound') });
 
 		user.email = email;
 
 		if(forceVerified && req.user.role == 'admin'){
 			user.isVerified = true;
 			await user.save();
-			return res.status(200).json({ message: 'Email has been changed and user has been verified' });
+			return res.status(200).json({ message: req.__('user.success.emailAndUserVerified') });
 		}
 
 		// by default, changing the email address will make the user unverified
@@ -354,7 +356,7 @@ exports.changeEmailByAdmin = async (req,res) => {
 		await AuthHelper.sendVerificationEmail(user, url);
 
 		return res.status(200).json({ 
-			message: 'Email has been changed. A verification email has been sent'
+			message: req.__('user.success.emailChanged')
 		});
 
 	} catch(error) {

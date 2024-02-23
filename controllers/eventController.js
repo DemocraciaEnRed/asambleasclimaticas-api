@@ -87,7 +87,7 @@ exports.deleteEvent = async (req, res) => {
     // TODO A middleware already handles this, so we can remove this check
     // if the project doesn't exists, return 404
     if(!project){
-      return res.status(404).json({ message: 'Project not found' })
+      return res.status(404).json({ message: req.__('project.error.notFound') });
     }
 
     // remove the event
