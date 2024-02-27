@@ -28,6 +28,7 @@ router.get('/users',
   [
     query('page').optional().isInt({ min: 1 }).withMessage('Page must be an integer greater than 0'),
     query('limit').optional().isInt({ min: 10 }).withMessage('Limit must be an integer greater than 1'),
+    query('query').optional().isString().withMessage('Query must be a string'),
     query('includeDeleted').optional().isBoolean().withMessage('Include deleted must be a boolean'),
   ],
   validate,

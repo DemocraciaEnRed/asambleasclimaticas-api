@@ -10,6 +10,7 @@ exports.list = async function (req, res) {
 		const user = req.user;
 		const page = parseInt(req.query.page) || 1;
 		const limit = parseInt(req.query.limit) || 10;
+		const query = req.query.query || null;
 		let includeDeleted = false;
 		let public = true;
 		let extraQuery = null;
@@ -19,6 +20,17 @@ exports.list = async function (req, res) {
 			// check req.query.includeDeleted
 			if (req.query.includeDeleted && req.query.includeDeleted === 'true') {
 				includeDeleted = true;
+			}
+		}
+
+		// if there is a query
+		if (query) {
+			// query can be a string that is for the name or the email
+			extraQuery = {
+				$or: [
+					{ name: { $regex: query, $options: 'i' } },
+					{ email: { $regex: query, $options: 'i' } }
+				]
 			}
 		}
 
