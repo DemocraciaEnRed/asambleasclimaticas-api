@@ -43,7 +43,7 @@ exports.register = async (req, res) => {
 		// make the url
 		const url = `${process.env.APP_URL}/auth/verify/${token.token}`;
 		// send email
-		await AuthHelper.sendVerificationEmail(newUser, url);
+		await AuthHelper.sendSignupEmail(newUser, url);
 
 		return res.status(200).json({ message: req.__('auth.success.verificationMailSent', { email: newUser.email }) });
 	} catch (error) {
@@ -209,7 +209,7 @@ exports.forgot = async (req, res) => {
 
 		await AuthHelper.sendPasswordResetEmail(user, url);
 
-		res.status(200).json({ message: req.__('auth.error.resetMailSent', { email: user.email }) });
+		res.status(200).json({ message: req.__('auth.success.resetMailSent', { email: user.email }) });
 	} catch (error) {
 		console.error(error)
 		res.status(500).json({ message: req.__('error.default') })

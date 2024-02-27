@@ -1,0 +1,20 @@
+{% extends "base.njk" %}
+
+{% import "macros.njk" as macros %}
+
+{% block preheader %}
+	{{ macros.preheader('Confirmá tu cuenta de correo para participar') }}
+{% endblock %}
+
+{% block main %}
+	{{ macros.sentence('¡Hola! 👋') }}
+	{{ macros.sentence('Si recibiste este email, es porque se ha modificado el mail de tu cuenta en Asambleas Climáticas') }}
+	{{ macros.sentence('Para poder volver a acceder a tu cuenta, necesitamos que confirmes tu dirección de email.') }}
+	{{ macros.sentence_black('Hacé click en el botón de abajo para confirmar tu cuenta.') }}
+	{{ macros.button(url, 'Confirmar cuenta') }}
+	{{ macros.sentence_italic('Si crees que recibiste este email por error, por favor ignorá este mensaje.') }}
+	{{ macros.sentence('Si tenés alguna pregunta, no dudes en contactarnos.') }}
+	{{ macros.sentence('Saludos,') }}
+	{{ macros.sentence('El equipo de Asambleas Climáticas') }}
+{% endblock %}
+

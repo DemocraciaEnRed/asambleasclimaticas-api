@@ -27,3 +27,11 @@
 {% macro title(text) %}
 <title>{{ text }}</title>
 {% endmacro %}
+
+{% macro sentence_italic(text) %}
+<p><i>{{ text }}</i></p>
+{% endmacro %}
+
+{% macro sentence_black(text) %}
+<p><b>{{ text }}</b></p>
+{% endmacro %}

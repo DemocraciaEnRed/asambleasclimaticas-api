@@ -5,12 +5,12 @@ const agenda = require('../services/agenda');
  * @param {Object} user - the user object
  * @param {String} token - the token to send to the email user
  */
-exports.sendVerificationEmail = async (user, url) => {
+exports.sendSignupEmail = async (user, url) => {
   try {
     await agenda.now('send-mail', {
 			template: "signup",
       lang: user.lang,
-			subject: "Confirma tu cuenta",
+			subject: user.lang === 'pt' ? "Confirme seu registro" : "Confirmá tu registro",
 			to: [user.email],
 			url: url
 		})
@@ -19,12 +19,32 @@ exports.sendVerificationEmail = async (user, url) => {
   }
 }
 
+/**
+ * Send a verification email to the user
+ * @param {Object} user - the user object
+ * @param {String} token - the token to send to the email user
+ */
+exports.sendVerificationEmail = async (user, url) => {
+  try {
+    await agenda.now('send-mail', {
+			template: "verify",
+      lang: user.lang,
+			subject: user.lang === 'pt' ? "Verifique seu email" : "Verifica tu email",
+			to: [user.email],
+			url: url
+		})
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 exports.sendPasswordResetEmail = async (user, url) => {
   try {
     await agenda.now('send-mail', {
       template: "reset",
       lang: user.lang,
-      subject: "Reseteá tu contraseña",
+      subject: user.lang === 'pt' ? "Redefinir sua senha" : "Restablecer tu contraseña",
       to: [user.email],
       url: url
     })
