@@ -85,6 +85,16 @@ router.put('/users/:userId/role',
   UserController.setRole
 )
 
+router.put('/users/:userId/participation',
+  authorize(constants.ROLES.ADMINISTRATOR),
+  [
+    param('userId').isMongoId().withMessage('Invalid User ID'),
+    body('participatedInAssembly').isBoolean().withMessage('Participation must be a boolean'),
+  ],
+  validate,
+  UserController.setParticipationInAssembly
+)
+
 router.post('/users/:userId/force-verify',
   authorize(constants.ROLES.ADMINISTRATOR),
   [

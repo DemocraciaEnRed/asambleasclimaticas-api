@@ -56,6 +56,11 @@ const UserSchema = new mongoose.Schema({
 		type: Date,
 		required: false
 	},
+	participatedInAssembly: {
+		type: Boolean,
+		required: false,
+		default: false
+	},
 	lastLogin: {
 		type: Date,
 		required: false,

@@ -290,7 +290,6 @@ exports.setRole = async (req, res) => {
 	}
 }
 
-
 exports.forceVerifyByAdmin = async (req,res) => {
 	try {
 		const userId = req.params.userId;
@@ -359,6 +358,25 @@ exports.changeEmailByAdmin = async (req,res) => {
 			message: req.__('user.success.emailChanged')
 		});
 
+	} catch(error) {
+		console.error(error)
+		return res.status(500).json({message: req.__('error.default') })
+	}
+}
+
+exports.setParticipationInAssembly = async (req, res) => {
+	try {
+		const userId = req.params.userId;
+		const participation = req.body.participatedInAssembly;
+		const user = await User.findById(userId)
+
+		if (!user) return res.status(404).json({ message: req.__('user.error.notFound') });
+
+		user.participatedInAssembly = participation;
+
+		await user.save();
+
+		return res.status(200).json({ message: req.__('user.success.updated') });
 	} catch(error) {
 		console.error(error)
 		return res.status(500).json({message: req.__('error.default') })
