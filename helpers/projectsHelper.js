@@ -343,7 +343,7 @@ exports.listComments = async (projectId, articleId = null, version = null, curre
     // }).sort({createdAt: -1}).skip((page - 1) * limit).limit(limit);
     const commentsArr = await Comment.find(query).populate({
       path: 'user',
-      select: '_id name country',
+      select: '_id name country participatedInAssembly',
       populate: {
         path: 'country',
         select: '_id name code emoji unicode image'
@@ -401,7 +401,7 @@ exports.listReplies = async (commentId, currentUserId = null, page = 1, limit = 
     const query = { comment: commentId }
     const repliesArr = await Reply.find(query).populate({
       path: 'user',
-      select: '_id name country',
+      select: '_id name country participatedInAssembly',
       populate: {
         path: 'country',
         select: '_id name code emoji unicode image'
