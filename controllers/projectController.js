@@ -155,6 +155,12 @@ exports.updateProject = async (req, res) => {
       }
     }
 
+    // you can only edit the author notes if the project is not the first version
+    if(project.version > 1) {
+      project.authorNotes_es = req.body.authorNotes_es;
+      project.authorNotes_pt = req.body.authorNotes_pt;
+    }
+
     // if the project is closed, dont update or do anything to the articles
     if(!project.closed) {
       // req.body.articles is an array of objects that contains {_id, text_es, text_pt, position}
@@ -208,7 +214,8 @@ exports.updateProject = async (req, res) => {
       project.articles = articlesIds;
     }
 
-    // if(req.body.publishedAt && !project.publishedAt) {
+    // if the project wasnt published yet, and the body has a publishedAt date
+    // then publish the project and unhide it
     if(req.body.publishedAt && !project.publishedAt) {
       project.publishedAt = req.body.publishedAt;
       project.hidden = false;
@@ -301,8 +308,21 @@ exports.createVersion = async (req, res) => {
     const oldVersion = {
       about_es: project.about_es,
       about_pt: project.about_pt,
+      authorNotes_es: project.authorNotes_es,
+      authorNotes_pt: project.authorNotes_pt,
       articles: project.articles,
       version: project.version,
+    }
+    
+    // the first version dont have any author notes
+    if(project.version == 1) {
+      oldVersion.authorNotes_es = null;
+      oldVersion.authorNotes_pt = null;
+    } else {
+      // it is required that the body has author notes
+      if(!req.body.authorNotes_es || !req.body.authorNotes_pt) {
+        return res.status(400).json({ message: req.__('project.error.missingAuthorNotes') });
+      }
     }
 
     // add the new version to the project
@@ -376,6 +396,8 @@ exports.createVersion = async (req, res) => {
     project.title_pt = req.body.title_pt;
     project.shortAbout_es = req.body.shortAbout_es;
     project.shortAbout_pt = req.body.shortAbout_pt;
+    project.authorNotes_es = req.body.authorNotes_es;
+    project.authorNotes_pt = req.body.authorNotes_pt;
     project.about_es = req.body.about_es;
     project.about_pt = req.body.about_pt;
     project.stage = req.body.stage;

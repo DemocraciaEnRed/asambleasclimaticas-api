@@ -14,6 +14,16 @@ const VersionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  authorNotes_es: {
+    type: String,
+    required: false,
+    default: ''
+  },
+  authorNotes_pt: {
+    type: String,
+    required: false,
+    default: ''
+  },
   articles: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Article'
@@ -171,6 +181,16 @@ const ProjectSchema = new mongoose.Schema({
   about_pt: {
     type: String,
     required: true
+  },
+  authorNotes_es: {
+    type: String,
+    required: false,
+    default: null
+  },
+  authorNotes_pt: {
+    type: String,
+    required: false,
+    default: null
   },
   hidden: {
     type: Boolean,

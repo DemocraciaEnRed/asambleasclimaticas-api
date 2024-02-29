@@ -36,7 +36,8 @@
 			"cantModerate": "Você não tem permissão para moderar este projeto",
 			"isClosed": "O projeto está fechado",
 			"alreadyPublished": "O projeto já foi publicado",
-			"notPublished": "O projeto não foi publicado. Publique o projeto para torná-lo público"
+			"notPublished": "O projeto não foi publicado. Publique o projeto para torná-lo público",
+			"missingAuthorNotes": "As notas do autor são obrigatórias para publicar uma nova versão do projeto"
 		},
 		"success": {
 

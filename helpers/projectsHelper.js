@@ -71,7 +71,7 @@ exports.listProjects = async (page = 1, limit = 10, currentUserId = null, queryO
     }
     const projectList = await Project.find(query).populate({
       path: 'author',
-      select: '_id name country',
+      select: '_id name country participatedInAssembly',
       populate: {
         path: 'country',
         select: '_id name code emoji unicode image'
@@ -90,6 +90,8 @@ exports.listProjects = async (page = 1, limit = 10, currentUserId = null, queryO
       projectOutput.youtubeUrl = project.youtubeUrl;
       projectOutput.shortAbout_es = project.shortAbout_es;
       projectOutput.shortAbout_pt = project.shortAbout_pt;
+      projectOutput.authorNotes_es = project.authorNotes_es;
+      projectOutput.authorNotes_pt = project.authorNotes_pt;
       projectOutput.about_es = project.about_es;
       projectOutput.about_pt = project.about_pt;  
       projectOutput.version = project.version;
@@ -140,7 +142,7 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
     const projectOutput = {}
     const project = await Project.findOne({ _id: projectId }).populate({
       path: 'author',
-      select: '_id name country',
+      select: '_id name country participatedInAssembly',
       populate: {
         path: 'country',
         select: '_id name code emoji unicode image'
@@ -181,7 +183,9 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
       // or if the version is the current version,
       // then we return the project as it is
       projectOutput.about_es = project.about_es;
-      projectOutput.about_pt = project.about_pt;  
+      projectOutput.about_pt = project.about_pt;
+      projectOutput.authorNotes_es = project.authorNotes_es;
+      projectOutput.authorNotes_pt = project.authorNotes_pt;  
       projectOutput.version = project.version;
     }
     if(version && version !== project.version && version >= 1 && version < project.version) {
@@ -190,6 +194,8 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
       const projectVersion = project.versions.find(projectVersion => projectVersion.version === version);
       projectOutput.about_es = projectVersion.about_es;
       projectOutput.about_pt = projectVersion.about_pt;
+      projectOutput.authorNotes_es = projectVersion.authorNotes_es;
+      projectOutput.authorNotes_pt = projectVersion.authorNotes_pt;
       projectOutput.version = projectVersion.version;
       projectOutput.versionCreatedAt = projectVersion.createdAt;
       projectOutput.versionUpdatedAt = projectVersion.updatedAt;
