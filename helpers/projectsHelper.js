@@ -1,8 +1,10 @@
+const dayjs = require('dayjs');
+const agenda = require('../services/agenda');
 const Article = require('../models/article');
 const Comment = require('../models/comment');
 const Project = require('../models/project');
 const Like = require('../models/like');
-const user = require('../models/user');
+const User = require('../models/user');
 const Reply = require('../models/reply');
 const like = require('../models/like');
 const ArticleHelper = require('./articleHelper');
@@ -304,14 +306,13 @@ exports.listComments = async (projectId, articleId = null, version = null, curre
       // include all the messages that:
       // - createdInVersion is less than or equal to the version
       // - and any of the following is true:
-      //   - highlightedInVersion is equal to version (highlighted in this version)
-      //   - resolvedInVersion is equal to version (resolved in this version)
-      //   - highlightedInVersion is 0 (not highlighted yet)
-      //   - resolvedInVersion is 0 (not resolved yet)
+      //   - highlightedInVersion is less than or equal to the project version ✅
+      //   - resolvedInVersion is equal to version (resolved in this version) ✅
+      //   - resolvedInVersion is 0 (not resolved yet) ✅
       query.createdInVersion = {$lte: project.version};
       query.$or = [
-        { highlightedInVersion: 0 },
-        { highlightedInVersion: project.version },
+        // { highlightedInVersion: 0 },
+        { highlightedInVersion: { $lte: project.version } }, 
         { resolvedInVersion: 0 },
         { resolvedInVersion: project.version }
       ]
@@ -319,10 +320,10 @@ exports.listComments = async (projectId, articleId = null, version = null, curre
     if(version !== project.version && version >= 1 && version < project.version) {
       // we show the messages that:
       // - createdInVersion is less than or equal to the version
-      // - and highlightedInVersion is equal to version (highlighted in this version)
+      // - no highlightedInVersion, only resolvedInVersion = version
       // - and resolvedInVersion is equal to version (resolved in this version)
       query.createdInVersion = {$lte: version};
-      query.highlightedInVersion = version;
+      // query.highlightedInVersion = version;
       query.resolvedInVersion = version;
     }
     // this one is easier, we just need to get the comments for the project
@@ -512,6 +513,70 @@ exports.getProjectCurrentStats = async (projectId) => {
       // articlesStats
     }
     
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+exports.notifyUsersNewVersion = async (projectId) => {
+  try {
+    const project = await Project.findById(projectId).populate({
+      path: 'author',
+      select: '_id name email lang',
+      populate: {
+        path: 'country',
+        select: '_id name code emoji unicode image'
+      }
+    })
+
+    // get all the users that have isVerified = true and are not the owner of the project
+    const usersToNotify = await User.find({
+      isVerified: true,
+      _id: { $ne: project.author._id }
+    })
+    
+    console.log('New version!');
+
+    // for all the users
+    for(let i = 0; i < usersToNotify.length; i++) {
+      const user = usersToNotify[i];
+      const data = {
+        project: {
+          title: user.lang === 'es' ? project.title_es : project.title_pt,
+          authorNotes: user.lang === 'es' ? project.authorNotes_es : project.authorNotes_pt,
+          slug: project.slug,
+          version: project.version,
+          updatedAt: dayjs(project.updatedAt).format('DD/MM/YYYY HH:mm'),
+        },
+        user: {
+          name: project.author.name,
+          email: project.author.email,
+          lang: project.author.lang,
+          country: {
+            name: project.author.country.name,
+            code: project.author.country.code,
+            emoji: project.author.country.emoji,
+            unicode: project.author.country.unicode,
+            image: project.author.country.image,
+          }
+        } 
+      }
+
+      console.log('- Sending email to: ', user.email);
+
+      await agenda.schedule('in 10 seconds', 'send-mail', {
+        to: [user.email],
+        subject: '¡Nueva versión del pacto intercuidad ya disponible en Resurgentes!',
+        template: 'newVersion',
+        lang: user.lang,
+        data: data
+      })
+
+    }
+
+    return 
+
   } catch (error) {
     console.error(error);
     throw error;

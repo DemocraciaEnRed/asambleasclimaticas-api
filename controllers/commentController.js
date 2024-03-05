@@ -4,6 +4,7 @@ const Comment = require('../models/comment');
 const Reply = require('../models/reply');
 const Like = require('../models/like');
 const ProjectHelper = require('../helpers/projectsHelper');
+const CommentHelper = require('../helpers/commentHelper');
 
 exports.listComments = async (req,res) => {
   try {
@@ -67,6 +68,13 @@ exports.resolveComment = async (req,res) => {
 
     const comment = req.comment;
 
+    // comments without articles (general comments) cannot be resolved
+    if(!comment.article) {
+      return res.status(403).json({
+        message: req.__('comment.error.cantResolve')
+      })
+    }
+    
     // because a comment can be resolved or highlighted, but not both at the same time,
     // we need to check if the comment is highlighted
 
@@ -104,6 +112,10 @@ exports.resolveComment = async (req,res) => {
     // if the comment was not resolved in this version, we can resolve it
     comment.resolvedInVersion = req.project.version;
     await comment.save();
+
+    // send notification to the comment author
+    await CommentHelper.sendNotificationCommentResolved(comment._id);
+
     return res.status(200).json(comment);
   } catch(error) {
 		console.error(error)
@@ -154,6 +166,10 @@ exports.highlightComment = async (req,res) => {
 
     // if the comment was not highlighted in this version, we can highlight it
     comment.highlightedInVersion = req.project.version;
+
+    // send notification to the comment author
+    await CommentHelper.sendNotificationCommentHighlighted(comment._id);
+
     await comment.save();
     return res.status(200).json(comment);    
   } catch(error) {
@@ -174,29 +190,29 @@ exports.deleteComment = async (req,res) => {
 
     // before doing anything, if the project is closed, return 403
     // project.closed is a virtual
-    if(req.project.closed) {
-      return res.status(403).json({ message: req.__('project.error.isClosed') })
-    }
+    // if(req.project.closed) {
+    //   return res.status(403).json({ message: req.__('project.error.isClosed') })
+    // }
 
     // if the comment was highlighted, and in a previous version, return 403
-    if(
-      comment.highlightedInVersion > 0 &&
-      req.project.version > comment.highlightedInVersion
-    ) {
-      return res.status(403).json({
-        message: req.__('comment.error.cantDeleteItsHighlighted')
-      })
-    }
+    // if(
+    //   comment.highlightedInVersion > 0 &&
+    //   req.project.version > comment.highlightedInVersion
+    // ) {
+    //   return res.status(403).json({
+    //     message: req.__('comment.error.cantDeleteItsHighlighted')
+    //   })
+    // }
 
     // if the comment was resolved, and in a previous version, return 403
-    if(
-      comment.resolvedInVersion > 0 &&
-      req.project.version > comment.resolvedInVersion
-    ) {
-      return res.status(403).json({
-        message: req.__('comment.error.cantDeleteItsResolved')
-      })
-    }
+    // if(
+    //   comment.resolvedInVersion > 0 &&
+    //   req.project.version > comment.resolvedInVersion
+    // ) {
+    //   return res.status(403).json({
+    //     message: req.__('comment.error.cantDeleteItsResolved')
+    //   })
+    // }
     
     // TODO Can the user itself delete their own comments?
     
@@ -221,18 +237,29 @@ exports.createReply = async (req,res) => {
   try {
     const comment = req.comment
 
+    // before doing anything, if the project is closed, return 403
+    // project.closed is a virtual
+    if(req.project.closed) {
+      return res.status(403).json({ message: req.__('project.error.isClosed') })
+    }
+
     // a reply is for a comment, req.comment.replies is an array of subdocuments "Reply"
     const newReply = {
       user: req.user._id,
       comment: req.comment._id,
       text: req.body.body,
     }
+    
     // create the reply
     const reply = await Reply.create(newReply);
     // add the reply to the comment
     comment.replies.push(reply._id);
     // save comment
     comment.save()
+
+    // send notification to the comment author
+    await CommentHelper.sendNotificationCommentReplied(comment._id, reply._id);
+    
     return res.status(201).json(reply)
   } catch(error) {
     console.error(error)

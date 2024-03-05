@@ -31,6 +31,19 @@ exports.sendNow = async (to, subject, html) => {
   }
 }
 
+exports.sendLater = async (to, subject, html, when) => {
+  try {
+    let info = await agenda.schedule(when, 'send email', {
+      to,
+      subject,
+      html
+    });
+    console.log('Job created: %s', info.attrs._id);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 exports.renderEmailHtml = async (template, lang, data) => {
   try {
     const language = lang || 'es';
@@ -50,15 +63,4 @@ exports.renderHtml = async (templatePath, data) => {
   }
 }
 
-exports.sendLater = async (to, subject, html, when) => {
-  try {
-    let info = await agenda.schedule(when, 'send email', {
-      to,
-      subject,
-      html
-    });
-    console.log('Job created: %s', info.attrs._id);
-  } catch (error) {
-    console.log(error);
-  }
-}
+

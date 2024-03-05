@@ -3,17 +3,14 @@ const mailer = require('../services/mailer');
 exports.sendMail = async (job) => {
   try {
     const { 
+      to,
+      subject,
       template,
       lang,
-      subject,
-      to,
-      url 
+      data,
     } = job.attrs.data;
 
-    const html = await mailer.renderEmailHtml(template, lang, {
-      subject,
-      url
-    });
+    const html = await mailer.renderEmailHtml(template, lang, data);
     
     // send email now
     console.log('Sending email to: ', to);

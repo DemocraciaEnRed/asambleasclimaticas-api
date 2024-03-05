@@ -1,0 +1,17 @@
+{% extends "base.njk" %}
+
+{% import "macros.njk" as macros %}
+
+{% block preheader %}
+  {{ macros.preheader('Nueva respuesta a su comentario') }}
+{% endblock %}
+
+{% block main %}
+  {{ macros.sentence('¡Hola! 👋') }}
+  {{ macros.sentence('Han respondido a tu comentario en el pacto interciudad.') }}
+  {{ macros.commentAndReplyBox(user.name, user.country.emoji, comment.text, comment.createdAt, reply.user.name, reply.user.country.emoji, reply.text, reply.createdAt) }}
+  {{ macros.sentence('Si deseas ver el pacto interciudad, puedes hacerlo a través del siguiente enlace:') }}
+  {{ macros.button(url, 'Ir al pacto') }}
+  {{ macros.sentence('¡Saludos!') }}
+{% endblock %}
+

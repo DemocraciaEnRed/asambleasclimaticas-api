@@ -1,9 +1,13 @@
 const express = require('express');
+const dayjs = require('dayjs');
 const agenda = require('../services/agenda');
 const router = express.Router();
 const mailer = require('../services/mailer');
 const ProjectsHelper = require('../helpers/projectsHelper')
 const Project = require('../models/project');
+const Comment = require('../models/comment');
+const Reply = require('../models/reply');
+const User = require('../models/user');
 
 router.post('/job', (req, res) => {
   try {
@@ -32,9 +36,49 @@ router.get('/html', async (req, res) => {
     //   title: 'ajhshdahasdbsdab'
     // })
 
-    const html = await mailer.renderHtml('auth/noToken.njk', {
-      appUrl: process.env.APP_URL
+    const projectId = '65e0c28219a0c70845508ec2'
+
+    const project = await Project.findById(projectId).populate({
+      path: 'author',
+      select: '_id name email lang',
+      populate: {
+        path: 'country',
+        select: '_id name code emoji unicode image'
+      }
     })
+
+    // get all the users that have isVerified = true and are not the owner of the project
+    const usersToNotify = await User.find({
+      isVerified: true,
+      _id: { $ne: project.author._id }
+    })
+
+    // pick a random user
+    const randomUser = usersToNotify[Math.floor(Math.random() * usersToNotify.length)]
+
+    const data = {
+      project: {
+        title: randomUser.lang === 'es' ? project.title_es : project.title_pt,
+        authorNotes: randomUser.lang === 'es' ? project.authorNotes_es : project.authorNotes_pt,
+        slug: project.slug,
+        version: project.version,
+        updatedAt: dayjs(project.updatedAt).format('DD/MM/YYYY HH:mm'),
+      },
+      user: {
+        name: project.author.name,
+        email: project.author.email,
+        lang: project.author.lang,
+        country: {
+          name: project.author.country.name,
+          code: project.author.country.code,
+          emoji: project.author.country.emoji,
+          unicode: project.author.country.unicode,
+          image: project.author.country.image,
+        }
+      } 
+    }
+
+    const html = await mailer.renderEmailHtml('newVersion', 'es', data)
 
     // return as html
     return res.send(html)

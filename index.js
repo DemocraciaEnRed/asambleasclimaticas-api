@@ -10,6 +10,15 @@ const migrations = require('./services/migrations');
 const agenda = require('./services/agenda')
 const logger = require('./services/logger');
 const i18n = require('./services/i18n');
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
+
+
+// Set up timezone argentina for dayjs
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.tz.setDefault("America/Argentina/Buenos_Aires");
 
 // Setting up port
 let PORT = process.env.PORT || 3000;

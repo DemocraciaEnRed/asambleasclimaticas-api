@@ -1,0 +1,17 @@
+{% extends "base.njk" %}
+
+{% import "macros.njk" as macros %}
+
+{% block preheader %}
+  {{ macros.preheader('Tu comentario ha sido visto') }}
+{% endblock %}
+
+{% block main %}
+  {{ macros.sentence('¡Hola! 👋') }}
+  {{ macros.sentence('El equipo de Resurgentes ha marcado como visto un aporte suyo en el pacto interciudad.') }}
+  {{ macros.commentBox(user.name, user.country.emoji, comment.text, comment.createdAt) }}
+  {{ macros.sentence('Si deseas ver el pacto interciudad, puedes hacerlo a través del siguiente enlace:') }}
+  {{ macros.button(url, 'Ir al pacto') }}
+  {{ macros.sentence('¡Saludos!') }}
+{% endblock %}
+

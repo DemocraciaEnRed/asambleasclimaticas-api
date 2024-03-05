@@ -408,6 +408,9 @@ exports.createVersion = async (req, res) => {
     // save the project
     await project.save()
 
+    // send notification of new version
+    await ProjectHelper.notifyUsersNewVersion(project._id);
+
     // return
     return res.status(200).json(project);
 

@@ -68,9 +68,10 @@
 			"notAvailable": "El comentario no se encuentra disponible",
 			"notAllowed": "No tienes permiso para ver este comentario",
 			"alreadyHighlighted": "El comentario ya ha sido destacado en una versión anterior",
-			"alreadyResolved": "El comentario ya ha sido resuelto en una versión anterior",
+			"alreadyResolved": "El comentario ya ha sido marcado como visto en una versión anterior",
+			"cantResolve": "Los comentarios generales no pueden ser marcados como vistos.",
 			"cantDeleteItsHighlighted": "El comentario ha sido destacado en una versión anterior. No se puede eliminar",
-			"cantDeleteItsResolved": "El comentario ha sido resuelto en una versión anterior. No se puede eliminar"
+			"cantDeleteItsResolved": "El comentario ha sido marcado como visto en una versión anterior. No se puede eliminar"
 		},
 		"success": {
 			"deleted": "Comentario eliminado correctamente"

@@ -1,0 +1,16 @@
+{% extends "base.njk" %}
+
+{% import "macros.njk" as macros %}
+
+{% block preheader %}
+  {{ macros.preheader('Nova versão do pacto intercidades') }}
+{% endblock %}
+
+{% block main %}
+  {{ macros.sentence('¡Hola! 👋') }}
+  {{ macros.sentence('Queremos contar que geramos uma nova versão do pacto intercidades.') }}
+  {{ macros.authorNotesBox(user.name, user.country.emoji, project.authorNotes, project.version, project.updatedAt) }}
+  {{ macros.sentence('Se deseja ver o pacto intercidades, pode fazê-lo através do seguinte link:') }}
+  {{ macros.button(url, 'Ir para o pacto') }}
+  {{ macros.sentence('¡Cumprimentos!') }}
+{% endblock %}
