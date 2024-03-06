@@ -41,13 +41,12 @@ router.post('/:articleId/like',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('articleId').isMongoId().withMessage('Invalid Article ID'),
+		param('articleId').isMongoId().withMessage('validationError.mongoId'),
 	], 
 	validate,
 	exists.project,
 	exists.article,
 	projectAuthorization.isAccesible,
-	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
 )
 
@@ -56,13 +55,12 @@ router.post('/:articleId/dislike',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('articleId').isMongoId().withMessage('Invalid Article ID'),
+		param('articleId').isMongoId().withMessage('validationError.mongoId'),
 	], 
 	validate,
 	exists.project,
 	exists.article,
 	projectAuthorization.isAccesible,
-	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
 

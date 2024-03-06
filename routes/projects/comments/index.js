@@ -26,6 +26,7 @@ const router = express.Router({mergeParams: true});
 // POST 	  /projects/:projectId/comments/:commentId/highlight
 // GET		  /projects/:projectId/comments/:commentId/replies
 // POST 	  /projects/:projectId/comments/:commentId/replies
+// DELETE		/projects/:projectId/comments/:commentId/replies/:replyId
 // POST 	  /projects/:projectId/comments/:commentId/replies/:replyId/like
 // POST 	  /projects/:projectId/comments/:commentId/replies/:replyId/dislike
 // -----------------------------------------------
@@ -34,8 +35,8 @@ const router = express.Router({mergeParams: true});
 router.get('/',
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
-		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+		query('page').optional().isInt({ min: 1 }).withMessage('validationError.page'),
+    query('limit').optional().isInt({ min: 10, max: 25 }).withMessage('validationError.limit'),
 	],
 	validate,
 	exists.project,
@@ -47,7 +48,7 @@ router.post('/',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		body('body').isString().withMessage('Content must be a string'),
+		body('body').isString().withMessage('validationError.text'),
 	],
 	validate,
 	exists.project,
@@ -62,12 +63,12 @@ router.delete('/:commentId',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
-	projectAuthorization.onlyModerators,
+	projectAuthorization.isAccesible,
 	CommentController.deleteComment
 )
 
@@ -76,13 +77,12 @@ router.post('/:commentId/like',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
 	projectAuthorization.isAccesible,
-	projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
 )
 
@@ -91,13 +91,12 @@ router.post('/:commentId/dislike',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
 	], 
 	validate,
 	exists.project,
 	exists.comment,
 	projectAuthorization.isAccesible,
-	projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
 
@@ -106,7 +105,7 @@ router.post('/:commentId/resolve',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
 	], 
 	validate,
 	exists.project,
@@ -120,7 +119,7 @@ router.post('/:commentId/highlight',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
 	], 
 	validate,
 	exists.project,
@@ -133,15 +132,14 @@ router.post('/:commentId/highlight',
 router.get('/:commentId/replies',
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
-		query('page').optional().isInt({min: 1}).withMessage('Page must be an integer'),
-		query('limit').optional().isInt({min: 1, max: 25}).withMessage('Limit must be an integer'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
+		query('page').optional().isInt({ min: 1 }).withMessage('validationError.page'),
+    query('limit').optional().isInt({ min: 10, max: 25 }).withMessage('validationError.limit'),
 	],
 	validate,
 	exists.project,
 	exists.comment,
 	projectAuthorization.isAccesible,
-	projectAuthorization.isOpenForContributions,
 	CommentController.listReplies
 )
 
@@ -150,8 +148,8 @@ router.post('/:commentId/replies',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
-		body('body').isString().withMessage('Content must be a string'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
+		body('body').isString().withMessage('validationError.text'),
 	],
 	validate,
 	exists.project,
@@ -161,20 +159,36 @@ router.post('/:commentId/replies',
 	CommentController.createReply	
 )
 
-// POST 	/projects/:projectId/comments/:commentId/replies/:replyId/like
-router.post('/:commentId/replies/:replyId/like',
+// DELETE /projects/:projectId/comments/:commentId/replies/:replyId
+router.delete('/:commentId/replies/:replyId',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
-		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
+		param('replyId').isMongoId().withMessage('validationError.mongoId'),
 	],
 	validate,
 	exists.project,
 	exists.comment,
 	exists.reply,
 	projectAuthorization.isAccesible,
-	projectAuthorization.isOpenForContributions,
+	CommentController.deleteReply
+)
+
+// POST 	/projects/:projectId/comments/:commentId/replies/:replyId/like
+router.post('/:commentId/replies/:replyId/like',
+	authenticate(),
+	[
+		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
+		param('replyId').isMongoId().withMessage('validationError.mongoId'),
+	],
+	validate,
+	exists.project,
+	exists.comment,
+	exists.reply,
+	projectAuthorization.isAccesible,
+	// projectAuthorization.isOpenForContributions,
 	LikeController.toggleLike
 )
 
@@ -183,15 +197,15 @@ router.post('/:commentId/replies/:replyId/dislike',
 	authenticate(),
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.invalidProjectId'}),
-		param('commentId').isMongoId().withMessage('Invalid Comment ID'),
-		param('replyId').isMongoId().withMessage('Invalid Reply ID'),
+		param('commentId').isMongoId().withMessage('validationError.mongoId'),
+		param('replyId').isMongoId().withMessage('validationError.mongoId'),
 	],
 	validate,
 	exists.project,
 	exists.comment,
 	exists.reply,
 	projectAuthorization.isAccesible,
-	projectAuthorization.isOpenForContributions,
+	// projectAuthorization.isOpenForContributions,
 	LikeController.toggleDislike
 )
 

@@ -4,17 +4,17 @@
 	},
 	"auth": {
 		"error": {
-			"invalidCredentials": "O e-mail ou a senha estão incorretos",
+			"invalidCredentials": "O email ou a senha estão incorretos",
 			"unverified": "A conta ainda não foi verificada",
-			"alreadyLoggedIn": "Acesso não autorizado - Você já está logado", 
+			"alreadyLoggedIn": "Acesso não autorizado - Você já está conectado",
 			"unauthorized": "Acesso não autorizado",
 			"noToken": "Acesso não autorizado - Token não encontrado",
 			"forbidden": "Acesso não autorizado - Você não tem permissão para acessar este recurso",
 			"alreadyVerified": "A conta já foi verificada",
 			"tokenNotFound": "O token não foi encontrado ou pode ter expirado. Por favor, solicite um novo token",
 			"userNotFound": "Usuário não encontrado",
-			"emailNotFound": "O e-mail não foi encontrado ou está incorreto",
-			"emailNotAssociated": "O endereço de e-mail {{email}} não está associado a nenhuma conta. Por favor, verifique se o endereço está correto"
+			"emailNotFound": "O email não foi encontrado ou está incorreto",
+			"emailNotAssociated": "O endereço de email {{email}} não está associado a nenhuma conta. Por favor, verifique se o endereço está correto"
 		},
 		"success": {
 			"login": "Sessão iniciada com sucesso",
@@ -22,9 +22,9 @@
 			"signup": "Conta criada com sucesso",
 			"passwordUpdated": "Senha atualizada com sucesso",
 			"verification": "Conta verificada com sucesso. Por favor, faça login",
-			"verificationMailSent": "Um e-mail de verificação foi enviado para o seu endereço de e-mail {{email}}",
-			"verificationMailResent": "Um novo e-mail de verificação foi enviado para o seu endereço de e-mail {{email}}",
-			"resetMailSent": "Um e-mail com instruções para redefinir sua senha foi enviado para o seu endereço de e-mail {{email}}"
+			"verificationMailSent": "Um email de verificação foi enviado para o seu endereço de email {{email}}",
+			"verificationMailResent": "Um novo email de verificação foi enviado para o seu endereço de email {{email}}",
+			"resetMailSent": "Um email com instruções para redefinir sua senha foi enviado para o seu endereço de email {{email}}"
 		}
 	},
 	"project": {
@@ -36,11 +36,11 @@
 			"cantModerate": "Você não tem permissão para moderar este projeto",
 			"isClosed": "O projeto está fechado",
 			"alreadyPublished": "O projeto já foi publicado",
-			"notPublished": "O projeto não foi publicado. Publique o projeto para torná-lo público",
-			"missingAuthorNotes": "As notas do autor são obrigatórias para publicar uma nova versão do projeto"
+			"notPublished": "O projeto não foi publicado. Publique o projeto para que seja público",
+			"missingAuthorNotes": "Notas do autor são necessárias para publicar uma nova versão"
 		},
 		"success": {
-
+			"deleted": "Projeto excluído com sucesso"
 		}
 	},
 	"version": {
@@ -70,9 +70,11 @@
 			"notAvailable": "O comentário não está disponível",
 			"notAllowed": "Você não tem permissão para ver este comentário",
 			"alreadyHighlighted": "O comentário já foi destacado em uma versão anterior",
-			"alreadyResolved": "O comentário já foi resolvido em uma versão anterior",
+			"alreadyResolved": "O comentário já foi marcado como visto em uma versão anterior",
+			"cantResolve": "Comentários gerais não podem ser marcados como vistos.",
+			"cantDelete": "Você não tem permissão para excluir este comentário",
 			"cantDeleteItsHighlighted": "O comentário foi destacado em uma versão anterior. Não pode ser excluído",
-			"cantDeleteItsResolved": "O comentário foi resolvido em uma versão anterior. Não pode ser excluído"
+			"cantDeleteItsResolved": "O comentário foi marcado como visto em uma versão anterior. Não pode ser excluído"
 		},
 		"success": {
 			"deleted": "Comentário excluído com sucesso"
@@ -82,7 +84,8 @@
 		"error": {
 			"notFound": "Resposta não encontrada",
 			"notAvailable": "A resposta não está disponível",
-			"notAllowed": "Você não tem permissão para ver esta resposta"
+			"notAllowed": "Você não tem permissão para ver esta resposta",
+			"cantDelete": "Você não tem permissão para excluir esta resposta"
 		},
 		"success": {
 			"deleted": "Resposta excluída com sucesso"
@@ -95,31 +98,51 @@
 			"notAllowed": "Você não tem permissão para ver este usuário",
 			"invalidCountryCode": "O código do país não é válido",
 			"invalidPassword": "A senha não é válida"
-
 		},
 		"success": {
 			"updated": "Usuário atualizado com sucesso",
 			"passwordUpdated": "Senha atualizada com sucesso",
 			"verified": "Usuário verificado com sucesso",
-			"emailAndUserVerified": "Usuário e e-mail verificados com sucesso",
-			"emailChanged": "E-mail alterado com sucesso. Um e-mail de verificação foi enviado para o seu novo endereço de e-mail {{email}}"
+			"emailAndUserVerified": "Usuário e email verificados com sucesso",
+			"emailChanged": "Email alterado com sucesso. Um email de verificação foi enviado para o seu novo endereço de email {{email}}"
 		}
 	},
 	"validationError": {
 		"Invalid value": "Valor inválido",
+		"mongoId": "O ID não é válido",
 		"defaultMessage": "Houve um erro validando os dados",
-		"projectId": "O id ou slug do projeto não é válido",
-		"email": "O e-mail não é válido",
+		"projectId": "O ID ou slug do projeto não é válido",
+		"version": "O número da versão não é válido",
+		"email": "O email não é válido",
 		"password": "A senha não é válida (deve ter pelo menos 6 caracteres)",
 		"name": "O nome não é válido",
+		"date": "A data não é válida, deve ser ISO 8601, ou seja, AAAA-MM-DD",
+		"countryCode": "O código do país não é válido, deve ter 2 caracteres",
+		"role": "A função não é válida",
 		"lang": "Você deve escolher um idioma válido (es, pt)",
+		"integer": "O valor deve ser um número inteiro",
+		"boolean": "O valor deve ser true ou false",
+		"string": "O valor deve ser uma cadeia de caracteres",
 		"page": "Deve ser um número inteiro maior ou igual a 1",
 		"limit": "Deve ser um número inteiro entre 1 e 25",
+		"query": "O parâmetro de consulta deve ser uma string",
+		"text": "O conteúdo não é um texto válido",
+		"text_es": "O conteúdo em espanhol não é válido",
+		"text_pt": "O conteúdo em português não é válido",
 		"title_es": "O título em espanhol não é válido",
 		"title_pt": "O título em português não é válido",
-		"slug": "O slug deve ser uma sequência de caracteres alfanuméricos separados por hífens",
+		"about_es": "O resumo em espanhol não é válido",
+		"about_pt": "O resumo em português não é válido",
+		"shortAbout_es": "O resumo curto em espanhol não é válido",
+		"shortAbout_pt": "O resumo curto em português não é válido",
+		"authorNotes_es": "As notas do autor em espanhol não são válidas",
+		"authorNotes_pt": "As notas do autor em português não são válidas",
+		"slug": "O slug deve ser uma cadeia de caracteres alfanuméricos separados por hífens",
 		"coverUrl": "A URL da imagem de capa não é válida",
+		"stage": "O valor não é válido, deve ser um destes: MX, BR, CH, AR",
 		"youtubeUrl": "O ID do vídeo do YouTube não é válido",
-		"author": "O autor não é válido"
+		"author": "O autor não é válido",
+		"articles": "O valor deve ser um array de objetos e não pode estar vazio",
+		"position": "A posição deve ser um número inteiro maior ou igual a 1"
 	}
 }

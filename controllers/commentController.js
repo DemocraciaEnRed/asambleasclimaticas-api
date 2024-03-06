@@ -181,41 +181,24 @@ exports.highlightComment = async (req,res) => {
 exports.deleteComment = async (req,res) => {
   try {
     // to delete a comment, only the author, admins and moderators can do it
-    const canModerate = await ProjectHelper.canModerate(req.user, req.project);
-    if(!canModerate) {
-      return res.status(403).json({ message: req.__('project.error.cantModerate') })
+    
+    const comment = req.comment;
+    let canDelete = false;
+    // check if the user of the request is the creator of the comment
+    if(comment.user.toString() === req.user._id.toString()) {
+      canDelete = true;
+    } else {
+      // check if the user is an admin or moderator
+      const canModerate = await ProjectHelper.canModerate(req.user, req.project);
+      if(!canModerate) {
+        return res.status(403).json({ message: req.__('project.error.cantModerate') })
+      }
+      canDelete = true;
     }
 
-    const comment = req.comment;
-
-    // before doing anything, if the project is closed, return 403
-    // project.closed is a virtual
-    // if(req.project.closed) {
-    //   return res.status(403).json({ message: req.__('project.error.isClosed') })
-    // }
-
-    // if the comment was highlighted, and in a previous version, return 403
-    // if(
-    //   comment.highlightedInVersion > 0 &&
-    //   req.project.version > comment.highlightedInVersion
-    // ) {
-    //   return res.status(403).json({
-    //     message: req.__('comment.error.cantDeleteItsHighlighted')
-    //   })
-    // }
-
-    // if the comment was resolved, and in a previous version, return 403
-    // if(
-    //   comment.resolvedInVersion > 0 &&
-    //   req.project.version > comment.resolvedInVersion
-    // ) {
-    //   return res.status(403).json({
-    //     message: req.__('comment.error.cantDeleteItsResolved')
-    //   })
-    // }
-    
-    // TODO Can the user itself delete their own comments?
-    
+    if(!canDelete) {
+      return res.status(403).json({ message: req.__('comment.error.cantDelete') })
+    }
     
     // first we need to delete all the likes to the comment
     await Like.deleteMany({ comment: comment._id });
@@ -223,9 +206,10 @@ exports.deleteComment = async (req,res) => {
     // delete all the replies associated to that comment
     await Reply.deleteMany({ comment: comment._id });
 
-    await comment.remove();
+    // now delete the comment
+    await Comment.deleteOne({ _id: comment._id });
     
-    return res.status(200).json({ message: req.__('project.success.deleted') });
+    return res.status(200).json({ message: req.__('comment.success.deleted') });
 
   } catch(error) {
     console.error(error)
@@ -271,25 +255,37 @@ exports.deleteReply = async (req,res) => {
   try {
     const reply = req.reply
 
-    // to delete a comment, only the author, admins and moderators can do it
-    const canModerate = await ProjectHelper.canModerate(req.user, req.project);
-    if(!canModerate) {
-      return res.status(403).json({ message: req.__('project.error.cantModerate') })
+    let canDelete = false
+    // check if the creator of the reply is the user of the request
+    console.log(reply)
+    console.log(req.user._id)
+    if(reply.user.toString() === req.user._id.toString()) {
+      canDelete = true;
+    } else {
+      // check if the user is an admin or moderator
+      const canModerate = await ProjectHelper.canModerate(req.user, req.project);
+      if(!canModerate) {
+        return res.status(403).json({ message: req.__('project.error.cantModerate') })
+      }
+      canDelete = true;
     }
 
-    const replyId = req.params.replyId;
+    if(!canDelete) {
+      return res.status(403).json({ message: req.__('comment.error.cantDelete') })
+    }
 
     // delete the reply
-    await reply.remove();
+    await Reply.deleteOne({ _id: reply._id })
 
     // delete the reply from the comment
     const comment = req.comment;
-    comment.replies.pull(replyId); // TODO Test this!!!!
+
+    comment.replies.pull(reply.id); 
 
     // save the comment
     await comment.save();
 
-    return res.status(200).json({ message: req.__('project.success.deleted') });
+    return res.status(200).json({ message: req.__('reply.success.deleted') });
   } catch (error) {
     console.error(error)
 		return res.status(500).json({ message: req.__('error.default') })
