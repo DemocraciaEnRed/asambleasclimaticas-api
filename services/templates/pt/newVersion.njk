@@ -7,10 +7,10 @@
 {% endblock %}
 
 {% block main %}
-  {{ macros.sentence('¡Hola! 👋') }}
-  {{ macros.sentence('Queremos contar que geramos uma nova versão do pacto intercidades.') }}
+  {{ macros.sentence('Olá! 👋') }}
+  {{ macros.sentence('Queremos dizer-vos que gerámos uma nova versão do pacto entre cidades. ') }}
   {{ macros.authorNotesBox(user.name, user.country.emoji, project.authorNotes, project.version, project.updatedAt) }}
-  {{ macros.sentence('Se deseja ver o pacto intercidades, pode fazê-lo através do seguinte link:') }}
-  {{ macros.button(url, 'Ir para o pacto') }}
-  {{ macros.sentence('¡Cumprimentos!') }}
+  {{ macros.sentence('Clica aqui para veres o que há de novo! ') }}
+  {{ macros.button(url, 'Acesso ao pacto') }}
+	{{ macros.sentence('Equipa Resurgentes') }}
 {% endblock %}

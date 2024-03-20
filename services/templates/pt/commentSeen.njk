@@ -7,10 +7,10 @@
 {% endblock %}
 
 {% block main %}
-  {{ macros.sentence('¡Hola! 👋') }}
-  {{ macros.sentence('A equipe dos Resurgentes marcou como visto um comentário seu no pacto intercidades.') }}
+  {{ macros.sentence('Olá! 👋') }}
+  {{ macros.sentence('A equipa do Resurgentes marcou como vista uma contribuição sua no pacto inter-cidades.') }}
   {{ macros.commentBox(user.name, user.country.emoji, comment.text, comment.createdAt) }}
-  {{ macros.sentence('Se deseja ver o pacto intercidades, pode fazê-lo através do seguinte link:') }}
-  {{ macros.button(url, 'Ir para o pacto') }}
-  {{ macros.sentence('¡Cumprimentos!') }}
+  {{ macros.sentence('Clique aqui para ver! ') }}
+  {{ macros.button(url, 'Aceder ao pacto') }}
+	{{ macros.sentence('Equipa Resurgentes') }}
 {% endblock %}

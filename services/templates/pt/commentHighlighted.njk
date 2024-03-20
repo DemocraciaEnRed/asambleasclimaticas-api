@@ -3,15 +3,15 @@
 {% import "macros.njk" as macros %}
 
 {% block preheader %}
-  {{ macros.preheader('Tu aporte ha sido marcado como visto') }}
+  {{ macros.preheader('Sua contribuição foi marcada como visualizada') }}
 {% endblock %}
 
 {% block main %}
-  {{ macros.sentence('¡Hola! 👋') }}
-  {{ macros.sentence('El equipo de Resurgentes ha marcado como destacado ⭐ un comentario suyo en el pacto interciudad.') }}
+  {{ macros.sentence('Olá! 👋') }}
+  {{ macros.sentence('A equipe do Ressurgentes destacou o seu comentário sobre o Pacto Intermunicipal ⭐') }}
   {{ macros.commentBox(user.name, user.country.emoji, comment.text, comment.createdAt) }}
-  {{ macros.sentence('Si deseas ver el pacto interciudad, puedes hacerlo a través del siguiente enlace:') }}
-  {{ macros.button(url, 'Ir al pacto') }}
-  {{ macros.sentence('¡Saludos!') }}
+  {{ macros.sentence('Clique aqui para vê-lo!') }}
+  {{ macros.button(url, 'Acesse o pacto') }}
+	{{ macros.sentence('Equipa Resurgentes') }}
 {% endblock %}
 
