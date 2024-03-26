@@ -30,8 +30,7 @@ exports.register = async (req, res) => {
 			password: password,
 			name: name,
 			lang: lang,
-			country: country,
-			isVerified: true
+			country: country
 		});
 
 		await newUser.save();	
