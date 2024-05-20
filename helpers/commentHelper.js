@@ -5,6 +5,11 @@ const agenda = require('../services/agenda');
 
 exports.sendNotificationCommentResolved = async (commentId) => {
   try {
+    if(process.env.SEND_NOTIFICATIONS === 'false') {
+      console.log('Notifications are disabled, skipping email');
+      return;
+    }
+
     const comment = await Comment.findById(commentId).populate({
       path: 'project',
       select: '_id title_es title_pt slug'
@@ -61,6 +66,11 @@ exports.sendNotificationCommentResolved = async (commentId) => {
 
 exports.sendNotificationCommentHighlighted = async (commentId) => {
   try {
+    if(process.env.SEND_NOTIFICATIONS === 'false') {
+      console.log('Notifications are disabled, skipping email');
+      return;
+    }
+
     const comment = await Comment.findById(commentId).populate({
       path: 'project',
       select: '_id title_es title_pt slug'
@@ -117,6 +127,11 @@ exports.sendNotificationCommentHighlighted = async (commentId) => {
 
 exports.sendNotificationCommentReplied = async (commentId, replyId) => {
   try {
+    if(process.env.SEND_NOTIFICATIONS === 'false') {
+      console.log('Notifications are disabled, skipping email');
+      return;
+    }
+
     const comment = await Comment.findById(commentId).populate({
       path: 'project',
       select: '_id title_es title_pt slug'

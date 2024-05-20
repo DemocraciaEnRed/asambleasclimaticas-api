@@ -519,8 +519,13 @@ exports.getProjectCurrentStats = async (projectId) => {
   }
 }
 
-exports.notifyUsersNewVersion = async (projectId) => {
+exports.sendNotificationNewProjectVersion = async (projectId) => {
   try {
+    if(process.env.SEND_NOTIFICATIONS === 'false') {
+      console.log('Notifications are disabled, skipping email');
+      return;
+    }
+
     const project = await Project.findById(projectId).populate({
       path: 'author',
       select: '_id name email lang',
