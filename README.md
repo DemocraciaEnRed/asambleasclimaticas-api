@@ -60,3 +60,7 @@ There are 4 roles for users
 Check out the API documentation by clicking [here](API.md).
 
 We will be updating the documentation as we go.
+
+## Queue Alive Check
+
+The queue process stores in a file called "alive" a 0 saying the process is alive, and a 1 saying the process is dead. This is used to check if the process is still running. If the process is dead, the main process will restart it.
