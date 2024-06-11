@@ -43,9 +43,9 @@ setInterval(() => {
   fs.writeFileSync(path.join(__dirname, 'alive'), '0');
 }, 5 * 1000);
 
+// on process kill of some reason, stop agenda
 process.on('SIGTERM', graceful);
 process.on('SIGINT', graceful);
-
-// on process kill, stop agenda
 process.on('exit', graceful);
 process.on('beforeExit', graceful);
+process.on('uncaughtException', graceful);
