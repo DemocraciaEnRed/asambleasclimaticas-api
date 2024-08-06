@@ -147,7 +147,7 @@ async function createProjects(){
         hidden: false,
         // articles: [],
         // versions: []
-        stage: 'AR',
+        stage: 'BR',
         closedAt: await getDateIn45Days(),
         publishedAt: new Date(),
       });
