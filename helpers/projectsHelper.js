@@ -163,6 +163,7 @@ exports.getProject = async (projectId, version = null, currentUserId = null) => 
     projectOutput.articleCount = project.articlesCount;
     projectOutput.versionsCount = project.versionsCount;
     projectOutput.commentsCount = await project.getCommentsCount();
+    projectOutput.commentsTotalCount = await project.getCommentsTotalCount();
     projectOutput.commentsLikesCount = await project.getCommentsLikesCount();
     projectOutput.articleCommentsCount = await project.getArticleCommentsCount();
     projectOutput.articleLikesCount = await project.getArticleLikesCount();

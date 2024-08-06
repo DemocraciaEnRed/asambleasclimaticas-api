@@ -279,6 +279,10 @@ ProjectSchema.methods.getCommentsCount = async function() {
   return await Comment.countDocuments({project: this._id, article: null});
 }
 
+ProjectSchema.methods.getCommentsTotalCount = async function() {
+  return await Comment.countDocuments({project: this._id});
+}
+
 ProjectSchema.methods.getCommentsLikesCount = async function() {
   return await Like.countDocuments({project: this._id, article: null, comment: {$ne: null}, reply: null, type: 'like'});
 }
