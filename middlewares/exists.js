@@ -62,8 +62,8 @@ exports.event = async (req, res, next) => {
   try {
     const projectId = req.params.projectId;
     const eventId = req.params.eventId;
-    const project = Project.findById(projectId);
-    const event = await project.events.id(eventId);
+    const project = await Project.findById(projectId);
+    const event = project.events.id(eventId);
     if(!event) {
       return res.status(404).json({ message: req.__('event.error.notFound') });
     }

@@ -9,7 +9,7 @@ exports.listEvents = async (req, res) => {
   try {
     const project = req.project
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 100;
     // get the events
     const events = project.events.sort((a, b) => b.date - a.date)
     // paginate the events
@@ -39,7 +39,7 @@ exports.listEvents = async (req, res) => {
 exports.createEvent = async (req, res) => {
   try {
     // first, get the project
-    const projectId = req.params.id;
+    const projectId = req.params.projectId;
     const project = req.project
 
     // check if the user is an admin or the author of the project
@@ -51,7 +51,7 @@ exports.createEvent = async (req, res) => {
       title_pt: req.body.title_pt,
       text_es: req.body.text_es,
       text_pt: req.body.text_pt,
-      date: new Date()
+      date: req.body.date
     }
 
     // add the event to the project
@@ -76,22 +76,13 @@ exports.createEvent = async (req, res) => {
 
 exports.deleteEvent = async (req, res) => {
   try {
-    // check if the user is an admin or the author of the project
-    await ProjectHelper.canEdit(req.user, req.params.id)
-
     // first, get the project
     const projectId = req.params.projectId;
     const eventId = req.params.eventId;
     const project = await Project.findById(projectId);
 
-    // TODO A middleware already handles this, so we can remove this check
-    // if the project doesn't exists, return 404
-    if(!project){
-      return res.status(404).json({ message: req.__('project.error.notFound') });
-    }
-
     // remove the event
-    project.events.id(eventId).remove();
+    project.events.id(eventId).deleteOne();
 
     // save the project
     await project.save()

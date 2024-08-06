@@ -24,7 +24,7 @@ router.get('/',
 	[
 		oneOf([param('projectId').isMongoId(),param('projectId').isSlug()], {message: 'validationError.projectId'}),
 		query('page').optional().isInt({min: 1}).withMessage('validationError.page'),
-		query('limit').optional().isInt({min: 1, max: 25}).withMessage('validationError.limit'),
+		query('limit').optional().isInt({min: 1, max: 100}).withMessage('validationError.limit'),
 	],
 	validate,
 	exists.project,
