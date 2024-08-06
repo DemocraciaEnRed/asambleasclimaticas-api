@@ -17,7 +17,6 @@ exports.canEdit = async (user, project) => {
     }
     if(!project) {
       throw new Error('ProjectHelper.canEdit: project is null');
-
     }
     // if user is admin
     if(user.role === 'admin') {

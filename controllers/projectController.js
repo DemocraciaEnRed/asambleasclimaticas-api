@@ -465,6 +465,9 @@ exports.getProjectStats = async (req, res) => {
     const projectId = req.project._id;
     const resData = await ProjectHelper.getProjectCurrentStats(projectId);
     resData._id = projectId;
+    const project = await Project.findById(projectId);
+    resData.versionsStats = project.versionsStats;
+    console.log(resData)
     return res.status(200).json(resData);
   } catch (error) {
     console.error(error);
