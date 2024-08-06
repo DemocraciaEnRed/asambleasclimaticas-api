@@ -413,4 +413,12 @@ ProjectSchema.methods.getArticleCommentsCount = async function() {
   });
 }
 
+ProjectSchema.methods.getArticleLikesCount = async function() {
+  // const articles = await Article.find({project: this._id, _id: {$in: this.articles}});
+  // const articleIds = articles.map(article => article._id);
+  // return await Like.countDocuments({project: this._id, article: {$in: articleIds}, type: 'like'});
+  return await Like.countDocuments({project: this._id, article: {$ne: null}, comment: null, reply: null, type: 'like'});
+}
+
+
 module.exports = mongoose.model('Project', ProjectSchema);
