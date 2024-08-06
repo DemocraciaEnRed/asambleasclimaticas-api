@@ -154,7 +154,8 @@ exports.update = async function (req, res) {
 
 		if(loggedUser.role != 'admin'){
 			// Make sure the passed id is that of the logged in user
-			if (userId !== loggedUser._id.toString()){
+			console.log(userId, loggedUser._id.toString())
+			if (userId.toString() !== loggedUser._id.toString()){
 				return res.status(401).json({ message: req.__('auth.error.forbidden') });
 			}
 		}
