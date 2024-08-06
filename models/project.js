@@ -229,7 +229,7 @@ ProjectSchema.virtual('published').get(function() {
 ProjectSchema.virtual('closed').get(function() {
   // if now is after endDate, project is closed
   if(this.closedAt === undefined) return false; // To check...
-  return Date.now() > this.endDate;
+  return Date.now() > this.closedAt;
 });
 
 ProjectSchema.virtual('versionsCount').get(function() {
