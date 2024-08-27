@@ -143,6 +143,7 @@
 		"youtubeUrl": "O ID do vídeo do YouTube não é válido",
 		"author": "O autor não é válido",
 		"articles": "O valor deve ser um array de objetos e não pode estar vazio",
-		"position": "A posição deve ser um número inteiro maior ou igual a 1"
+		"position": "A posição deve ser um número inteiro maior ou igual a 1",
+		"notInteractive":"o valor não interativo deve ser booleano"
 	}
 }

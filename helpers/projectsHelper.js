@@ -229,6 +229,7 @@ exports.getArticles = async (projectId, version = null, currentUserId = null) =>
         articleOutput._id = article._id
         articleOutput.text_es = article.text_es
         articleOutput.text_pt = article.text_pt
+        articleOutput.notInteractive = article.notInteractive
         articleOutput.position = article.position
         articleOutput.version = project.version
         articleOutput.likes = await article.getLikesCount()
@@ -259,6 +260,7 @@ exports.getArticles = async (projectId, version = null, currentUserId = null) =>
           // articleVersion was found in the versions array of the article, so we use that one
           articleOutput.text_es = articleVersion.text_es
           articleOutput.text_pt = articleVersion.text_pt
+          articleOutput.notInteractive = article.notInteractive
           // articleOutput.version = projectVersion.version
           articleOutput.version = articleVersion.version
           articleOutput.position = articleVersion.position
@@ -269,6 +271,7 @@ exports.getArticles = async (projectId, version = null, currentUserId = null) =>
           // if the articleVersion is null, then we need to get the article from the current article (which we can assume its the last version)
           articleOutput.text_es = article.text_es
           articleOutput.text_pt = article.text_pt
+          articleOutput.notInteractive = article.notInteractive
           articleOutput.version = version
           articleOutput.position = article.position
           articleOutput.createdAt = article.createdAt

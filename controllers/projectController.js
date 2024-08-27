@@ -107,6 +107,7 @@ exports.createProject = async (req, res) => {
         project: project._id,
         text_es: articles[i].text_es,
         text_pt: articles[i].text_pt,
+        notInteractive: articles[i].notInteractive,
         position: i + 1,
       }
       const article = await Article.create(articleData);
@@ -168,7 +169,6 @@ exports.updateProject = async (req, res) => {
       // if an _id is not found, then the article was deleted
       const articles = req.body.articles;
       const articlesIds = [];
-
       let position = 1;
       for(let i = 0; i < articles.length; i++) {
         // if the article has an _id, it is an existing article
@@ -185,6 +185,7 @@ exports.updateProject = async (req, res) => {
           // if the article is not deleted, then update it
           article.text_es = articles[i].text_es;
           article.text_pt = articles[i].text_pt;
+          article.notInteractive = articles[i].notInteractive,
           article.position = position;
           // save the existing article
           await article.save();
@@ -199,6 +200,7 @@ exports.updateProject = async (req, res) => {
               project: project._id,
               text_es: articles[i].text_es,
               text_pt: articles[i].text_pt,
+              notInteractive: articles[i].notInteractive,
               position: position,
             }
             
@@ -347,6 +349,7 @@ exports.createVersion = async (req, res) => {
         const previousVersion = {
           text_es: article.text_es,
           text_pt: article.text_pt,
+          notInteractive: articles[i].notInteractive,
           position: article.position,
           version: project.version
         }
@@ -366,6 +369,7 @@ exports.createVersion = async (req, res) => {
 
         article.text_es = articles[i].text_es;
         article.text_pt = articles[i].text_pt;
+        article.notInteractive = articles[i].notInteractive,
         article.position = position;
         // save the existing article with its new version stored.
         await article.save();
@@ -378,6 +382,7 @@ exports.createVersion = async (req, res) => {
           project: project._id,
           text_es: articles[i].text_es,
           text_pt: articles[i].text_pt,
+          notInteractive: articles[i].notInteractive,
           position: position,
         }
         // create the article

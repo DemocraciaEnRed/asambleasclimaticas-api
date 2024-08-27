@@ -116,6 +116,10 @@ const ArticleSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  notInteractive:{
+    type: Boolean,
+    default:false
+  },
   versions: [ArticleVersionSchema],
   versionsStats: [ArticleVersionStatsSchema],
 }, {timestamps: true});

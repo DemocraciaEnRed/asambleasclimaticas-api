@@ -68,6 +68,7 @@ router.post('/',
 		body('articles.*.position').isInt({min: 1}).withMessage('validationError.position'),
 		body('articles.*.text_es').isString().withMessage('validationError.text_es'),
 		body('articles.*.text_pt').isString().withMessage('validationError.text_pt'),
+		body('articles.*.notInteractive').isBoolean().withMessage('validationError.notInteractive'),
 	],
 	validate, // validates the array of checks above
 	ProjectController.createProject
